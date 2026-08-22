@@ -1,0 +1,41 @@
+# Despliegue en Netlify.
+#
+# La versión de Node no se fija aquí: Netlify lee `.nvmrc`, que es la misma fuente que usa
+# el desarrollo local. Una sola versión declarada en un solo sitio. Astro 7 exige Node
+# 22.12 o superior, así que si alguien baja ese número el build falla en Netlify sin una
+# causa evidente en el log.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Las cabeceras de caché importan más de lo normal en este proyecto: el público está en 3G,
+# y una segunda visita que no vuelve a descargar las fuentes es la diferencia entre abrir
+# en un segundo o en cinco.
+
+[[headers]]
+  # Recursos con hash en el nombre: cambian de nombre al cambiar de contenido, así que
+  # pueden cachearse para siempre sin riesgo de servir algo viejo.
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  # Las fuentes NO llevan hash en el nombre (`charis-sil-400.woff2`), pero se cachean igual
+  # de fuerte porque cambian casi nunca. La contrapartida: si algún día se regenera el
+  # subconjunto con más caracteres, hay que **renombrar el archivo**, no solo reemplazarlo,
+  # o los navegadores que ya lo tengan seguirán con la versión antigua durante un año.
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  # El HTML se revalida siempre, para que una publicación nueva se vea de inmediato.
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
