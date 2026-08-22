@@ -1,0 +1,354 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+/*
+ * Página de verificación tipográfica. Cero JavaScript: todo lo que se ve aquí es HTML
+ * generado en tiempo de compilación.
+ *
+ * Sin JS no se puede detectar la sustitución de glifos por código, así que la prueba es
+ * visual: se pone la misma cadena con Charis SIL y con fuentes que no tienen U+1E8D, una
+ * debajo de otra. Si en la fila de contraste la ẍ salta a otro tipo en medio de la
+ * palabra, eso es exactamente el fallo que Charis SIL evita.
+ *
+ * Los puntos de código de las etiquetas se calculan a partir de las cadenas reales, no se
+ * escriben a mano: una etiqueta equivocada haría la página inútil como diagnóstico.
+ */
+
+// Cadena de aceptación de CLAUDE.md, con el apóstrofo canónico U+2019. Es la forma en
+// que el backend normaliza y guarda todo el Mam, y por tanto la que verá el usuario.
+const CADENA_CANONICA = 'Ẍiky kyiẍ i’ẍ napẍ q’aq’ tx’otx’';
+
+// La misma cadena con el apóstrofo recto U+0027: lo que se teclea y lo que traen los PDF
+// de origen. El normalizador lo convierte a U+2019 antes de guardar, así que no debería
+// llegar nunca al sitio. Se muestra solo para poder distinguirlos a simple vista.
+const CADENA_TECLEADA = CADENA_CANONICA.replaceAll('’', "'");
+
+// ẍ escrita de las dos maneras posibles. Deben verse idénticas.
+const EQUIS_NFC = 'ẍ';
+const EQUIS_NFD = 'ẍ';
+
+const TAMANOS = [12, 14, 16, 18, 21, 28, 36, 48, 64];
+
+const PESOS = [
+  { valor: 400, nombre: 'Regular 400' },
+  { valor: 700, nombre: 'Bold 700' },
+];
+
+// Los 32 grafemas en orden de intercalación.
+// Fuente: backend-aprende-mam/.claude/rules/ortografia-mam.md
+const ALFABETO = [
+  'a', 'b’', 'ch', 'ch’', 'e', 'i', 'j', 'k',
+  'k’', 'ky', 'ky’', 'l', 'm', 'n', 'o', 'p',
+  'q', 'q’', 'r', 's', 't', 't’', 'tx', 'tx’',
+  'tz', 'tz’', 'u', 'w', 'x', 'ẍ', 'y', '’',
+];
+
+const puntos = (texto) =>
+  [...texto]
+    .map((c) => 'U+' + c.codePointAt(0).toString(16).toUpperCase().padStart(4, '0'))
+    .join(' ');
+
+const FALLBACKS = [
+  { etiqueta: 'Charis SIL (autoalojada)', css: "'Charis SIL', serif", correcta: true },
+  { etiqueta: 'sans-serif del sistema', css: 'sans-serif', correcta: false },
+  { etiqueta: 'serif del sistema', css: 'serif', correcta: false },
+  { etiqueta: 'Georgia', css: 'Georgia, serif', correcta: false },
+  { etiqueta: 'Arial', css: 'Arial, sans-serif', correcta: false },
+];
+
+const APOSTROFOS = [
+  {
+    texto: 'q’aq’',
+    nombre: 'U+2019 · comilla simple derecha',
+    nota: 'Canónico del proyecto. Es el que produce el backend y el único que debe verse en el sitio.',
+  },
+  {
+    texto: "q'aq'",
+    nombre: 'U+0027 · apóstrofo recto',
+    nota: 'Lo que se teclea y lo que traen los PDF. El normalizador lo convierte a U+2019 al guardar.',
+  },
+  {
+    texto: 'qʼaqʼ',
+    nombre: 'U+02BC · letra modificadora',
+    nota: 'Aparece en algunos materiales de origen. También se convierte a U+2019.',
+  },
+];
+
+// Vectores de ordenamiento del archivo de reglas del backend.
+const ORDENAMIENTO = {
+  entrada: ['chmol', 'b’aq', 'tz’is', 'jal', 'ch’el', 'kyaje', 'tzaj', 'k’um', 'ẍiky', 'xaq'],
+  esperado: ['b’aq', 'chmol', 'ch’el', 'jal', 'k’um', 'kyaje', 'tzaj', 'tz’is', 'xaq', 'ẍiky'],
+};
+
+const TOKENIZACION = [
+  { palabra: 'tz’is', grafemas: ['tz’', 'i', 's'] },
+  { palabra: 'tx’otx’', grafemas: ['tx’', 'o', 'tx’'] },
+  { palabra: 'q’aq’', grafemas: ['q’', 'a', 'q’'] },
+  { palabra: 'kyiẍ', grafemas: ['ky', 'i', 'ẍ'] },
+  { palabra: 'jwe’', grafemas: ['j', 'w', 'e', '’'] },
+  { palabra: 'pa’ch', grafemas: ['p', 'a', '’', 'ch'] },
+];
+---
+
+<BaseLayout
+  titulo="Prueba tipográfica"
+  descripcion="Verificación de que Charis SIL dibuja correctamente la letra ẍ del Mam en todos los tamaños y pesos."
+>
+  <h1 class="text-3xl">Prueba tipográfica</h1>
+
+  <p class="mt-4 text-tinta-suave">
+    Verifica que <strong>Charis SIL</strong> dibuja la letra <span lang="mam">ẍ</span> (U+1E8D)
+    con sus propios trazos, sin que el navegador la sustituya por el glifo de otra fuente.
+  </p>
+
+  <div class="mt-6 rounded-lg border border-jade bg-papel-hondo p-5">
+    <p class="font-bold">Qué mirar</p>
+    <ol class="mt-3 list-decimal space-y-2 pl-5 text-tinta-suave">
+      <li>
+        En <em>Contraste</em>, la <span lang="mam">ẍ</span> de las filas incorrectas se ve con
+        otro tipo de letra en medio de la palabra: distinto grosor, distinta anchura, diéresis
+        a otra altura. Ese es el fallo que hay que evitar.
+      </li>
+      <li>
+        En Charis SIL debe verse como una <em>x</em> del mismo trazo que las letras vecinas,
+        con dos puntos encima bien centrados.
+      </li>
+      <li>En <em>Composición</em>, las dos formas de escribir la letra deben verse idénticas.</li>
+    </ol>
+  </div>
+
+  <!-- 1. Contraste -->
+  <section class="mt-12">
+    <h2 class="text-2xl">1. Contraste</h2>
+    <p class="mt-2 text-tinta-suave">
+      La misma cadena con distintas fuentes. Solo la primera fila es la del sitio; las demás
+      están forzadas a propósito para mostrar el fallo.
+    </p>
+
+    <div class="mt-5 space-y-4">
+      {
+        FALLBACKS.map(({ etiqueta, css, correcta }) => (
+          <div
+            class:list={[
+              'overflow-x-auto rounded-lg border p-4',
+              correcta ? 'border-jade bg-papel-hondo' : 'border-borde',
+            ]}
+          >
+            <p class:list={['text-sm', correcta ? 'font-bold text-jade-hondo' : 'text-alerta']}>
+              {etiqueta}
+              {correcta ? ' — correcta' : ' — sin U+1E8D'}
+            </p>
+            <p lang="mam" class="mt-2 whitespace-nowrap text-4xl" style={`font-family: ${css}`}>
+              {CADENA_CANONICA}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- 2. Tamaños y pesos -->
+  <section class="mt-12">
+    <h2 class="text-2xl">2. Tamaños y pesos</h2>
+    <p class="mt-2 text-tinta-suave">
+      Cadena de aceptación en Charis SIL, de 12 a 64 px, en los dos pesos que el sitio
+      autoaloja.
+    </p>
+
+    {
+      PESOS.map(({ valor, nombre }) => (
+        <div class="mt-8">
+          <h3 class="border-b border-borde pb-2 text-lg">{nombre}</h3>
+          <div class="mt-4 space-y-3">
+            {TAMANOS.map((px) => (
+              <div class="flex items-baseline gap-4 overflow-x-auto">
+                <span class="w-12 shrink-0 text-right text-xs text-tinta-suave">{px}px</span>
+                <span
+                  lang="mam"
+                  class="whitespace-nowrap"
+                  style={`font-size: ${px}px; font-weight: ${valor}`}
+                >
+                  {CADENA_CANONICA}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+
+    <div class="mt-8 rounded-lg border border-borde p-4">
+      <p class="text-sm text-tinta-suave">
+        Con apóstrofo canónico U+2019, como lo guarda el backend y como aparece en{' '}
+        <code>CLAUDE.md</code>
+      </p>
+      <p lang="mam" class="mt-1 overflow-x-auto whitespace-nowrap text-3xl">{CADENA_CANONICA}</p>
+      <p class="mt-4 text-sm text-tinta-suave">
+        Con apóstrofo recto U+0027, que es lo que se teclea. No debería llegar nunca al sitio.
+      </p>
+      <p lang="mam" class="mt-1 overflow-x-auto whitespace-nowrap text-3xl">{CADENA_TECLEADA}</p>
+    </div>
+  </section>
+
+  <!-- 3. Alfabeto -->
+  <section class="mt-12">
+    <h2 class="text-2xl">3. Los 32 grafemas</h2>
+    <p class="mt-2 text-tinta-suave">
+      En orden de intercalación. Los dígrafos y las glotalizadas son <strong
+        >una sola letra</strong
+      >, no una secuencia de dos. El saltillo ocupa la posición 32.
+    </p>
+
+    <ol class="mt-5 grid grid-cols-4 gap-2 sm:grid-cols-6">
+      {
+        ALFABETO.map((grafema, i) => (
+          <li class="rounded border border-borde p-2 text-center">
+            <span class="block text-xs text-tinta-suave">{String(i + 1).padStart(2, '0')}</span>
+            <span lang="mam" class="block py-1 text-3xl">{grafema}</span>
+            <span class="block text-[10px] leading-tight break-all text-tinta-suave">
+              {puntos(grafema)}
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <!-- 4. Composición -->
+  <section class="mt-12">
+    <h2 class="text-2xl">4. Composición de la diéresis</h2>
+    <p class="mt-2 text-tinta-suave">
+      Las dos formas de codificar <span lang="mam">ẍ</span> deben verse idénticas. Si en la
+      segunda los puntos salen descolocados o de otro tamaño, el recorte de la fuente perdió
+      las tablas de posicionamiento de marcas (<code>ccmp</code>, <code>mark</code>).
+    </p>
+
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+      <div class="rounded-lg border border-borde p-4 text-center">
+        <p class="text-sm text-tinta-suave">Precompuesta (NFC)</p>
+        <p lang="mam" class="py-2 text-6xl">{EQUIS_NFC}</p>
+        <p lang="mam" class="pb-2 text-6xl font-bold">{EQUIS_NFC}</p>
+        <code class="text-xs text-tinta-suave">{puntos(EQUIS_NFC)}</code>
+      </div>
+      <div class="rounded-lg border border-borde p-4 text-center">
+        <p class="text-sm text-tinta-suave">Descompuesta (NFD)</p>
+        <p lang="mam" class="py-2 text-6xl">{EQUIS_NFD}</p>
+        <p lang="mam" class="pb-2 text-6xl font-bold">{EQUIS_NFD}</p>
+        <code class="text-xs text-tinta-suave">{puntos(EQUIS_NFD)}</code>
+      </div>
+    </div>
+
+    <div class="mt-4 overflow-x-auto rounded-lg border border-borde p-4">
+      <p class="text-sm text-tinta-suave">En palabra completa, NFC arriba y NFD abajo</p>
+      <p lang="mam" class="mt-2 whitespace-nowrap text-4xl">kyi{EQUIS_NFC} · {EQUIS_NFC}iky</p>
+      <p lang="mam" class="mt-1 whitespace-nowrap text-4xl">kyi{EQUIS_NFD} · {EQUIS_NFD}iky</p>
+    </div>
+  </section>
+
+  <!-- 5. Apóstrofos -->
+  <section class="mt-12">
+    <h2 class="text-2xl">5. Apóstrofos</h2>
+    <p class="mt-2 text-tinta-suave">
+      Los tres caracteres que aparecen en los materiales de origen. El sitio solo debe mostrar
+      el primero.
+    </p>
+
+    <div class="mt-5 space-y-3">
+      {
+        APOSTROFOS.map(({ texto, nombre, nota }) => (
+          <div class="rounded-lg border border-borde p-4">
+            <p lang="mam" class="text-4xl">{texto}</p>
+            <p class="mt-2 text-sm font-bold">{nombre}</p>
+            <p class="text-sm text-tinta-suave">{nota}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- 6. Corrupción de origen -->
+  <section class="mt-12">
+    <h2 class="text-2xl">6. La corrupción õ</h2>
+    <p class="mt-2 text-tinta-suave">
+      Los PDF de referencia se tipografiaron con fuentes anteriores a Unicode, donde el glifo
+      de <span lang="mam">ẍ</span> ocupaba la posición de <code>õ</code>. La <code>õ</code> no
+      existe en el alfabeto Mam: toda aparición es un error de origen.
+    </p>
+
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+      <div class="rounded-lg border border-alerta p-4 text-center">
+        <p class="text-sm text-alerta">Corrupta — no debe aparecer nunca</p>
+        <p class="py-2 text-5xl">õiky</p>
+        <code class="text-xs text-tinta-suave">U+00F5</code>
+      </div>
+      <div class="rounded-lg border border-jade bg-papel-hondo p-4 text-center">
+        <p class="text-sm text-jade-hondo">Correcta</p>
+        <p lang="mam" class="py-2 text-5xl">{EQUIS_NFC}iky</p>
+        <code class="text-xs text-tinta-suave">U+1E8D</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Grafemas en palabras reales -->
+  <section class="mt-12">
+    <h2 class="text-2xl">7. Grafemas en palabras reales</h2>
+    <p class="mt-2 text-tinta-suave">
+      Vectores de prueba del backend, renderizados para ver los grafemas en contexto.
+    </p>
+
+    <ul class="mt-5 space-y-2">
+      {
+        TOKENIZACION.map(({ palabra, grafemas }) => (
+          <li class="flex flex-wrap items-center gap-3 rounded-lg border border-borde p-3">
+            <span lang="mam" class="w-28 text-2xl">{palabra}</span>
+            <span class="text-tinta-suave">→</span>
+            <span class="flex flex-wrap gap-1">
+              {grafemas.map((g) => (
+                <span lang="mam" class="rounded bg-papel-hondo px-2 py-1 text-lg">{g}</span>
+              ))}
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <h3 class="mt-8 text-lg">Orden alfabético del Mam</h3>
+    <p class="mt-2 text-sm text-tinta-suave">
+      Nótese que <span lang="mam">chmol</span> va antes que <span lang="mam">ch’el</span>, y{' '}
+      <span lang="mam">xaq</span> antes que <span lang="mam">ẍiky</span>. En castellano el orden
+      sería distinto.
+    </p>
+    <div class="mt-3 grid gap-4 sm:grid-cols-2">
+      <div class="rounded-lg border border-borde p-4">
+        <p class="text-sm text-tinta-suave">Entrada</p>
+        <p lang="mam" class="mt-1 text-lg">{ORDENAMIENTO.entrada.join(', ')}</p>
+      </div>
+      <div class="rounded-lg border border-jade bg-papel-hondo p-4">
+        <p class="text-sm text-jade-hondo">Orden correcto</p>
+        <p lang="mam" class="mt-1 text-lg">{ORDENAMIENTO.esperado.join(', ')}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Castellano -->
+  <section class="mt-12">
+    <h2 class="text-2xl">8. Castellano</h2>
+    <p class="mt-2 text-tinta-suave">
+      El recorte de la fuente no debe haber dejado fuera ningún diacrítico ni signo del
+      castellano. Si algo aquí se ve con otro tipo de letra, falta en el subset.
+    </p>
+
+    <div class="mt-5 space-y-3 rounded-lg border border-borde p-4">
+      <p class="text-2xl">¿Cómo estás? ¡Niño, güipil, Xela!</p>
+      <p class="text-2xl">áéíóú ÁÉÍÓÚ üÜ ñÑ ¿¡</p>
+      <p class="text-2xl">«Comillas», “tipográficas”, ‘simples’ — guiones – y puntos…</p>
+      <p class="text-2xl">0123456789 · 100 % · 12 °C</p>
+    </div>
+  </section>
+
+  <p class="mt-12 border-t border-borde pt-6 text-sm text-tinta-suave">
+    Esta página no ejecuta JavaScript. Todo lo que se ve es HTML generado en tiempo de
+    compilación, y las únicas peticiones de red aparte del documento son la hoja de estilos y
+    las dos variantes de Charis SIL.
+  </p>
+</BaseLayout>

@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlaceholderSection from '../../components/PlaceholderSection.astro';
+---
+
+<BaseLayout
+  titulo="Juegos"
+  descripcion="Actividades para practicar vocabulario Mam, tres de ellas funcionan sin conexión."
+>
+  <PlaceholderSection
+    titulo="Juegos"
+    resumen="Actividades para practicar el vocabulario aprendido."
+    pendiente={[
+      'Tres juegos propios que funcionan sin conexión.',
+      'Actividades externas (Educaplay, Wordwall) dentro de un contenedor.',
+      'Sin conexión, el contenedor externo muestra un aviso con enlace a un juego propio equivalente, nunca un marco vacío.',
+    ]}
+  />
+</BaseLayout>

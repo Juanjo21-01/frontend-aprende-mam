@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlaceholderSection from '../../components/PlaceholderSection.astro';
+---
+
+<BaseLayout
+  titulo="Gramática"
+  descripcion="Alfabeto, ortografía y estructura del idioma Mam explicados para primaria y básicos."
+>
+  <PlaceholderSection
+    titulo="Gramática"
+    resumen="El alfabeto de 32 grafemas, la ortografía y la estructura básica del idioma."
+    pendiente={[
+      'El alfabeto completo con dígrafos y glotalizadas.',
+      'La regla del apóstrofo: glotalizada tras consonante, saltillo tras vocal.',
+      'Pronombres, numerales y estructura de la oración.',
+      'Todo en HTML estático, sin JavaScript.',
+    ]}
+  />
+</BaseLayout>

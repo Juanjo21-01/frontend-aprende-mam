@@ -1,0 +1,17 @@
+---
+import MainNav from './MainNav.astro';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<header class="border-b border-borde bg-papel-hondo">
+  <div class="mx-auto flex max-w-3xl flex-col gap-3 px-5 py-4">
+    <a href={base} class="text-2xl font-bold text-jade-hondo no-underline">
+      Aprende<span class="text-tinta">Mam</span>
+    </a>
+    <p class="text-sm text-tinta-suave">
+      Biblioteca digital del idioma <span lang="mam">Mam</span> — San Marcos, Guatemala
+    </p>
+    <MainNav />
+  </div>
+</header>

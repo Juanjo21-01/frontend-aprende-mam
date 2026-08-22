@@ -1,0 +1,29 @@
+---
+const base = import.meta.env.BASE_URL;
+const anio = new Date().getFullYear();
+---
+
+<footer class="border-t border-borde bg-papel-hondo">
+  <div
+    class="mx-auto flex max-w-3xl flex-col gap-3 px-5 py-6 text-sm text-tinta-suave"
+  >
+    <p>
+      Contenido tomado de materiales de MINEDUC, DIGEBI y la Academia de Lenguas Mayas de
+      Guatemala (ALMG). Cada entrada conserva su fuente bibliográfica.
+    </p>
+    <p>
+      Tipografía <a
+        href="https://software.sil.org/charis/"
+        class="underline underline-offset-2">Charis SIL</a
+      >, de SIL International, bajo licencia OFL. Se distribuye una versión recortada; la
+      licencia acompaña a los archivos en <code>/fonts/OFL.txt</code>.
+    </p>
+    <p class="flex flex-wrap gap-x-4 gap-y-1">
+      <span>© {anio} AprendeMam</span>
+      <a href={`${base}base-legal`} class="underline underline-offset-2">Base legal</a>
+      <a href={`${base}prueba-tipografica`} class="underline underline-offset-2">
+        Prueba tipográfica
+      </a>
+    </p>
+  </div>
+</footer>

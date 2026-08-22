@@ -1,0 +1,64 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+interface Props {
+  titulo: string;
+  descripcion: string;
+}
+
+const { titulo, descripcion } = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+const canonica = new URL(Astro.url.pathname, Astro.site);
+
+// Ambas variantes se preacargan en paralelo. En 3G el cuello de botella es la latencia,
+// no el ancho de banda: descubrir la negrita a mitad del render cuesta un viaje completo
+// de ida y vuelta, y los títulos aparecerían con la fuente del sistema.
+const fuentes = [`${base}fonts/charis-sil-400.woff2`, `${base}fonts/charis-sil-700.woff2`];
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+
+    <title>{titulo} · AprendeMam</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={canonica} />
+
+    {
+      fuentes.map((href) => (
+        <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
+      ))
+    }
+
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <meta name="theme-color" content="#0f6f63" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={`${titulo} · AprendeMam`} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:locale" content="es_GT" />
+  </head>
+
+  <body class="flex min-h-dvh flex-col bg-papel text-tinta">
+    <a
+      href="#contenido"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-jade focus:px-4 focus:py-2 focus:text-papel"
+    >
+      Saltar al contenido
+    </a>
+
+    <SiteHeader />
+
+    <main id="contenido" class="mx-auto w-full max-w-3xl flex-1 px-5 py-10">
+      <slot />
+    </main>
+
+    <SiteFooter />
+  </body>
+</html>

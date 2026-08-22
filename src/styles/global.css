@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+
+/*
+ * Charis SIL, recortada a los caracteres que el sitio usa (ver scripts/subset-fonts.mjs).
+ * Es la única fuente del sitio, no solo la del Mam: mezclar tipografías obligaría a
+ * cargar dos familias y el presupuesto no da.
+ *
+ * `swap` deja ver el texto desde el primer instante con la fuente del sistema. Durante
+ * los ~700 ms que tarda en 3G, el Mam se ve con otros trazos; a cambio nunca hay pantalla
+ * en blanco. Ambas variantes van con preload en BaseLayout.astro.
+ */
+@font-face {
+  font-family: 'Charis SIL';
+  src: url('/fonts/charis-sil-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Charis SIL';
+  src: url('/fonts/charis-sil-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-mam: 'Charis SIL', 'Gentium Plus', Georgia, 'Times New Roman', serif;
+
+  /* Paleta corta a propósito: cada tono extra es CSS que viaja por 3G. */
+  --color-papel: #fdfcf9;
+  --color-papel-hondo: #f5f2ec;
+  --color-tinta: #1f1c19;
+  --color-tinta-suave: #57504a;
+  --color-borde: #e0dad0;
+  --color-jade: #0f6f63;
+  --color-jade-hondo: #0a4f47;
+  --color-alerta: #9a3412;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-mam);
+    color: var(--color-tinta);
+    background-color: var(--color-papel);
+    /*
+     * Con 400 y 700 reales cargados, sintetizar pesos solo puede empeorar las cosas:
+     * un falso 900 engorda el trazo por deformación y la diéresis de ẍ se emborrona.
+     */
+    font-synthesis-weight: none;
+  }
+
+  body {
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    font-weight: 700;
+  }
+
+  /* Foco visible para navegación con teclado. Sin JavaScript, el teclado es la única
+     ayuda de accesibilidad que podemos controlar. */
+  :focus-visible {
+    outline: 2px solid var(--color-jade);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /*
+   * Texto en Mam. Se usa junto a lang="mam" en el marcado.
+   * Nunca transformar este texto en CSS: `text-transform: uppercase` sobre Mam es una
+   * fuente de errores ortográficos silenciosos, porque los dígrafos y las glotalizadas
+   * no se mayusculizan letra por letra.
+   */
+  .mam {
+    font-family: var(--font-mam);
+    font-variant-ligatures: none;
+  }
+}

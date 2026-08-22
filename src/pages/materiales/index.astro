@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlaceholderSection from '../../components/PlaceholderSection.astro';
+---
+
+<BaseLayout
+  titulo="Materiales"
+  descripcion="Guías didácticas, fichas de trabajo, cuadernillos y audios descargables para trabajar el idioma Mam en el aula."
+>
+  <PlaceholderSection
+    titulo="Material didáctico"
+    resumen="Recursos que el docente puede descargar, guardar e imprimir para trabajar en el aula, con o sin conexión."
+    pendiente={[
+      'Guías didácticas, fichas de trabajo, cuadernillos de ejercicios e infografías en PDF.',
+      'Audiocuentos, canciones tradicionales y lecturas en MP3 para usar en clase.',
+      'Cada documento con su fuente bibliográfica y su licencia de uso.',
+      'Descarga bajo demanda: ni los PDF ni los audios largos se precachean, los baja quien los necesita.',
+    ]}
+  />
+</BaseLayout>

@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlaceholderSection from '../../components/PlaceholderSection.astro';
+---
+
+<BaseLayout
+  titulo="Diccionario"
+  descripcion="Diccionario Mam–castellano de la variante de San Marcos, con búsqueda que funciona sin conexión."
+>
+  <PlaceholderSection
+    titulo="Diccionario"
+    resumen="Vocabulario Mam–castellano de la variante de San Marcos, con su fuente bibliográfica."
+    pendiente={[
+      'Búsqueda en el navegador sobre el vocabulario completo, sin llamadas a la API.',
+      'Listado por categoría y orden alfabético del Mam (campo orden_alfabetico).',
+      'Audio de pronunciación agrupado por categoría en un solo archivo.',
+      'Descarga por lección para consultarla sin conexión.',
+    ]}
+  />
+</BaseLayout>

@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const secciones = [
+  {
+    href: 'diccionario',
+    titulo: 'Diccionario',
+    texto: 'Vocabulario Mam–castellano con su fuente bibliográfica.',
+  },
+  {
+    href: 'gramatica',
+    titulo: 'Gramática',
+    texto: 'El alfabeto de 32 grafemas, la ortografía y la estructura del idioma.',
+  },
+  {
+    href: 'cultura',
+    titulo: 'Cultura',
+    texto: 'Calendario, tradiciones y relatos del pueblo Mam de San Marcos.',
+  },
+  {
+    href: 'materiales',
+    titulo: 'Materiales',
+    texto: 'Guías, fichas y cuadernillos descargables para el aula.',
+  },
+  {
+    href: 'juegos',
+    titulo: 'Juegos',
+    texto: 'Actividades para practicar lo aprendido.',
+  },
+];
+---
+
+<BaseLayout
+  titulo="Inicio"
+  descripcion="Biblioteca digital del idioma maya Mam, variante de San Marcos, Guatemala. Funciona sin conexión."
+>
+  <h1 class="text-4xl">Ẍiky, kyiẍ, tx'otx'</h1>
+
+  <p class="mt-4 text-lg text-tinta-suave">
+    Biblioteca digital del idioma maya <span lang="mam">Mam</span>, variante de San Marcos,
+    Guatemala. Pensada para funcionar en teléfonos de gama baja, con 3G o sin señal.
+  </p>
+
+  <ul class="mt-10 grid gap-4 sm:grid-cols-2">
+    {
+      secciones.map(({ href, titulo, texto }) => (
+        <li class="rounded-lg border border-borde p-5">
+          <a href={`${base}${href}`} class="text-xl font-bold text-jade-hondo underline-offset-4 hover:underline">
+            {titulo}
+          </a>
+          <p class="mt-2 text-tinta-suave">{texto}</p>
+        </li>
+      ))
+    }
+  </ul>
+
+  <section class="mt-12 rounded-lg border border-borde bg-papel-hondo p-5">
+    <h2 class="text-xl">Estado del proyecto</h2>
+    <p class="mt-3 text-tinta-suave">
+      Esta es la primera fase: la estructura del sitio y la tipografía. Las secciones
+      todavía no tienen contenido. La página de{' '}
+      <a href={`${base}prueba-tipografica`} class="underline underline-offset-2">
+        prueba tipográfica
+      </a>{' '}
+      sirve para verificar que la letra <span lang="mam">ẍ</span> se dibuja con los trazos de
+      Charis SIL y no con los de una fuente sustituta.
+    </p>
+  </section>
+</BaseLayout>

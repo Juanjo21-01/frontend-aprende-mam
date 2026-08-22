@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlaceholderSection from '../../components/PlaceholderSection.astro';
+---
+
+<BaseLayout
+  titulo="Base legal"
+  descripcion="Marco normativo de la educación bilingüe intercultural en Guatemala y condiciones de uso del contenido de AprendeMam."
+>
+  <PlaceholderSection
+    titulo="Base legal"
+    resumen="El marco normativo que respalda la enseñanza del idioma Mam en el sistema educativo guatemalteco, y las condiciones de uso del contenido de esta biblioteca."
+    pendiente={[
+      'Marco normativo de la educación bilingüe intercultural en Guatemala.',
+      'Papel de la Academia de Lenguas Mayas de Guatemala y de su Comunidad Lingüística Mam en la norma ortográfica que sigue el sitio.',
+      'Procedencia y licencia de cada material de MINEDUC, DIGEBI y ALMG incorporado.',
+      'Condiciones de uso del sitio y declaración de que no se recogen datos personales.',
+    ]}
+  />
+</BaseLayout>
