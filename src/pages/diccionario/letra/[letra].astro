@@ -1,0 +1,89 @@
+---
+/**
+ * Las palabras que empiezan por un grafema.
+ *
+ * Solo se genera página para las letras que tienen entradas: una ruta vacía en `dist/` es peso
+ * muerto en el despliegue y una promesa rota para quien llega desde un buscador. El alfabeto
+ * completo sigue viéndose en la navegación, con las letras sin palabras apagadas.
+ *
+ * Partir el diccionario por letra no es decoración: el corpus completo son unas seis mil
+ * entradas y en una sola página serían cientos de kilobytes de HTML para un teléfono en 3G.
+ * Repartidas en 32 grupos, cada página se queda dentro del presupuesto.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import NavAlfabeto from '../../../components/NavAlfabeto.astro';
+import EntradaFicha from '../../../components/EntradaFicha.astro';
+import PieDeFuentes from '../../../components/PieDeFuentes.astro';
+import {
+  cargarVocabulario,
+  fuentesCitadas,
+  indiceDeFuente,
+  porLetra,
+  type Categoria,
+  type Entrada,
+  type GrupoAlfabetico,
+} from '../../../data/vocabulario';
+
+export async function getStaticPaths() {
+  const vocabulario = await cargarVocabulario();
+  const grupos = porLetra(vocabulario.entradas);
+
+  return grupos
+    .filter((grupo) => grupo.entradas.length > 0)
+    .map((grupo) => ({
+      params: { letra: grupo.slug },
+      props: { grupo, grupos, categorias: vocabulario.categorias },
+    }));
+}
+
+interface Props {
+  grupo: GrupoAlfabetico;
+  grupos: GrupoAlfabetico[];
+  categorias: Categoria[];
+}
+
+const { grupo, grupos, categorias } = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+
+const nombresDeTema = new Map(categorias.map((categoria) => [categoria.slug, categoria.nombre_es]));
+const fuentes = fuentesCitadas(grupo.entradas);
+
+const cuantas = grupo.entradas.length;
+---
+
+<BaseLayout
+  titulo={`Palabras con ${grupo.grafema}`}
+  descripcion={`Palabras del diccionario Mam–castellano que empiezan con el grafema ${grupo.grafema}.`}
+>
+  <p class="text-sm text-tinta-suave">
+    <a href={`${base}diccionario`} class="underline underline-offset-2">Diccionario</a>
+  </p>
+
+  <h1 class="mt-2 text-3xl">
+    Palabras con <span lang="mam" class="mam">{grupo.grafema}</span>
+  </h1>
+
+  <p class="mt-2 text-tinta-suave">
+    {cuantas} palabra{cuantas === 1 ? '' : 's'}, en el orden del alfabeto{' '}
+    <span lang="mam">Mam</span> (posición {grupo.posicion} de 32).
+  </p>
+
+  <div class="mt-6">
+    <NavAlfabeto grupos={grupos} actual={grupo.grafema} />
+  </div>
+
+  <dl class="mt-8">
+    {
+      grupo.entradas.map((entrada: Entrada) => (
+        <EntradaFicha
+          entrada={entrada}
+          marca={indiceDeFuente(entrada, fuentes)}
+          nombresDeTema={nombresDeTema}
+        />
+      ))
+    }
+  </dl>
+
+  <PieDeFuentes fuentes={fuentes} />
+</BaseLayout>

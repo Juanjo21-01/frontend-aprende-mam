@@ -1,0 +1,102 @@
+---
+/**
+ * Las palabras de un tema.
+ *
+ * A diferencia de las páginas por letra, aquí sí se genera la ruta aunque el tema esté vacío:
+ * los temas son la unidad con la que trabaja el aula —«la lección de los colores»— y el enlace
+ * puede estar ya repartido en una guía impresa. Un tema sin palabras dice que todavía no hay
+ * nada revisado; un 404 diría que el sitio se rompió.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import EntradaFicha from '../../../components/EntradaFicha.astro';
+import PieDeFuentes from '../../../components/PieDeFuentes.astro';
+import {
+  cargarVocabulario,
+  fuentesCitadas,
+  indiceDeFuente,
+  porTema,
+  type Categoria,
+  type Entrada,
+} from '../../../data/vocabulario';
+
+export async function getStaticPaths() {
+  const vocabulario = await cargarVocabulario();
+
+  return porTema(vocabulario).map(({ categoria, entradas }) => ({
+    params: { slug: categoria.slug },
+    props: { categoria, entradas, categorias: vocabulario.categorias },
+  }));
+}
+
+interface Props {
+  categoria: Categoria;
+  entradas: Entrada[];
+  categorias: Categoria[];
+}
+
+const { categoria, entradas, categorias } = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+
+const nombresDeTema = new Map(categorias.map((otra) => [otra.slug, otra.nombre_es]));
+const fuentes = fuentesCitadas(entradas);
+
+const cuantas = entradas.length;
+---
+
+<BaseLayout
+  titulo={categoria.nombre_es}
+  descripcion={`Palabras de ${categoria.nombre_es.toLocaleLowerCase('es')} en Mam, variante de San Marcos, con su fuente bibliográfica.`}
+>
+  <p class="text-sm text-tinta-suave">
+    <a href={`${base}diccionario`} class="underline underline-offset-2">Diccionario</a>
+  </p>
+
+  <h1 class="mt-2 text-3xl">{categoria.nombre_es}</h1>
+
+  {
+    categoria.nombre_mam && (
+      <p class="mt-1 text-lg">
+        <span lang="mam" class="mam">{categoria.nombre_mam}</span>
+      </p>
+    )
+  }
+
+  {
+    cuantas === 0 ? (
+      <div class="mt-8 rounded-lg border border-borde bg-papel-hondo p-5">
+        <p class="font-bold">Este tema todavía no tiene palabras.</p>
+        <p class="mt-2 text-tinta-suave">
+          Solo se publica el vocabulario que el validador lingüístico ya revisó. En cuanto se
+          apruebe el primer lote de este tema aparecerá aquí.
+        </p>
+      </div>
+    ) : (
+      <p class="mt-2 text-tinta-suave">
+        {cuantas} palabra{cuantas === 1 ? '' : 's'}, en el orden del alfabeto{' '}
+        <span lang="mam">Mam</span>.
+      </p>
+    )
+  }
+
+  <dl class="mt-8">
+    {
+      entradas.map((entrada) => (
+        <EntradaFicha
+          entrada={entrada}
+          marca={indiceDeFuente(entrada, fuentes)}
+          nombresDeTema={nombresDeTema}
+          temaActual={categoria.slug}
+        />
+      ))
+    }
+  </dl>
+
+  <PieDeFuentes fuentes={fuentes} />
+
+  <p class="mt-10 text-sm text-tinta-suave">
+    <a href={`${base}diccionario`} class="underline underline-offset-2">
+      Ver todos los temas y el alfabeto completo
+    </a>
+  </p>
+</BaseLayout>

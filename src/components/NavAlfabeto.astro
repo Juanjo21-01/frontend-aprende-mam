@@ -1,0 +1,67 @@
+---
+/**
+ * El alfabeto Mam completo como navegación.
+ *
+ * Se muestran los 32 grafemas aunque muchos no tengan entradas todavía. Un alfabeto con
+ * huecos es información —«el Mam tiene `ky’` y aquí aún no hay nada con esa letra»— y además
+ * es una de las cosas que el sitio enseña: que el alfabeto no es el del castellano, que `ch`
+ * va antes que `ch’` y que el saltillo lo cierra.
+ *
+ * Las letras sin entradas van como texto y no como enlace muerto. Sin JavaScript, un enlace
+ * que lleva a una página vacía es peor que un rótulo apagado.
+ */
+import type { GrupoAlfabetico } from '../data/vocabulario';
+
+interface Props {
+  grupos: GrupoAlfabetico[];
+  /** Grafema en el que estamos, si la página es la de una letra. */
+  actual?: string;
+}
+
+const { grupos, actual } = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+---
+
+<nav aria-label="Alfabeto Mam">
+  <ul class="flex flex-wrap gap-1">
+    {
+      grupos.map(({ grafema, slug, entradas }) => {
+        const vacia = entradas.length === 0;
+        const esActual = grafema === actual;
+
+        if (vacia) {
+          return (
+            <li>
+              <span
+                lang="mam"
+                class="mam inline-block min-w-9 rounded border border-borde px-2 py-1 text-center text-tinta-suave opacity-45"
+                title="Todavía sin entradas"
+              >
+                {grafema}
+              </span>
+            </li>
+          );
+        }
+
+        return (
+          <li>
+            <a
+              href={`${base}diccionario/letra/${slug}`}
+              lang="mam"
+              aria-current={esActual ? 'page' : undefined}
+              class:list={[
+                'mam inline-block min-w-9 rounded border px-2 py-1 text-center',
+                esActual
+                  ? 'border-jade bg-jade font-bold text-papel'
+                  : 'border-borde hover:border-jade hover:text-jade-hondo',
+              ]}
+            >
+              {grafema}
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</nav>

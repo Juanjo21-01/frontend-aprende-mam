@@ -1,0 +1,86 @@
+---
+/**
+ * Una entrada del diccionario.
+ *
+ * Es la unidad que más se repite del sitio: el corpus completo ronda las seis mil entradas, y
+ * cada elemento de más aquí se multiplica por seis mil en el HTML. De ahí que la ficha
+ * bibliográfica no se imprima bajo cada entrada sino como un número que remite al pie de la
+ * página (ver `PieDeFuentes.astro`).
+ *
+ * Va dentro de un `<dl>`: un diccionario es literalmente una lista de definiciones, y así el
+ * lector de pantalla anuncia el término y su equivalencia como par en vez de como dos párrafos
+ * sueltos.
+ */
+import type { Categoria, Entrada } from '../data/vocabulario';
+
+interface Props {
+  entrada: Entrada;
+  /** Número de la fuente al pie, o `null` si la entrada no trae fuente. */
+  marca: number | null;
+  /** Nombres de los temas, por slug. Se pasa resuelto para no rehacerlo por entrada. */
+  nombresDeTema: Map<string, string>;
+  /** Tema en el que ya estamos, si la página es la de un tema: no se repite en la ficha. */
+  temaActual?: string;
+}
+
+const { entrada, marca, nombresDeTema, temaActual } = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+
+const otrosTemas = entrada.temas
+  .filter((slug) => slug !== temaActual)
+  .map((slug) => ({ slug, nombre: nombresDeTema.get(slug) ?? slug }));
+---
+
+<div class="border-b border-borde py-3 last:border-b-0">
+  <dt class="flex flex-wrap items-baseline gap-x-2">
+    {/* El Mam se muestra exactamente como viene del backend: sin plegar, sin recomponer. */}
+    <span lang="mam" class="mam text-lg font-bold">{entrada.mam}</span>
+    {entrada.clase && <span class="text-sm text-tinta-suave italic">{entrada.clase}</span>}
+    {
+      entrada.municipio && (
+        <span class="text-sm text-tinta-suave">— {entrada.municipio}</span>
+      )
+    }
+  </dt>
+
+  <dd class="mt-1">
+    <span>{entrada.espanol}</span>{
+      marca !== null && (
+        <a
+          href="#fuentes"
+          class="ml-1 align-super text-xs text-tinta-suave underline underline-offset-2"
+          aria-label={`Fuente ${marca}`}
+        >
+          {marca}
+        </a>
+      )
+    }{
+      /* La página solo se imprime cuando existe. Las fuentes se numeran al pie por obra, no
+         por página: una nota por cada página distinta daría miles de notas al pie. */
+      entrada.fuente?.pagina !== null && entrada.fuente !== null && (
+        <span class="ml-1 text-xs text-tinta-suave">p. {entrada.fuente.pagina}</span>
+      )
+    }
+
+    {entrada.definicion && <p class="mt-1 text-tinta-suave">{entrada.definicion}</p>}
+
+    {
+      otrosTemas.length > 0 && (
+        <p class="mt-1 text-sm text-tinta-suave">
+          {otrosTemas.map((tema, i) => (
+            <>
+              {i > 0 && ', '}
+              <a
+                href={`${base}diccionario/tema/${tema.slug}`}
+                class="underline underline-offset-2"
+              >
+                {tema.nombre}
+              </a>
+            </>
+          ))}
+        </p>
+      )
+    }
+  </dd>
+</div>
