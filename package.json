@@ -18,11 +18,16 @@
     "check": "npm run build && npm run check:html && npm run weight"
   },
   "dependencies": {
+    "@astrojs/react": "^6.0.4",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.2.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
     "subset-font": "^2.5.0"
   }
 }

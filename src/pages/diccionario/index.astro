@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import NavAlfabeto from '@/components/NavAlfabeto.astro';
+import BuscadorDiccionario from '@/components/BuscadorDiccionario.tsx';
+import { rutaDeDatos } from '@/data/busqueda';
 import { cargarVocabulario, porLetra, porTema } from '@/data/vocabulario';
 
 const vocabulario = await cargarVocabulario();
@@ -41,6 +43,28 @@ const actualizado = new Intl.DateTimeFormat('es-GT', { dateStyle: 'long' }).form
       <p class="mt-2 text-tinta-suave">
         {total} palabras en {conLetra} de las 32 letras del alfabeto.
       </p>
+    )
+  }
+
+  {
+    /*
+     * La isla solo se monta si hay algo que buscar: con el diccionario vacío sería mandar
+     * React al teléfono para filtrar cero palabras. Mientras el validador no apruebe el
+     * primer lote, esta página sigue saliendo sin una sola etiqueta `<script>`.
+     *
+     * `client:visible` y no `client:load`: la caja está arriba del todo, así que en la
+     * práctica hidrata enseguida, pero quien llegue por un enlace directo a un tema no paga
+     * el JavaScript de una caja que nunca aparece en pantalla.
+     */
+    total > 0 && (
+      <div class="mt-8">
+        <BuscadorDiccionario
+          client:visible
+          ruta={rutaDeDatos(vocabulario.version)}
+          total={total}
+          base={base}
+        />
+      </div>
     )
   }
 
@@ -89,8 +113,8 @@ const actualizado = new Intl.DateTimeFormat('es-GT', { dateStyle: 'long' }).form
   <section class="mt-10 rounded-lg border border-borde bg-papel-hondo p-5">
     <h2 class="text-xl">Lo que falta en esta sección</h2>
     <ul class="mt-3 list-disc space-y-1 pl-5 text-tinta-suave">
-      <li>Búsqueda dentro del navegador, sin llamadas a la API y sin conexión.</li>
       <li>Descarga por tema para consultarlo sin internet.</li>
+      <li>Que la búsqueda siga funcionando con el teléfono sin señal.</li>
     </ul>
     <p class="mt-3 text-sm text-tinta-suave">
       Vocabulario versión {vocabulario.version}, actualizado el {actualizado}.

@@ -30,6 +30,16 @@
     Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
+  # El vocabulario que descarga el buscador. Lleva la versión en el nombre
+  # (`vocabulario-v7.json`), así que una publicación nueva es un archivo nuevo y este puede
+  # cachearse para siempre. Es el archivo más grande que baja un teléfono en todo el sitio:
+  # que la segunda visita no lo vuelva a pedir es la diferencia entre buscar al instante y
+  # esperar en 3G.
+  for = "/datos/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
   # El HTML se revalida siempre, para que una publicación nueva se vea de inmediato.
   for = "/*.html"
   [headers.values]
