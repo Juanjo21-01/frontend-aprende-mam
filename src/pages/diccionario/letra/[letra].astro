@@ -10,10 +10,10 @@
  * entradas y en una sola página serían cientos de kilobytes de HTML para un teléfono en 3G.
  * Repartidas en 32 grupos, cada página se queda dentro del presupuesto.
  */
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-import NavAlfabeto from '../../../components/NavAlfabeto.astro';
-import EntradaFicha from '../../../components/EntradaFicha.astro';
-import PieDeFuentes from '../../../components/PieDeFuentes.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import NavAlfabeto from '@/components/NavAlfabeto.astro';
+import EntradaFicha from '@/components/EntradaFicha.astro';
+import PieDeFuentes from '@/components/PieDeFuentes.astro';
 import {
   cargarVocabulario,
   fuentesCitadas,
@@ -22,7 +22,7 @@ import {
   type Categoria,
   type Entrada,
   type GrupoAlfabetico,
-} from '../../../data/vocabulario';
+} from '@/data/vocabulario';
 
 export async function getStaticPaths() {
   const vocabulario = await cargarVocabulario();

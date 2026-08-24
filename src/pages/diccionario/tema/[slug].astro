@@ -7,9 +7,9 @@
  * puede estar ya repartido en una guía impresa. Un tema sin palabras dice que todavía no hay
  * nada revisado; un 404 diría que el sitio se rompió.
  */
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-import EntradaFicha from '../../../components/EntradaFicha.astro';
-import PieDeFuentes from '../../../components/PieDeFuentes.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import EntradaFicha from '@/components/EntradaFicha.astro';
+import PieDeFuentes from '@/components/PieDeFuentes.astro';
 import {
   cargarVocabulario,
   fuentesCitadas,
@@ -17,7 +17,7 @@ import {
   porTema,
   type Categoria,
   type Entrada,
-} from '../../../data/vocabulario';
+} from '@/data/vocabulario';
 
 export async function getStaticPaths() {
   const vocabulario = await cargarVocabulario();

@@ -1,7 +1,7 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import NavAlfabeto from '../../components/NavAlfabeto.astro';
-import { cargarVocabulario, porLetra, porTema } from '../../data/vocabulario';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import NavAlfabeto from '@/components/NavAlfabeto.astro';
+import { cargarVocabulario, porLetra, porTema } from '@/data/vocabulario';
 
 const vocabulario = await cargarVocabulario();
 const grupos = porLetra(vocabulario.entradas);
