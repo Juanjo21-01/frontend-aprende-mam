@@ -13,6 +13,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "fonts": "node scripts/subset-fonts.mjs",
+    "icons": "node scripts/icons.mjs",
     "weight": "node scripts/weight.mjs",
     "check:html": "node scripts/check-html.mjs",
     "check": "npm run build && npm run check:html && npm run weight"
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
+    "sharp": "^0.35.3",
     "subset-font": "^2.5.0"
   }
 }

@@ -16,7 +16,41 @@ const canonica = new URL(Astro.url.pathname, Astro.site);
 // Ambas variantes se preacargan en paralelo. En 3G el cuello de botella es la latencia,
 // no el ancho de banda: descubrir la negrita a mitad del render cuesta un viaje completo
 // de ida y vuelta, y los títulos aparecerían con la fuente del sistema.
-const fuentes = [`${base}fonts/charis-sil-400.woff2`, `${base}fonts/charis-sil-700.woff2`];
+const fuentes = [
+  `${base}fonts/charis-sil-400.woff2`,
+  `${base}fonts/charis-sil-700.woff2`,
+];
+
+/*
+ * Lo que sigue documenta el aviso de conexión y el registro del service worker, que están
+ * más abajo en el marcado.
+ *
+ * Va aquí arriba y no junto a ellos porque Astro **no borra los comentarios de HTML**: un
+ * `<!-- … -->` de estos ocupa medio kilobyte comprimido y se repite en las 37 páginas del
+ * sitio. Los comentarios del bloque de guiones, en cambio, se quedan en el servidor.
+ *
+ * EL AVISO. Se pinta siempre y se enseña con CSS, según el atributo `data-conexion` del
+ * `<html>`. Crearlo desde JavaScript costaría una reconstrucción del árbol en un teléfono
+ * lento justo en el momento en que el usuario ya está teniendo un mal rato; así, aparecer
+ * es cambiar un atributo. Se marca `role="status"` y no `alert` porque es información sobre
+ * el estado del sitio, no una urgencia que deba interrumpir a un lector de pantalla.
+ *
+ * EL GUION. Está en línea y escrito a mano, no como módulo importado, por el presupuesto de
+ * JavaScript: un `<script src>` en el layout aparecería en las 37 páginas, y todas menos el
+ * diccionario tienen que salir sin descargar un solo módulo — `scripts/weight.mjs` lo
+ * comprueba y haría fallar el build. Así son ~670 bytes comprimidos dentro del propio HTML,
+ * que además se ahorran un viaje de ida y vuelta en 3G.
+ *
+ * El registro solo se emite en la compilación. `astro dev` no pasa por la integración que
+ * genera `dist/sw.js`, así que en desarrollo el archivo no existe y registrarlo dejaría un
+ * error en la consola en cada recarga. La sonda de conexión sí corre en desarrollo, que es
+ * donde hace falta poder probarla.
+ *
+ * Es una versión reducida de `src/data/conexion.ts`, que es el módulo de verdad y el que
+ * usarán las islas del video y de las actividades externas. La duplicación es de una docena
+ * de líneas y está asumida: fundirlas costaría JavaScript en páginas que hoy no gastan
+ * ninguno. Si se toca la lógica de la sonda, hay que tocar las dos.
+ */
 ---
 
 <!doctype html>
@@ -32,12 +66,21 @@ const fuentes = [`${base}fonts/charis-sil-400.woff2`, `${base}fonts/charis-sil-7
 
     {
       fuentes.map((href) => (
-        <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
+        <link
+          rel="preload"
+          href={href}
+          as="font"
+          type="font/woff2"
+          crossorigin
+        />
       ))
     }
 
-    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <link rel="icon" href={`${base}favicon.ico`} type="image/x-icon" />
+    <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
+    <link rel="manifest" href={`${base}manifest.webmanifest`} />
     <meta name="theme-color" content="#0f6f63" />
+    <meta name="apple-mobile-web-app-title" content="AprendeMam" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={`${titulo} · AprendeMam`} />
@@ -53,6 +96,12 @@ const fuentes = [`${base}fonts/charis-sil-400.woff2`, `${base}fonts/charis-sil-7
       Saltar al contenido
     </a>
 
+    <p class="aviso-conexion" role="status">
+      <strong>Sin conexión.</strong> Puedes seguir usando el diccionario y las secciones
+      que ya tienes guardadas. Los videos y las actividades de otras páginas necesitan
+      internet.
+    </p>
+
     <SiteHeader />
 
     <main id="contenido" class="mx-auto w-full max-w-3xl flex-1 px-5 py-10">
@@ -60,5 +109,68 @@ const fuentes = [`${base}fonts/charis-sil-400.woff2`, `${base}fonts/charis-sil-7
     </main>
 
     <SiteFooter />
+
+    <script define:vars={{ base, conServiceWorker: import.meta.env.PROD }}>
+      (function () {
+        var raiz = document.documentElement;
+        var sonda = base + 'ping.txt';
+        var enCurso = false;
+
+        function marcar(hay) {
+          raiz.dataset.conexion = hay ? 'si' : 'no';
+        }
+
+        function sondear() {
+          // El `false` del sistema es de fiar y es gratis. El `true` no dice nada: hay
+          // interfaz de red, que no es lo mismo que haber internet detrás.
+          if (navigator.onLine === false) return marcar(false);
+          if (enCurso) return;
+          enCurso = true;
+
+          var corte = new AbortController();
+          var reloj = setTimeout(function () {
+            corte.abort();
+          }, 3000);
+
+          fetch(sonda, { cache: 'no-store', signal: corte.signal })
+            .then(
+              function (respuesta) {
+                marcar(respuesta.ok);
+              },
+              function () {
+                marcar(false);
+              },
+            )
+            .then(function () {
+              clearTimeout(reloj);
+              enCurso = false;
+            });
+        }
+
+        addEventListener('offline', function () {
+          marcar(false);
+        });
+        addEventListener('online', sondear);
+
+        // El caso corriente no dispara ningún evento del sistema: el usuario deja el teléfono,
+        // camina hasta donde hay señal y vuelve a mirar la pantalla.
+        document.addEventListener('visibilitychange', function () {
+          if (!document.hidden) sondear();
+        });
+
+        // Todo esperando a `load`: ni el registro ni la sonda deben competir por el ancho de
+        // banda con lo que el usuario está esperando ver.
+        addEventListener('load', function () {
+          if (conServiceWorker && 'serviceWorker' in navigator) {
+            // Falla en HTTP sin cifrar y en algunos modos privados. No es recuperable ni hay
+            // nada que decirle al usuario: el sitio funciona igual, solo que sin guardarse.
+            navigator.serviceWorker
+              .register(base + 'sw.js')
+              .catch(function () {});
+          }
+          sondear();
+        });
+      })();
+    </script>
   </body>
 </html>

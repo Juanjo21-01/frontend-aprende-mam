@@ -40,6 +40,51 @@
     Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
+  # El service worker no se cachea nunca.
+  #
+  # Es el archivo que decide qué versión del sitio ve el usuario, así que si se queda pegado
+  # en la caché del navegador, se queda pegada con él la publicación entera — y no hay forma
+  # de arreglarlo desde el servidor, porque el navegador ya no vuelve a preguntar. Chrome
+  # limita por su cuenta la caché de este archivo a 24 horas, pero eso son 24 horas de sitio
+  # viejo y no todos los navegadores lo hacen.
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  # La sonda de conexión. Sin `no-store` el navegador contestaría desde su propia caché y la
+  # sonda diría que hay internet justo cuando no lo hay, que es el único caso en que importa.
+  for = "/ping.txt"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
+  # El manifiesto cambia muy poco, pero cuando cambia conviene que se note: es lo que fija el
+  # nombre y el icono de la aplicación ya instalada en el teléfono.
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  # Los iconos no llevan hash en el nombre. Misma trampa que las fuentes: si se rediseña el
+  # emblema y se vuelve a correr `npm run icons`, los navegadores que ya tengan la versión
+  # anterior seguirán con ella una semana. Para un cambio urgente, renombrar los archivos.
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  # El icono de la pestaña y el logo del encabezado, por lo mismo que los anteriores.
+  for = "/favicon.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/logo.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
   # El HTML se revalida siempre, para que una publicación nueva se vea de inmediato.
   for = "/*.html"
   [headers.values]

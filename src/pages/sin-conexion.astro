@@ -1,0 +1,42 @@
+---
+/**
+ * Respaldo para una navegación sin señal a una página que no está guardada.
+ *
+ * Con el sitio entero precargado esto casi nunca se ve, y ese «casi» es el motivo de que
+ * exista: un enlace escrito a mano, una dirección vieja compartida por WhatsApp o una
+ * publicación que agregó páginas después de la última visita del usuario. En cualquiera de
+ * esos casos, la alternativa es la pantalla de dinosaurio del navegador, que en un teléfono
+ * prestado se lee como «la aplicación se rompió» y no como «falta señal».
+ *
+ * Va sin JavaScript, como el resto del sitio. La navegación del encabezado ya lleva a todo lo
+ * que sí está guardado, así que la salida está siempre a un toque.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  titulo="Sin conexión"
+  descripcion="Esta página no está guardada en el teléfono y ahora mismo no hay señal."
+>
+  <h1 class="text-3xl">Sin conexión</h1>
+
+  <p class="mt-4 text-lg text-tinta-suave">
+    Esta página no está guardada en tu teléfono y ahora mismo no hay señal para descargarla.
+  </p>
+
+  <div class="mt-8 rounded-lg border border-borde bg-papel-hondo p-5">
+    <p class="font-bold">Lo que sí puedes seguir usando</p>
+    <ul class="mt-3 list-disc space-y-1 pl-5 text-tinta-suave">
+      <li>El diccionario completo, con el buscador y las listas por letra y por tema.</li>
+      <li>Las secciones de cultura, gramática, materiales y base legal.</li>
+    </ul>
+    <p class="mt-4 text-tinta-suave">
+      Los videos y las actividades de otras páginas sí necesitan internet: vuelve a intentarlo
+      cuando tengas señal.
+    </p>
+  </div>
+
+  <p class="mt-8">
+    <a href={import.meta.env.BASE_URL} class="font-bold">Ir al inicio</a>
+  </p>
+</BaseLayout>

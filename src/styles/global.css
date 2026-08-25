@@ -81,4 +81,29 @@
     font-family: var(--font-mam);
     font-variant-ligatures: none;
   }
+
+  /*
+   * Aviso de que no hay internet.
+   *
+   * Se enseña y se esconde solo con un atributo del `<html>`, que pone la sonda en línea de
+   * BaseLayout.astro. Así el estado de conexión se puede consultar desde CSS en cualquier
+   * parte del sitio —incluidos los contenedores de video y actividades externas cuando
+   * lleguen— sin que ninguna de esas páginas cargue JavaScript.
+   *
+   * Oculto mientras no se sabe nada: el atributo no existe hasta que la sonda contesta. Sin
+   * eso, cada carga enseñaría el aviso durante medio segundo antes de desmentirse, que es
+   * peor que no avisar.
+   */
+  .aviso-conexion {
+    display: none;
+    padding: 0.625rem 1.25rem;
+    background-color: var(--color-alerta);
+    color: var(--color-papel);
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  html[data-conexion='no'] .aviso-conexion {
+    display: block;
+  }
 }

@@ -1,12 +1,11 @@
 {
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
-    "baseUrl": ".",
     // Astro traduce estos `paths` a alias de Vite por su cuenta, así que sirven igual en el
     // editor y en el build. Una sola raíz (`@/` = `src/`) y no un alias por carpeta: mover un
     // archivo de sitio no obliga a inventar un alias nuevo.
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
     "jsx": "react-jsx",
     "jsxImportSource": "react"
