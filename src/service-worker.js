@@ -201,6 +201,14 @@ function claveDePagina(ruta) {
 
 /** Regla 2: bajo demanda, y con tope. Lo que el usuario ve una vez, lo ve luego sin señal. */
 async function responderImagen(peticion) {
+  // Primero la precarga, y este orden no es cosmético: hay imágenes que son parte de la
+  // interfaz y no del contenido —el logo del encabezado, que sale en las 37 páginas— y esas
+  // van en la precarga, no en la caché bajo demanda. Sin esta comprobación, la rama de
+  // imágenes se salta la precarga entera y el logo aparece roto sin conexión aunque esté
+  // guardado, que es justo la impresión de «aplicación rota» que todo lo demás evita.
+  const precargada = await caches.match(peticion, { ...BUSQUEDA, cacheName: CACHE });
+  if (precargada) return precargada;
+
   const cache = await caches.open(CACHE_IMAGENES);
 
   const guardada = await cache.match(peticion, BUSQUEDA);
