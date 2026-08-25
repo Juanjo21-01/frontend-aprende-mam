@@ -72,6 +72,7 @@ const EXCLUIDOS = [/^\/ping\.txt$/, /\.pdf$/, /^\/icon-/, /^\/apple-touch-icon\.
 
 /** Iconos que el manifiesto declara y que tienen que existir para que se pueda instalar. */
 const ICONOS = [
+  'icon-128.png',
   'icon-192.png',
   'icon-512.png',
   'icon-maskable-512.png',

@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import MainNav from './MainNav.astro';
 
 const base = import.meta.env.BASE_URL;
@@ -7,21 +8,23 @@ const base = import.meta.env.BASE_URL;
  * El logo lleva `alt=""` a propósito: el nombre del sitio va escrito al lado, dentro del mismo
  * enlace. Con un texto alternativo, un lector de pantalla anunciaría «AprendeMam AprendeMam».
  *
- * Y no lleva `loading="lazy"`, que es la regla general del proyecto para imágenes. Esta está
- * arriba del todo y se ve antes de que el usuario toque nada: diferirla solo conseguiría que
- * el encabezado apareciera vacío y se rellenara medio segundo después. Las medidas explícitas
- * sí van, para que ese hueco esté reservado desde el primer pintado.
+ * Y lleva `loading="eager"` explícito, que es la excepción a la regla general del proyecto de
+ * cargar las imágenes en diferido. `<Image>` pone `lazy` por su cuenta si no se le dice nada, y
+ * esta imagen está arriba del todo: diferirla solo consigue que el encabezado aparezca vacío y
+ * se rellene medio segundo después. Las medidas explícitas sí van, para que ese hueco esté
+ * reservado desde el primer pintado.
  */
 ---
 
 <header class="border-b border-borde bg-papel-hondo">
   <div class="mx-auto flex max-w-3xl flex-col gap-3 px-5 py-4">
     <a href={base} class="flex items-center gap-3 no-underline">
-      <img
+      <Image
         src={`${base}logo.webp`}
         alt=""
         width="56"
         height="56"
+        loading="eager"
         decoding="async"
         class="h-14 w-14 shrink-0"
       />

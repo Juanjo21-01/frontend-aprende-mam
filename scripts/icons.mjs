@@ -91,6 +91,7 @@ async function main() {
   await mkdir(PUBLICO, { recursive: true });
 
   const salidas = [
+    ['icon-128.png', await iconoSuelto(128)],
     ['icon-192.png', await iconoSuelto(192)],
     ['icon-512.png', await iconoSuelto(512)],
     ['icon-maskable-512.png', await iconoConFondo(512)],
@@ -102,7 +103,10 @@ async function main() {
     [
       'logo.webp',
       await sharp(LOGO)
-        .resize(512, 512, { fit: 'contain', background: { ...VERDE, alpha: 0 } })
+        .resize(512, 512, {
+          fit: 'contain',
+          background: { ...VERDE, alpha: 0 },
+        })
         .webp({ quality: 82 })
         .toBuffer(),
     ],
