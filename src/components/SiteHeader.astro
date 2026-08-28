@@ -2,8 +2,6 @@
 import { Image } from 'astro:assets';
 import MainNav from './MainNav.astro';
 
-const base = import.meta.env.BASE_URL;
-
 /*
  * El logo lleva `alt=""` a propósito: el nombre del sitio va escrito al lado, dentro del mismo
  * enlace. Con un texto alternativo, un lector de pantalla anunciaría «AprendeMam AprendeMam».
@@ -13,28 +11,52 @@ const base = import.meta.env.BASE_URL;
  * esta imagen está arriba del todo: diferirla solo consigue que el encabezado aparezca vacío y
  * se rellene medio segundo después. Las medidas explícitas sí van, para que ese hueco esté
  * reservado desde el primer pintado.
+ *
+ * `rounded-full` no es adorno: el WebP es el logo circular sobre un cuadrado blanco, y sin el
+ * recorte se ven cuatro esquinas blancas sobre el verde de la banda.
+ *
+ * La cenefa se cierra aquí abajo y no en el layout, para que el encabezado sea una pieza
+ * completa: quien lo mueva se lleva su remate con él.
  */
+interface Props {
+  ancho?: 'lectura' | 'panel';
+}
+
+const { ancho = 'lectura' } = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+const contenedor = ancho === 'panel' ? 'max-w-5xl' : 'max-w-3xl';
 ---
 
-<header class="border-b border-borde bg-papel-hondo">
-  <div class="mx-auto flex max-w-3xl flex-col gap-3 px-5 py-4">
+<header class="bg-jade-hondo">
+  <div
+    class:list={[
+      'mx-auto flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8',
+      contenedor,
+    ]}
+  >
     <a href={base} class="flex items-center gap-3 no-underline">
       <Image
         src={`${base}logo.webp`}
         alt=""
-        width="56"
-        height="56"
+        width="48"
+        height="48"
         loading="eager"
         decoding="async"
-        class="h-14 w-14 shrink-0"
+        class="size-12 shrink-0 rounded-full"
       />
-      <span class="text-2xl font-bold text-jade-hondo">
-        Aprende<span class="text-tinta">Mam</span>
+      <span class="block">
+        <span class="block text-2xl font-bold text-papel"
+          >Aprende<span class="text-oro">Mam</span></span
+        >
+        <span class="block text-sm text-jade-claro">
+          Idioma <span lang="mam">Mam</span> · San Marcos, Guatemala
+        </span>
       </span>
     </a>
-    <p class="text-sm text-tinta-suave">
-      Biblioteca digital del idioma <span lang="mam">Mam</span> — San Marcos, Guatemala
-    </p>
+
     <MainNav />
   </div>
 </header>
+
+<div class="cenefa"></div>

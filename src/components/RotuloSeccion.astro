@@ -1,0 +1,28 @@
+---
+/**
+ * Encabezado de sección: rombo dorado, título y filete hasta el borde.
+ *
+ * El rombo es el motivo de la cenefa reducido a un solo elemento. Repetir la banda entera
+ * en cada sección ahogaría la palabra en Mam, que es lo que hay que mirar; un rombo suelto
+ * mantiene el parentesco visual sin competir.
+ *
+ * Es un `<div>` y no un pseudo-elemento porque el filete tiene que estirarse con
+ * `flex-grow` hasta donde llegue el título, y eso no se puede hacer con `::after`.
+ */
+interface Props {
+  titulo: string;
+  /** Nivel del encabezado. `h2` salvo que la sección cuelgue de otra. */
+  nivel?: 'h2' | 'h3';
+  class?: string;
+}
+
+const { titulo, nivel = 'h2', class: clase } = Astro.props;
+
+const Encabezado = nivel;
+---
+
+<div class:list={['flex items-center gap-3', clase]}>
+  <div class="size-2.5 shrink-0 rotate-45 bg-oro" aria-hidden="true"></div>
+  <Encabezado class="text-xl whitespace-nowrap text-jade-hondo">{titulo}</Encabezado>
+  <div class="h-px grow bg-borde" aria-hidden="true"></div>
+</div>

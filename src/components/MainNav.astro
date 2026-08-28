@@ -2,6 +2,12 @@
 // Navegación principal. Sin JavaScript: en pantallas angostas los enlaces simplemente
 // se acomodan en varias filas. Un menú hamburguesa exigiría hidratar una isla para algo
 // que el ajuste de línea resuelve gratis.
+//
+// Va dentro de la banda verde del encabezado, así que los colores son los de sobre fondo
+// oscuro: `jade-claro` para lo inactivo (5.4:1, pasa AA) y papel con filo dorado para la
+// sección en la que estamos. El dorado marca la posición sin depender solo del peso de la
+// letra, que en una pantalla barata bajo el sol casi no se distingue.
+//
 // Las cinco áreas de contenido para estudiantes y docentes. «Base legal» queda en el pie:
 // es material de respaldo institucional, no algo que una estudiante busque a diario.
 const enlaces = [
@@ -28,10 +34,10 @@ const actual = Astro.url.pathname.replace(/\/$/, '');
               href={ruta}
               aria-current={activo ? 'page' : undefined}
               class:list={[
-                'inline-block py-1 underline-offset-4 hover:underline',
+                'inline-block border-b-[3px] py-2.5 no-underline',
                 activo
-                  ? 'font-bold text-jade-hondo underline'
-                  : 'text-tinta-suave',
+                  ? 'border-oro font-bold text-papel'
+                  : 'border-transparent text-jade-claro hover:text-papel',
               ]}
             >
               {texto}

@@ -10,7 +10,17 @@
  * Va dentro de un `<dl>`: un diccionario es literalmente una lista de definiciones, y así el
  * lector de pantalla anuncia el término y su equivalencia como par en vez de como dos párrafos
  * sueltos.
+ *
+ * DOS VARIANTES, y cuál se usa lo decide el tipo de página, no el gusto:
+ *
+ *   - `tarjeta` en las páginas de tema. Son la unidad del aula —«la lección de los colores»—
+ *     y son listas cortas, así que el borde y el aire se pueden pagar.
+ *   - `fila` en las páginas de letra. Con el corpus completo, una sola letra puede traer
+ *     cientos de entradas y ahí cada borde y cada relleno se multiplica por todas ellas.
+ *
+ * Si algún día hay que mover esa frontera, la respuesta la da `npm run weight`, no el ojo.
  */
+import { temaVisual } from '@/data/temas';
 import type { Categoria, Entrada } from '@/data/vocabulario';
 
 interface Props {
@@ -21,21 +31,32 @@ interface Props {
   nombresDeTema: Map<string, string>;
   /** Tema en el que ya estamos, si la página es la de un tema: no se repite en la ficha. */
   temaActual?: string;
+  variante?: 'fila' | 'tarjeta';
 }
 
-const { entrada, marca, nombresDeTema, temaActual } = Astro.props;
+const { entrada, marca, nombresDeTema, temaActual, variante = 'fila' } = Astro.props;
 
 const base = import.meta.env.BASE_URL;
 
 const otrosTemas = entrada.temas
   .filter((slug) => slug !== temaActual)
-  .map((slug) => ({ slug, nombre: nombresDeTema.get(slug) ?? slug }));
+  .map((slug) => ({ slug, nombre: nombresDeTema.get(slug) ?? slug, visual: temaVisual(slug) }));
+
+const esTarjeta = variante === 'tarjeta';
 ---
 
-<div class="border-b border-borde py-3 last:border-b-0">
+<div
+  class:list={
+    esTarjeta
+      ? 'rounded-xl border border-borde p-4'
+      : 'border-b border-borde py-3 last:border-b-0'
+  }
+>
   <dt class="flex flex-wrap items-baseline gap-x-2">
     {/* El Mam se muestra exactamente como viene del backend: sin plegar, sin recomponer. */}
-    <span lang="mam" class="mam text-lg font-bold">{entrada.mam}</span>
+    <span lang="mam" class:list={['mam text-2xl font-bold', esTarjeta && 'text-jade-hondo']}>
+      {entrada.mam}
+    </span>
     {entrada.clase && <span class="text-sm text-tinta-suave italic">{entrada.clase}</span>}
     {
       entrada.municipio && (
@@ -45,11 +66,11 @@ const otrosTemas = entrada.temas
   </dt>
 
   <dd class="mt-1">
-    <span>{entrada.espanol}</span>{
+    <span class="text-lg">{entrada.espanol}</span>{
       marca !== null && (
         <a
           href="#fuentes"
-          class="ml-1 align-super text-xs text-tinta-suave underline underline-offset-2"
+          class="ml-1 align-super text-xs text-oro-hondo underline underline-offset-2"
           aria-label={`Fuente ${marca}`}
         >
           {marca}
@@ -66,21 +87,43 @@ const otrosTemas = entrada.temas
     {entrada.definicion && <p class="mt-1 text-tinta-suave">{entrada.definicion}</p>}
 
     {
-      otrosTemas.length > 0 && (
-        <p class="mt-1 text-sm text-tinta-suave">
-          {otrosTemas.map((tema, i) => (
-            <>
-              {i > 0 && ', '}
+      /*
+       * Los temas que NO son el de esta página. En una página de tema, el color del tema ya
+       * lo lleva el encabezado; repetir aquí la misma etiqueta en todas las entradas sería
+       * decir doce veces lo que ya se dijo una. En los resultados del buscador, en cambio,
+       * cada entrada viene de un tema distinto y ahí la etiqueta es la que orienta.
+       */
+      otrosTemas.length > 0 &&
+        (esTarjeta ? (
+          <p class="mt-3 flex flex-wrap gap-2">
+            {otrosTemas.map((tema) => (
               <a
                 href={`${base}diccionario/tema/${tema.slug}`}
-                class="underline underline-offset-2"
+                class:list={[
+                  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm no-underline',
+                  tema.visual.etiqueta,
+                ]}
               >
+                <span class:list={['size-2 rounded-full', tema.visual.punto]} aria-hidden="true" />
                 {tema.nombre}
               </a>
-            </>
-          ))}
-        </p>
-      )
+            ))}
+          </p>
+        ) : (
+          <p class="mt-1 text-sm text-tinta-suave">
+            {otrosTemas.map((tema, i) => (
+              <>
+                {i > 0 && ', '}
+                <a
+                  href={`${base}diccionario/tema/${tema.slug}`}
+                  class="underline underline-offset-2"
+                >
+                  {tema.nombre}
+                </a>
+              </>
+            ))}
+          </p>
+        ))
     }
   </dd>
 </div>

@@ -1,0 +1,53 @@
+---
+/**
+ * La ficha de un tema: color, ícono, nombre y cuántas palabras tiene.
+ *
+ * Toda la tarjeta es el enlace, no solo el nombre. Un objetivo de 104 px de alto se acierta
+ * a la primera con el pulgar; un enlace de una línea de texto, no.
+ *
+ * El color sale de `temaVisual()`, que devuelve cadenas de clase completas. Un tema que el
+ * backend agregue y que todavía no tenga color se ve gris, nunca roto.
+ */
+import IconoTema from '@/components/IconoTema.astro';
+import { temaVisual } from '@/data/temas';
+import type { Categoria } from '@/data/vocabulario';
+
+interface Props {
+  categoria: Categoria;
+  cantidad: number;
+}
+
+const { categoria, cantidad } = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+const visual = temaVisual(categoria.slug);
+---
+
+<a
+  href={`${base}diccionario/tema/${categoria.slug}`}
+  class:list={[
+    'flex min-h-26 flex-col gap-2 rounded-xl border p-4 no-underline',
+    'hover:border-jade focus-visible:border-jade',
+    visual.ficha,
+  ]}
+>
+  <IconoTema slug={categoria.slug} class={visual.texto} />
+
+  <div>
+    <div class:list={['font-bold', visual.texto]}>
+      {categoria.nombre_es}
+    </div>
+
+    {
+      categoria.nombre_mam && (
+        <div lang="mam" class="mam text-sm text-tinta-suave">
+          {categoria.nombre_mam}
+        </div>
+      )
+    }
+
+    <div class="text-sm text-tinta-suave">
+      {cantidad === 0 ? 'Sin palabras todavía' : `${cantidad} palabra${cantidad === 1 ? '' : 's'}`}
+    </div>
+  </div>
+</a>

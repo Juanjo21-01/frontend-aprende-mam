@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import NavAlfabeto from '@/components/NavAlfabeto.astro';
+import FichaTema from '@/components/FichaTema.astro';
+import RotuloSeccion from '@/components/RotuloSeccion.astro';
 import BuscadorDiccionario from '@/components/BuscadorDiccionario.tsx';
 import { rutaDeDatos } from '@/data/busqueda';
 import { cargarVocabulario, porLetra, porTema } from '@/data/vocabulario';
@@ -22,17 +24,18 @@ const actualizado = new Intl.DateTimeFormat('es-GT', { dateStyle: 'long' }).form
 <BaseLayout
   titulo="Diccionario"
   descripcion="Diccionario Mam–castellano de la variante de San Marcos, con su fuente bibliográfica. Funciona sin conexión."
+  ancho="panel"
 >
   <h1 class="text-3xl">Diccionario</h1>
 
-  <p class="mt-4 text-lg text-tinta-suave">
+  <p class="mt-3 max-w-2xl text-lg text-tinta-suave">
     Vocabulario <span lang="mam">Mam</span>–castellano de la variante de San Marcos. Cada
     palabra conserva la obra de la que se tomó.
   </p>
 
   {
     total === 0 ? (
-      <div class="mt-8 rounded-lg border border-borde bg-papel-hondo p-5">
+      <div class="mt-8 rounded-xl border border-borde bg-papel-hondo p-5">
         <p class="font-bold">Todavía no hay palabras publicadas.</p>
         <p class="mt-2 text-tinta-suave">
           No es un fallo del sitio. Solo se publica lo que el validador lingüístico ya revisó, y
@@ -57,7 +60,7 @@ const actualizado = new Intl.DateTimeFormat('es-GT', { dateStyle: 'long' }).form
      * el JavaScript de una caja que nunca aparece en pantalla.
      */
     total > 0 && (
-      <div class="mt-8">
+      <div class="mt-8 max-w-xl">
         <BuscadorDiccionario
           client:visible
           ruta={rutaDeDatos(vocabulario.version)}
@@ -68,49 +71,33 @@ const actualizado = new Intl.DateTimeFormat('es-GT', { dateStyle: 'long' }).form
     )
   }
 
-  <section class="mt-10">
-    <h2 class="text-xl">Por letra</h2>
-    <p class="mt-2 text-tinta-suave">
-      El alfabeto <span lang="mam">Mam</span> tiene 32 grafemas y no sigue el orden del
-      castellano: <span lang="mam" class="mam">ch</span> va antes que{' '}
-      <span lang="mam" class="mam">ch’</span>, <span lang="mam" class="mam">x</span> antes que{' '}
-      <span lang="mam" class="mam">ẍ</span>, y el saltillo lo cierra. Las letras apagadas
-      todavía no tienen palabras.
-    </p>
-    <div class="mt-4">
-      <NavAlfabeto grupos={grupos} />
-    </div>
-  </section>
+  <RotuloSeccion titulo="Por tema" class="mt-10" />
 
-  <section class="mt-10">
-    <h2 class="text-xl">Por tema</h2>
-    <ul class="mt-4 grid gap-3 sm:grid-cols-2">
-      {
-        temas.map(({ categoria, entradas }) => (
-          <li class="rounded-lg border border-borde p-4">
-            <a
-              href={`${base}diccionario/tema/${categoria.slug}`}
-              class="font-bold text-jade-hondo underline-offset-4 hover:underline"
-            >
-              {categoria.nombre_es}
-            </a>
-            {categoria.nombre_mam && (
-              <span lang="mam" class="mam ml-2 text-tinta-suave">
-                {categoria.nombre_mam}
-              </span>
-            )}
-            <p class="mt-1 text-sm text-tinta-suave">
-              {entradas.length === 0
-                ? 'Sin palabras todavía'
-                : `${entradas.length} palabra${entradas.length === 1 ? '' : 's'}`}
-            </p>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
+  <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    {
+      temas.map(({ categoria, entradas }) => (
+        <li>
+          <FichaTema categoria={categoria} cantidad={entradas.length} />
+        </li>
+      ))
+    }
+  </ul>
 
-  <section class="mt-10 rounded-lg border border-borde bg-papel-hondo p-5">
+  <RotuloSeccion titulo="Por letra" class="mt-10" />
+
+  <p class="mt-3 max-w-2xl text-tinta-suave">
+    El alfabeto <span lang="mam">Mam</span> tiene 32 grafemas y no sigue el orden del
+    castellano: <span lang="mam" class="mam">ch</span> va antes que{' '}
+    <span lang="mam" class="mam">ch’</span>, <span lang="mam" class="mam">x</span> antes que{' '}
+    <span lang="mam" class="mam">ẍ</span>, y el saltillo lo cierra. Las letras apagadas
+    todavía no tienen palabras.
+  </p>
+
+  <div class="mt-4">
+    <NavAlfabeto grupos={grupos} />
+  </div>
+
+  <section class="mt-10 rounded-xl border border-borde bg-papel-hondo p-5">
     <h2 class="text-xl">Lo que falta en esta sección</h2>
     <ul class="mt-3 list-disc space-y-1 pl-5 text-tinta-suave">
       <li>Descarga por tema para consultarlo sin internet.</li>

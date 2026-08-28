@@ -30,12 +30,18 @@ const base = import.meta.env.BASE_URL;
         const vacia = entradas.length === 0;
         const esActual = grafema === actual;
 
+        /*
+         * Las letras sin entradas iban al 45 % de opacidad. En un teléfono barato y a plena
+         * luz eso deja de leerse: el usuario no ve una letra apagada, ve un borrón. Ahora se
+         * distinguen por el borde punteado —que dice «vacío» sin quitar contraste— y el texto
+         * se queda en `tinta-suave`, que sí se lee.
+         */
         if (vacia) {
           return (
             <li>
               <span
                 lang="mam"
-                class="mam inline-block min-w-9 rounded border border-borde px-2 py-1 text-center text-tinta-suave opacity-45"
+                class="mam inline-flex h-11 min-w-11 items-center justify-center rounded-lg border border-dashed border-borde px-2 text-tinta-suave"
                 title="Todavía sin entradas"
               >
                 {grafema}
@@ -51,10 +57,10 @@ const base = import.meta.env.BASE_URL;
               lang="mam"
               aria-current={esActual ? 'page' : undefined}
               class:list={[
-                'mam inline-block min-w-9 rounded border px-2 py-1 text-center',
+                'mam inline-flex h-11 min-w-11 items-center justify-center rounded-lg border px-2 no-underline',
                 esActual
-                  ? 'border-jade bg-jade font-bold text-papel'
-                  : 'border-borde hover:border-jade hover:text-jade-hondo',
+                  ? 'border-oro-hondo bg-oro font-bold text-tinta'
+                  : 'border-jade/35 text-jade-hondo hover:border-jade hover:bg-papel-hondo',
               ]}
             >
               {grafema}

@@ -28,7 +28,9 @@
 @theme {
   --font-mam: 'Charis SIL', 'Gentium Plus', Georgia, 'Times New Roman', serif;
 
-  /* Paleta corta a propósito: cada tono extra es CSS que viaja por 3G. */
+  /*
+   * Paleta base. Sigue siendo corta: cada tono extra es CSS que viaja por 3G.
+   */
   --color-papel: #fdfcf9;
   --color-papel-hondo: #f5f2ec;
   --color-tinta: #1f1c19;
@@ -37,6 +39,68 @@
   --color-jade: #0f6f63;
   --color-jade-hondo: #0a4f47;
   --color-alerta: #9a3412;
+
+  /*
+   * Segundo acento: el oro del logo. Da un nivel de jerarquía que con jade solo no
+   * existía —el activo de la navegación, el filo del buscador, el aviso de descarga— sin
+   * gastar una tercera familia tipográfica.
+   *
+   * `--color-oro` sobre `--color-jade-hondo` da 3.9:1. Pasa AA solo como texto grande en
+   * negrita (el «Mam» del logotipo, 22 px). No usarlo para texto pequeño sobre el verde.
+   */
+  --color-oro: #d99a1e;
+  --color-oro-hondo: #a8730f;
+  --color-oro-tinte: #faf4e6;
+  --color-oro-borde: #e5d8b8;
+
+  /* Texto secundario sobre la banda verde. 5.4:1 contra jade-hondo. */
+  --color-jade-claro: #9dc4bd;
+
+  /*
+   * Color por tema.
+   *
+   * Esto rompe con la paleta corta de arriba y la decisión está tomada a sabiendas: los
+   * usuarios son de primaria y muchos todavía leen despacio. El color y el ícono dicen
+   * «esto es Animales» antes de que el nombre se haya terminado de leer, que es la única
+   * ayuda de navegación que se puede dar sin JavaScript.
+   *
+   * El costo está medido: ~1 KB comprimido, y va en la hoja compartida que el service
+   * worker precarga una sola vez para las 37 páginas. No se paga por página.
+   *
+   * Los siete matices salen de oklch con la misma luminosidad y croma (0.50 / 0.115 para
+   * el fuerte), variando solo el matiz. Por eso conviven sin que ninguno grite. Si hay
+   * que agregar un octavo, sacarlo de la misma fórmula y no a ojo.
+   *
+   * Los slugs los define el backend. El mapa que los traduce a estas clases está en
+   * `src/data/temas.ts`, con su caso neutro para un tema que todavía no tenga color.
+   */
+  --color-tema-animales: #516f1a;
+  --color-tema-animales-tinte: #eef5e6;
+  --color-tema-animales-borde: #ccdabb;
+
+  --color-tema-familia: #006e97;
+  --color-tema-familia-tinte: #e5f5fd;
+  --color-tema-familia-borde: #b7dbec;
+
+  --color-tema-colores: #884881;
+  --color-tema-colores-tinte: #faedf8;
+  --color-tema-colores-borde: #e6cae2;
+
+  --color-tema-numeros: #575aa3;
+  --color-tema-numeros-tinte: #eff1ff;
+  --color-tema-numeros-borde: #ced2f2;
+
+  --color-tema-naturaleza: #007863;
+  --color-tema-naturaleza-tinte: #e4f7f2;
+  --color-tema-naturaleza-borde: #b6ded4;
+
+  --color-tema-casa: #9a4541;
+  --color-tema-casa-tinte: #ffedeb;
+  --color-tema-casa-borde: #f1cac5;
+
+  --color-tema-alimentos: #885800;
+  --color-tema-alimentos-tinte: #faf0e3;
+  --color-tema-alimentos-borde: #e6d1b4;
 }
 
 @layer base {
@@ -80,6 +144,28 @@
   .mam {
     font-family: var(--font-mam);
     font-variant-ligatures: none;
+  }
+
+  /*
+   * La cenefa: la banda de rombos del huipil que el logo lleva bajo el libro.
+   *
+   * Va como regla CSS y no como componente de Astro a propósito. El patrón son unos 500
+   * bytes de SVG y aparece dos veces por página; en el marcado serían mil bytes repetidos
+   * en las 37 páginas del sitio, mientras que aquí es una sola vez en la hoja compartida
+   * que el service worker ya precarga.
+   *
+   * El fondo verde lo pone `background-color` y no el propio SVG, para que el archivo
+   * solo lleve los rombos. `repeat-x` sin `background-size` deja que el mosaico use el
+   * tamaño intrínseco del SVG, 32×14.
+   *
+   * Es decoración: siempre dentro de un elemento vacío y sin texto, invisible para un
+   * lector de pantalla.
+   */
+  .cenefa {
+    height: 14px;
+    background-color: var(--color-jade-hondo);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='14'%3E%3Cpath d='M8 1 15 7 8 13 1 7Z' fill='%23d99a1e'/%3E%3Cpath d='M8 4.5 10.5 7 8 9.5 5.5 7Z' fill='%230a4f47'/%3E%3Cpath d='M24 1 31 7 24 13 17 7Z' fill='%23b8452f'/%3E%3Cpath d='M24 4.5 26.5 7 24 9.5 21.5 7Z' fill='%230a4f47'/%3E%3Cpath d='M16 4 19 7 16 10 13 7Z' fill='%231f7f74'/%3E%3Cpath d='M0 4 3 7 0 10-3 7Z' fill='%231f7f74'/%3E%3Cpath d='M32 4 35 7 32 10 29 7Z' fill='%231f7f74'/%3E%3C/svg%3E");
+    background-repeat: repeat-x;
   }
 
   /*

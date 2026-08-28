@@ -1,0 +1,128 @@
+---
+/**
+ * El ícono de un tema, dibujado a mano.
+ *
+ * Son siete SVG en línea y no un paquete de iconos: CLAUDE.md lo prohíbe y con razón, un
+ * paquete completo pesa más que todo el CSS del sitio para usar siete figuras.
+ *
+ * El trazo va en `currentColor`, así que el color lo pone quien lo usa con una clase de
+ * texto y el ícono no necesita saber de qué tema es. Todos comparten rejilla de 24 y
+ * `stroke-width` 1.7 para que se vean de la misma familia.
+ *
+ * `aria-hidden`: el nombre del tema va escrito al lado. Un texto alternativo haría que un
+ * lector de pantalla anunciara «Animales Animales».
+ */
+interface Props {
+  slug: string;
+  /** Lado en píxeles. 30 en las fichas, 24 en usos más apretados. */
+  tamano?: number;
+  class?: string;
+}
+
+const { slug, tamano = 30, class: clase } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 24 24"
+  width={tamano}
+  height={tamano}
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.7"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  class={clase}
+>
+  {
+    slug === 'animales' && (
+      <>
+        <circle cx="7" cy="9" r="1.9" />
+        <circle cx="11.4" cy="6.7" r="1.9" />
+        <circle cx="16.2" cy="7.6" r="1.9" />
+        <circle cx="19" cy="11.6" r="1.9" />
+        <path d="M8.4 16.2c0-2.5 1.9-4.1 4.2-4.1s4.2 1.6 4.2 4.1-1.9 4.4-4.2 4.4-4.2-1.9-4.2-4.4Z" />
+      </>
+    )
+  }
+
+  {
+    slug === 'la-familia' && (
+      <>
+        <circle cx="8.6" cy="7.6" r="2.7" />
+        <circle cx="16.4" cy="9.2" r="2.1" />
+        <path d="M3.8 19c0-2.9 2.1-4.8 4.8-4.8s4.8 1.9 4.8 4.8" />
+        <path d="M15.2 14.4c2.5 0 4.4 1.7 4.4 4.6" />
+      </>
+    )
+  }
+
+  {
+    slug === 'colores' && (
+      <>
+        <circle cx="9.6" cy="9.4" r="4.3" />
+        <circle cx="14.6" cy="9.4" r="4.3" />
+        <circle cx="12.1" cy="14.4" r="4.3" />
+      </>
+    )
+  }
+
+  {
+    /* Ábaco: las cuentas dicen «contar» sin escribir un número, que en un sitio bilingüe
+       obligaría a elegir idioma para un ícono. */
+    slug === 'numeros' && (
+      <>
+        <path d="M4 6.5h16M4 12h16M4 17.5h16" />
+        <circle cx="8" cy="6.5" r="1.7" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="12" r="1.7" fill="currentColor" stroke="none" />
+        <circle cx="10.5" cy="17.5" r="1.7" fill="currentColor" stroke="none" />
+      </>
+    )
+  }
+
+  {
+    slug === 'la-naturaleza' && (
+      <>
+        <path d="M3 19h18" />
+        <path d="m5.5 19 5-8 3.4 5.4" />
+        <path d="m12.6 19 3.2-4.8L21 19" />
+        <circle cx="17.2" cy="6.6" r="2.3" />
+      </>
+    )
+  }
+
+  {
+    slug === 'la-casa' && (
+      <>
+        <path d="M3.6 11.2 12 4.2l8.4 7" />
+        <path d="M6.2 9.6V19.4h11.6V9.6" />
+        <path d="M10 19.4v-4.8h4v4.8" />
+      </>
+    )
+  }
+
+  {
+    /* Mazorca y no un plato: el maíz es el alimento del que hablan los materiales, y una
+       figura de comida genérica no diría nada distinto de la palabra escrita al lado. */
+    slug === 'alimentos' && (
+      <>
+        <path d="M12 3.2c3 2.1 4.6 5.6 4.6 9.1 0 4-2 7.6-4.6 9.1-2.6-1.5-4.6-5.1-4.6-9.1 0-3.5 1.6-7 4.6-9.1Z" />
+        <path d="M12 4.6v15.4" />
+        <path d="M9.4 8.6h5.2M8.8 12.4h6.4M9.4 16.2h5.2" />
+      </>
+    )
+  }
+
+  {
+    /* Reserva para un tema que el backend agregue y que todavía no tenga figura propia.
+       Una etiqueta: dice «esto es una categoría» sin fingir que sabe de qué trata. */
+    !['animales', 'la-familia', 'colores', 'numeros', 'la-naturaleza', 'la-casa', 'alimentos'].includes(
+      slug
+    ) && (
+      <>
+        <path d="M4 5.6v6.1c0 .5.2 1 .6 1.4l6.9 6.9c.8.8 2 .8 2.8 0l5.1-5.1c.8-.8.8-2 0-2.8l-6.9-6.9c-.4-.4-.9-.6-1.4-.6H5.6c-.9 0-1.6.7-1.6 1.6Z" />
+        <circle cx="8.4" cy="8.4" r="1.3" />
+      </>
+    )
+  }
+</svg>

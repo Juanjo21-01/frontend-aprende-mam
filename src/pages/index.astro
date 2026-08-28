@@ -1,71 +1,206 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import FichaTema from '@/components/FichaTema.astro';
+import RotuloSeccion from '@/components/RotuloSeccion.astro';
+import { cargarVocabulario, porTema } from '@/data/vocabulario';
+
+/*
+ * La portada entra por la pregunta que trae el usuario —«¿cómo se dice…?»— y no por un
+ * índice de secciones. Para alguien de primaria, «busca una palabra» es la puerta más clara
+ * que hay, y el resto del sitio cabe debajo.
+ *
+ * OJO CON LA CAJA DE BÚSQUEDA: aquí es un **enlace** al diccionario, no el buscador. El
+ * buscador es la única isla del proyecto y montarla aquí traería los 52 KB de React a la
+ * página más visitada; `scripts/weight.mjs` hace fallar el build justamente por eso. Por
+ * ese motivo el enlace dice «Buscar una palabra» y no finge ser un campo con texto de
+ * ejemplo dentro: una caja que parece escribible y no lo es se siente rota.
+ *
+ * Los temas salen del vocabulario real, con sus cuentas. Si el validador lingüístico
+ * todavía no aprobó nada, salen todos en cero y eso es lo correcto.
+ */
+const vocabulario = await cargarVocabulario();
+const temas = porTema(vocabulario);
 
 const base = import.meta.env.BASE_URL;
+const total = vocabulario.entradas.length;
 
-const secciones = [
-  {
-    href: 'diccionario',
-    titulo: 'Diccionario',
-    texto: 'Vocabulario Mam–castellano con su fuente bibliográfica.',
-  },
-  {
-    href: 'gramatica',
-    titulo: 'Gramática',
-    texto: 'El alfabeto de 32 grafemas, la ortografía y la estructura del idioma.',
-  },
-  {
-    href: 'cultura',
-    titulo: 'Cultura',
-    texto: 'Calendario, tradiciones y relatos del pueblo Mam de San Marcos.',
-  },
-  {
-    href: 'materiales',
-    titulo: 'Materiales',
-    texto: 'Guías, fichas y cuadernillos descargables para el aula.',
-  },
-  {
-    href: 'juegos',
-    titulo: 'Juegos',
-    texto: 'Actividades para practicar lo aprendido.',
-  },
+const otrasSecciones = [
+  { href: 'gramatica', titulo: 'Gramática', texto: 'Las 32 letras del alfabeto' },
+  { href: 'cultura', titulo: 'Cultura', texto: 'Calendario, relatos y tradiciones' },
+  { href: 'materiales', titulo: 'Materiales', texto: 'Guías y cuadernillos para el aula' },
 ];
 ---
 
 <BaseLayout
   titulo="Inicio"
   descripcion="Biblioteca digital del idioma maya Mam, variante de San Marcos, Guatemala. Funciona sin conexión."
+  ancho="panel"
 >
-  <h1 class="text-4xl">Ẍiky, kyiẍ, tx'otx'</h1>
+  <h1 class="text-4xl">¿Cómo se dice en <span lang="mam">Mam</span>?</h1>
 
-  <p class="mt-4 text-lg text-tinta-suave">
+  <p class="mt-3 max-w-2xl text-lg text-tinta-suave">
     Biblioteca digital del idioma maya <span lang="mam">Mam</span>, variante de San Marcos,
     Guatemala. Pensada para funcionar en teléfonos de gama baja, con 3G o sin señal.
   </p>
 
-  <ul class="mt-10 grid gap-4 sm:grid-cols-2">
+  <div class="mt-6 max-w-xl overflow-hidden rounded-xl border-2 border-jade-hondo">
+    <a
+      href={`${base}diccionario`}
+      class="flex min-h-14 items-center gap-3 bg-papel px-4 py-3 text-lg no-underline"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        width="22"
+        height="22"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+        class="shrink-0 text-jade-hondo"
+      >
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="M16.5 16.5 21 21"></path>
+      </svg>
+      <span class="font-bold text-jade-hondo">Buscar una palabra</span>
+    </a>
+    <div class="h-1 bg-oro" aria-hidden="true"></div>
+  </div>
+
+  <p class="mt-2 max-w-xl text-sm text-tinta-suave">
+    Se busca en <span lang="mam">Mam</span> y en castellano, y no hace falta el saltillo ni la
+    diéresis: «xiky» encuentra <span lang="mam" class="mam">ẍiky</span>.
+  </p>
+
+  <RotuloSeccion titulo="Escoge un tema" class="mt-10" />
+
+  <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
     {
-      secciones.map(({ href, titulo, texto }) => (
-        <li class="rounded-lg border border-borde p-5">
-          <a href={`${base}${href}`} class="text-xl font-bold text-jade-hondo underline-offset-4 hover:underline">
-            {titulo}
-          </a>
-          <p class="mt-2 text-tinta-suave">{texto}</p>
+      temas.map(({ categoria, entradas }) => (
+        <li>
+          <FichaTema categoria={categoria} cantidad={entradas.length} />
         </li>
       ))
     }
   </ul>
 
-  <section class="mt-12 rounded-lg border border-borde bg-papel-hondo p-5">
+  <a
+    href={`${base}juegos`}
+    class="mt-6 flex min-h-19 items-center gap-4 rounded-xl bg-jade p-4 no-underline"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      width="28"
+      height="28"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.7"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      class="shrink-0 text-papel"
+    >
+      <rect x="3.6" y="3.6" width="16.8" height="16.8" rx="3.6"></rect>
+      <circle cx="8.6" cy="8.6" r="1.5" fill="currentColor" stroke="none"></circle>
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"></circle>
+      <circle cx="15.4" cy="15.4" r="1.5" fill="currentColor" stroke="none"></circle>
+    </svg>
+    <span class="grow">
+      <span class="block text-xl font-bold text-papel">Juega y practica</span>
+      <span class="block text-sm text-jade-claro">
+        Actividades para repasar lo aprendido
+      </span>
+    </span>
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      class="shrink-0 text-papel"
+    >
+      <path d="m9 5 7 7-7 7"></path>
+    </svg>
+  </a>
+
+  <RotuloSeccion titulo="Y también" class="mt-10" />
+
+  <ul class="mt-4 grid gap-3 sm:grid-cols-3">
+    {
+      otrasSecciones.map(({ href, titulo, texto }) => (
+        <li>
+          <a
+            href={`${base}${href}`}
+            class="flex h-full min-h-17 items-center gap-3 rounded-xl border border-borde p-4 no-underline hover:border-jade"
+          >
+            <span class="grow">
+              <span class="block font-bold text-jade-hondo">{titulo}</span>
+              <span class="block text-sm text-tinta-suave">{texto}</span>
+            </span>
+            <svg
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              class="shrink-0 text-tinta-suave"
+            >
+              <path d="m9 5 7 7-7 7"></path>
+            </svg>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="mt-10 flex items-start gap-3 rounded-xl border border-oro-borde bg-oro-tinte p-4">
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.9"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      class="mt-1 shrink-0 text-oro-hondo"
+    >
+      <path d="M12 20.5v-.01"></path>
+      <path d="M8.2 16.6a5.4 5.4 0 0 1 7.6 0"></path>
+      <path d="M4.8 12.9a10.2 10.2 0 0 1 14.4 0"></path>
+      <path d="M1.6 9.3a15 15 0 0 1 20.8 0"></path>
+    </svg>
+    <div>
+      <p class="font-bold text-oro-hondo">Funciona sin internet</p>
+      <p class="mt-1 text-tinta-suave">
+        El diccionario se guarda en tu teléfono la primera vez que lo abres. Los videos y las
+        actividades de otras páginas sí necesitan señal.
+      </p>
+    </div>
+  </div>
+
+  <section class="mt-10 rounded-xl border border-borde bg-papel-hondo p-5">
     <h2 class="text-xl">Estado del proyecto</h2>
     <p class="mt-3 text-tinta-suave">
-      Esta es la primera fase: la estructura del sitio y la tipografía. Las secciones
-      todavía no tienen contenido. La página de{' '}
+      {
+        total === 0
+          ? 'Todavía no hay palabras publicadas: solo se publica lo que el validador lingüístico ya revisó. Las secciones de contenido están en preparación.'
+          : `Hay ${total} palabras publicadas. Las secciones de cultura, gramática y materiales están en preparación.`
+      }
+      La página de{' '}
       <a href={`${base}prueba-tipografica`} class="underline underline-offset-2">
         prueba tipográfica
       </a>{' '}
-      sirve para verificar que la letra <span lang="mam">ẍ</span> se dibuja con los trazos de
-      Charis SIL y no con los de una fuente sustituta.
+      sirve para verificar que la letra <span lang="mam" class="mam">ẍ</span> se dibuja con los
+      trazos de Charis SIL y no con los de una fuente sustituta.
     </p>
   </section>
 </BaseLayout>

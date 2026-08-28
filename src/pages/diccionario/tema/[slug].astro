@@ -9,7 +9,9 @@
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import EntradaFicha from '@/components/EntradaFicha.astro';
+import IconoTema from '@/components/IconoTema.astro';
 import PieDeFuentes from '@/components/PieDeFuentes.astro';
+import { temaVisual } from '@/data/temas';
 import {
   cargarVocabulario,
   fuentesCitadas,
@@ -42,6 +44,14 @@ const nombresDeTema = new Map(categorias.map((otra) => [otra.slug, otra.nombre_e
 const fuentes = fuentesCitadas(entradas);
 
 const cuantas = entradas.length;
+
+/*
+ * El color del tema va en el encabezado y no en cada entrada. Aquí todas las palabras son de
+ * este tema, así que repetir la etiqueta en las doce fichas sería decir doce veces lo mismo;
+ * arriba, en cambio, dice de un vistazo en qué lección estás. Las fichas solo llevan etiqueta
+ * cuando la palabra pertenece además a otro tema.
+ */
+const visual = temaVisual(categoria.slug);
 ---
 
 <BaseLayout
@@ -52,15 +62,21 @@ const cuantas = entradas.length;
     <a href={`${base}diccionario`} class="underline underline-offset-2">Diccionario</a>
   </p>
 
-  <h1 class="mt-2 text-3xl">{categoria.nombre_es}</h1>
-
-  {
-    categoria.nombre_mam && (
-      <p class="mt-1 text-lg">
-        <span lang="mam" class="mam">{categoria.nombre_mam}</span>
-      </p>
-    )
-  }
+  <div class:list={['mt-2 flex items-center gap-4 rounded-xl border p-5', visual.ficha]}>
+    <IconoTema slug={categoria.slug} tamano={40} class={`shrink-0 ${visual.texto}`} />
+    <div>
+      <h1 class:list={['text-3xl', visual.texto]}>{categoria.nombre_es}</h1>
+      {
+        categoria.nombre_mam && (
+          <p class="mt-1 text-lg">
+            <span lang="mam" class="mam">
+              {categoria.nombre_mam}
+            </span>
+          </p>
+        )
+      }
+    </div>
+  </div>
 
   {
     cuantas === 0 ? (
@@ -79,7 +95,7 @@ const cuantas = entradas.length;
     )
   }
 
-  <dl class="mt-8">
+  <dl class="mt-8 flex flex-col gap-3">
     {
       entradas.map((entrada) => (
         <EntradaFicha
@@ -87,6 +103,7 @@ const cuantas = entradas.length;
           marca={indiceDeFuente(entrada, fuentes)}
           nombresDeTema={nombresDeTema}
           temaActual={categoria.slug}
+          variante="tarjeta"
         />
       ))
     }

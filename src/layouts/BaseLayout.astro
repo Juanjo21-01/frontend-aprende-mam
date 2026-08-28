@@ -6,9 +6,27 @@ import SiteFooter from '@/components/SiteFooter.astro';
 interface Props {
   titulo: string;
   descripcion: string;
+  /**
+   * Ancho del contenido en escritorio.
+   *
+   * `lectura` (por defecto) son 768 px: el ancho en el que una línea de prosa se lee sin
+   * cansar. Lo usan las entradas del diccionario, la cultura, la gramática y el material
+   * de respaldo, que son páginas para leer seguido.
+   *
+   * `panel` son 1024 px, para las dos páginas que son rejilla y no texto —el inicio y el
+   * índice del diccionario—, donde a 768 px las fichas de tema se quedan en dos columnas
+   * con medio monitor vacío al lado.
+   *
+   * El mismo valor viaja al encabezado y al pie: si el contenido de la banda verde se
+   * alineara a otro ancho que el del cuerpo, el desfase se nota en cuanto la ventana pasa
+   * de los 1024 px.
+   */
+  ancho?: 'lectura' | 'panel';
 }
 
-const { titulo, descripcion } = Astro.props;
+const { titulo, descripcion, ancho = 'lectura' } = Astro.props;
+
+const contenedor = ancho === 'panel' ? 'max-w-5xl' : 'max-w-3xl';
 
 const base = import.meta.env.BASE_URL;
 const canonica = new URL(Astro.url.pathname, Astro.site);
@@ -79,7 +97,9 @@ const fuentes = [
     <link rel="icon" href={`${base}favicon.ico`} type="image/x-icon" />
     <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
     <link rel="manifest" href={`${base}manifest.webmanifest`} />
-    <meta name="theme-color" content="#0f6f63" />
+    {/* El verde de la banda del encabezado. Con el jade claro, la barra de estado de
+        Android salía de un verde distinto al de la primera franja de la página. */}
+    <meta name="theme-color" content="#0a4f47" />
     <meta name="apple-mobile-web-app-title" content="AprendeMam" />
 
     <meta property="og:type" content="website" />
@@ -102,13 +122,13 @@ const fuentes = [
       internet.
     </p>
 
-    <SiteHeader />
+    <SiteHeader ancho={ancho} />
 
-    <main id="contenido" class="mx-auto w-full max-w-3xl flex-1 px-5 py-10">
+    <main id="contenido" class:list={['mx-auto w-full flex-1 px-5 py-10', contenedor]}>
       <slot />
     </main>
 
-    <SiteFooter />
+    <SiteFooter ancho={ancho} />
 
     <script define:vars={{ base, conServiceWorker: import.meta.env.PROD }}>
       (function () {

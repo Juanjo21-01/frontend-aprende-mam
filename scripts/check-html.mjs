@@ -36,7 +36,10 @@ const DESPUES = new RegExp(`</${INLINE}>[${LETRA}¿¡]`, 'g');
  */
 const PERMITIDAS = [
   // El logotipo: «AprendeMam» es una sola palabra, partida en dos para colorear la mitad.
-  /Aprende<span class="text-tinta">Mam<\/span>/,
+  // El color cambió de tinta a oro con el rediseño; el patrón va pegado al marcado de
+  // SiteHeader.astro y hay que actualizarlo en el mismo commit que él, o esta comprobación
+  // falla con un falso positivo que no dice nada de lo que pasó.
+  /Aprende<span class="text-oro">Mam<\/span>/,
 ];
 
 async function paginas(dir = DIST) {
