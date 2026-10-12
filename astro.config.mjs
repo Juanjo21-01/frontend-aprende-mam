@@ -4,6 +4,7 @@ import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
 import serviceWorker from './scripts/service-worker.mjs';
+import sitemap from './scripts/sitemap.mjs';
 
 // El sitio se compila a estático y se sirve desde Netlify. La API de Laravel solo se
 // consume en tiempo de compilación: nunca desde el navegador.
@@ -21,7 +22,9 @@ export default defineConfig({
   // dentro. Va como integración y no como script de `package.json` porque Netlify ejecuta
   // `npm run build` y nada más: lo que quede fuera de `astro build` no se despliega, y el
   // sitio se vería idéntico mientras deja de funcionar sin conexión.
-  integrations: [react(), serviceWorker()],
+  //
+  // El sitemap y el robots.txt también salen de una integración propia, por el mismo motivo.
+  integrations: [react(), serviceWorker(), sitemap()],
 
   // Netlify sirve desde la raíz del dominio, así que no hay prefijo de ruta. Si algún día
   // el sitio se moviera a un subdirectorio, hay que fijar `base` aquí: el layout y la
