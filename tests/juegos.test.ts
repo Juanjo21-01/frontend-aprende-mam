@@ -18,6 +18,12 @@ import {
   grafemasDe,
   memoriaTerminada,
   nuevaPartidaSopa,
+  preguntasDesdeVocabulario,
+  nuevaPartidaCuestionario,
+  responder,
+  siguiente,
+  aciertos,
+  cuestionarioTerminado,
   sopaTerminada,
   tocarCasilla,
   casillasEntre,
@@ -292,5 +298,98 @@ describe('sopa de letras', () => {
     assert.equal(partida.inicio, diagonal);
     partida = tocarCasilla(partida, diagonal);
     assert.equal(partida.inicio, null);
+  });
+});
+
+describe('cuestionario', () => {
+  const temas = () => temasJugables(grupos(), 'cuestionario');
+
+  it('en cada tema, diez preguntas o tantas como palabras, sin repetir palabra', () => {
+    for (const tema of temas()) {
+      const preguntas = preguntasDesdeVocabulario(tema.palabras, semilla(3));
+      // Los sinónimos cuentan una sola vez: «alimentos» tiene 5 palabras y dos significan «elote».
+      const distintas = elegirDistintas(tema.palabras, Infinity).length;
+      assert.equal(preguntas.length, Math.min(10, distintas), tema.categoria.slug);
+      assert.equal(new Set(preguntas.map((p) => p.palabra!.id)).size, preguntas.length);
+    }
+  });
+
+  it('cada pregunta tiene una sola correcta, la de su palabra, y opciones sin repetir', () => {
+    for (const tema of [...temas(), { categoria: null, palabras }]) {
+      for (let s = 1; s <= 30; s++) {
+        for (const pregunta of preguntasDesdeVocabulario(tema.palabras, semilla(s))) {
+          const correctas = pregunta.opciones.filter((o) => o.es_correcta);
+          assert.equal(correctas.length, 1);
+          const esperada =
+            pregunta.termino!.idioma === 'mam' ? pregunta.palabra!.espanol : pregunta.palabra!.mam;
+          assert.equal(correctas[0]!.texto, esperada);
+
+          const textos = pregunta.opciones.map((o) => o.texto.toLocaleLowerCase('es'));
+          assert.equal(new Set(textos).size, textos.length, pregunta.enunciado);
+          assert.equal(pregunta.opciones.length, 4, pregunta.enunciado);
+        }
+      }
+    }
+  });
+
+  it('un sinónimo nunca aparece como opción incorrecta', () => {
+    const elote = palabras.filter((p) => p.espanol === 'elote');
+    assert.equal(elote.length, 2, 'la exportación de prueba trae i’ẍ y k’uxub’aj');
+    const alimentos = palabras.filter((p) => p.temas.includes('alimentos'));
+
+    for (let s = 1; s <= 60; s++) {
+      for (const pregunta of preguntasDesdeVocabulario(alimentos, semilla(s))) {
+        if (!elote.includes(pregunta.palabra!)) continue;
+        const otro = elote.find((p) => p !== pregunta.palabra)!;
+        const textos = pregunta.opciones.map((o) => o.texto);
+        if (pregunta.termino!.idioma === 'es') assert.ok(!textos.includes(otro.mam));
+      }
+    }
+  });
+
+  it('mezcla las dos direcciones por mitades', () => {
+    const preguntas = preguntasDesdeVocabulario(palabras, semilla(8));
+    const haciaEspanol = preguntas.filter((p) => p.termino!.idioma === 'mam').length;
+    assert.equal(haciaEspanol, 5);
+  });
+
+  it('en la partida de todos, los distractores salen primero del mismo tema', () => {
+    for (const pregunta of preguntasDesdeVocabulario(palabras, semilla(12))) {
+      const objetivo = pregunta.palabra!;
+      const campo = pregunta.termino!.idioma === 'mam' ? 'espanol' : 'mam';
+      const delTema = palabras.filter(
+        (p) => p !== objetivo && p.temas.some((t) => objetivo.temas.includes(t))
+      );
+      if (delTema.length < 3) continue;
+      for (const opcion of pregunta.opciones.filter((o) => !o.es_correcta)) {
+        assert.ok(
+          delTema.some((p) => p[campo] === opcion.texto),
+          `${opcion.texto} no es del tema de ${objetivo.mam}`
+        );
+      }
+    }
+  });
+
+  it('una respuesta no se puede cambiar, y no se avanza sin responder', () => {
+    let partida = nuevaPartidaCuestionario(preguntasDesdeVocabulario(palabras, semilla(1)));
+    assert.equal(siguiente(partida), partida);
+
+    const correcta = partida.preguntas[0]!.opciones.findIndex((o) => o.es_correcta);
+    const otra = (correcta + 1) % 4;
+    partida = responder(partida, otra);
+    partida = responder(partida, correcta);
+    assert.equal(partida.respuestas[0], otra);
+    assert.equal(aciertos(partida), 0);
+  });
+
+  it('se recorre entera y cuenta los aciertos', () => {
+    let partida = nuevaPartidaCuestionario(preguntasDesdeVocabulario(palabras, semilla(6)));
+    partida.preguntas.forEach((pregunta, i) => {
+      const correcta = pregunta.opciones.findIndex((o) => o.es_correcta);
+      partida = responder(partida, i % 3 === 0 ? (correcta + 1) % 4 : correcta);
+      partida = siguiente(partida);
+    });
+    assert.ok(cuestionarioTerminado(partida));
+    assert.equal(aciertos(partida), 6);
   });
 });

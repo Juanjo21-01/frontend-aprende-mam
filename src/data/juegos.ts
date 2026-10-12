@@ -32,11 +32,13 @@ export interface PalabraDeJuego {
   clase: string | null;
   /** Clave de intercalación: de aquí salen las letras, no de `mam`. */
   orden: string;
+  /** Slugs de tema. En la partida de «todos», el cuestionario saca de aquí los distractores. */
+  temas: string[];
 }
 
 export function aPalabraDeJuego(entrada: Entrada): PalabraDeJuego {
-  const { id, mam, espanol, clase, orden } = entrada;
-  return { id, mam, espanol, clase, orden };
+  const { id, mam, espanol, clase, orden, temas } = entrada;
+  return { id, mam, espanol, clase, orden, temas };
 }
 
 /** Los juegos del sitio. `listo` decide si el índice lo enlaza o lo anuncia como pendiente. */
@@ -57,7 +59,7 @@ export const JUEGOS = [
     slug: 'cuestionario',
     nombre: 'Cuestionario',
     descripcion: 'Escoge la respuesta correcta: qué significa, o cómo se dice en Mam.',
-    listo: false,
+    listo: true,
   },
 ] as const;
 
@@ -491,4 +493,178 @@ export function tocarCasilla(partida: PartidaSopa, casilla: number): PartidaSopa
     encontradas: [...partida.encontradas, hallada],
     marcadas: [...new Set([...partida.marcadas, ...tramo])],
   };
+}
+
+// ──────────────────────────────────────────────────────────────────────── Cuestionario ──
+
+/** Preguntas por partida: diez, o tantas como palabras tenga el tema si son menos. */
+export const PREGUNTAS_CUESTIONARIO = 10;
+/** Opciones por pregunta, la correcta incluida. */
+const OPCIONES_POR_PREGUNTA = 4;
+
+/**
+ * Una opción. Los dos primeros campos son los de la tabla `opciones` del modelo de datos del
+ * backend; `idioma` es solo de presentación, para marcar el Mam con `lang` y su tipografía.
+ */
+export interface Opcion {
+  texto: string;
+  es_correcta: boolean;
+  idioma?: 'mam' | 'es';
+}
+
+/**
+ * Una pregunta, con la forma de la tabla `preguntas` del modelo de datos (`enunciado`, `tipo`,
+ * `retroalimentacion`) más sus `opciones`.
+ *
+ * Hoy todas salen del vocabulario, pero el backend tiene previstos cuestionarios redactados a
+ * mano. Cuando los exporte, entran en este mismo motor sin tocarlo: lo único que no tendrán es
+ * `termino` ni `palabra`, y la isla funciona sin ellos.
+ */
+export interface Pregunta {
+  enunciado: string;
+  tipo: 'opcion_multiple';
+  retroalimentacion: string | null;
+  opciones: Opcion[];
+  /** Lo que se pregunta, para mostrarlo grande. Solo en las preguntas generadas. */
+  termino?: { texto: string; idioma: 'mam' | 'es' };
+  /** La entrada de la que salió la pregunta, para enseñar su ficha al responder. */
+  palabra?: PalabraDeJuego;
+}
+
+/**
+ * Hasta tres distractores para una palabra, distintos entre sí y de la respuesta correcta en el
+ * idioma de las opciones. Primero los de un tema que compartan —«perro» con otros animales, no
+ * con números—, y si no alcanzan, del resto.
+ *
+ * Un sinónimo nunca es distractor. `i’ẍ` y `k’uxub’aj` significan los dos «elote»: en
+ * «¿Cómo se dice "elote" en Mam?», ofrecer `k’uxub’aj` como incorrecta sería castigar una
+ * respuesta correcta. Por eso se descarta también todo candidato que comparta el término que se
+ * pregunta, no solo el texto de la respuesta.
+ */
+function distractores(
+  objetivo: PalabraDeJuego,
+  palabras: readonly PalabraDeJuego[],
+  campo: 'mam' | 'espanol',
+  azar: Azar
+): PalabraDeJuego[] {
+  const normal = (texto: string) => texto.trim().toLocaleLowerCase('es');
+  const preguntado = campo === 'mam' ? 'espanol' : 'mam';
+  const vistos = new Set([normal(objetivo[campo])]);
+  const afines = (palabra: PalabraDeJuego) =>
+    palabra.temas.some((tema) => objetivo.temas.includes(tema));
+
+  const candidatas = [
+    ...barajar(
+      palabras.filter((palabra) => afines(palabra)),
+      azar
+    ),
+    ...barajar(
+      palabras.filter((palabra) => !afines(palabra)),
+      azar
+    ),
+  ];
+
+  const elegidas: PalabraDeJuego[] = [];
+  for (const palabra of candidatas) {
+    if (elegidas.length === OPCIONES_POR_PREGUNTA - 1) break;
+    const texto = normal(palabra[campo]);
+    if (vistos.has(texto)) continue;
+    if (normal(palabra[preguntado]) === normal(objetivo[preguntado])) continue;
+    vistos.add(texto);
+    elegidas.push(palabra);
+  }
+
+  return elegidas;
+}
+
+/**
+ * Preguntas de opción múltiple generadas desde el vocabulario, en las dos direcciones y
+ * mezcladas por mitades: «¿Qué significa `kyiẍ`?» con opciones en castellano, y «¿Cómo se dice
+ * "pez" en Mam?» con opciones en Mam.
+ */
+export function preguntasDesdeVocabulario(
+  palabras: readonly PalabraDeJuego[],
+  azar: Azar = Math.random,
+  cuantas: number = PREGUNTAS_CUESTIONARIO
+): Pregunta[] {
+  const objetivos = elegirDistintas(palabras, cuantas, azar);
+  const direcciones = barajar(
+    objetivos.map((_, i) => (i % 2 === 0 ? 'mam-es' : 'es-mam')),
+    azar
+  );
+
+  return objetivos.map((objetivo, i): Pregunta => {
+    const haciaEspanol = direcciones[i] === 'mam-es';
+    const campo = haciaEspanol ? 'espanol' : 'mam';
+    const idioma = haciaEspanol ? 'es' : 'mam';
+
+    const opciones = barajar(
+      [objetivo, ...distractores(objetivo, palabras, campo, azar)].map((palabra) => ({
+        texto: palabra[campo],
+        es_correcta: palabra === objetivo,
+        idioma,
+      })),
+      azar
+    );
+
+    return haciaEspanol
+      ? {
+          enunciado: `¿Qué significa «${objetivo.mam}»?`,
+          tipo: 'opcion_multiple',
+          retroalimentacion: `«${objetivo.mam}» significa «${objetivo.espanol}».`,
+          opciones,
+          termino: { texto: objetivo.mam, idioma: 'mam' },
+          palabra: objetivo,
+        }
+      : {
+          enunciado: `¿Cómo se dice «${objetivo.espanol}» en Mam?`,
+          tipo: 'opcion_multiple',
+          retroalimentacion: `«${objetivo.espanol}» en Mam se dice «${objetivo.mam}».`,
+          opciones,
+          termino: { texto: objetivo.espanol, idioma: 'es' },
+          palabra: objetivo,
+        };
+  });
+}
+
+export interface PartidaCuestionario {
+  preguntas: Pregunta[];
+  /** Índice de la pregunta a la vista; `preguntas.length` es la pantalla de resultados. */
+  actual: number;
+  /** Opción elegida en cada pregunta, o `null` si todavía no se respondió. */
+  respuestas: (number | null)[];
+}
+
+export function nuevaPartidaCuestionario(preguntas: Pregunta[]): PartidaCuestionario {
+  return { preguntas, actual: 0, respuestas: preguntas.map(() => null) };
+}
+
+/** Responder la pregunta a la vista. Solo cuenta la primera respuesta: no se puede corregir. */
+export function responder(partida: PartidaCuestionario, opcion: number): PartidaCuestionario {
+  const pregunta = partida.preguntas[partida.actual];
+  if (pregunta === undefined || partida.respuestas[partida.actual] !== null) return partida;
+  if (opcion < 0 || opcion >= pregunta.opciones.length) return partida;
+
+  const respuestas = [...partida.respuestas];
+  respuestas[partida.actual] = opcion;
+  return { ...partida, respuestas };
+}
+
+/** Pasar a la siguiente pregunta, o a los resultados después de la última. */
+export function siguiente(partida: PartidaCuestionario): PartidaCuestionario {
+  if (partida.respuestas[partida.actual] === null) return partida;
+  return { ...partida, actual: Math.min(partida.actual + 1, partida.preguntas.length) };
+}
+
+export function acerto(partida: PartidaCuestionario, indice: number): boolean {
+  const elegida = partida.respuestas[indice];
+  return elegida != null && partida.preguntas[indice]!.opciones[elegida]!.es_correcta;
+}
+
+export function aciertos(partida: PartidaCuestionario): number {
+  return partida.preguntas.filter((_, i) => acerto(partida, i)).length;
+}
+
+export function cuestionarioTerminado(partida: PartidaCuestionario): boolean {
+  return partida.preguntas.length > 0 && partida.actual === partida.preguntas.length;
 }
