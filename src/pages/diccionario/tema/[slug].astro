@@ -11,7 +11,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import EntradaFicha from '@/components/EntradaFicha.astro';
 import IconoTema from '@/components/IconoTema.astro';
 import PieDeFuentes from '@/components/PieDeFuentes.astro';
-import { JUEGOS, MINIMO_POR_TEMA } from '@/data/juegos';
+import { JUEGOS, MINIMO_POR_TEMA, aPalabraDeJuego, aptaPara } from '@/data/juegos';
 import { temaVisual } from '@/data/temas';
 import {
   cargarVocabulario,
@@ -54,10 +54,15 @@ const cuantas = entradas.length;
  */
 const visual = temaVisual(categoria.slug);
 
-// Mismo criterio que las rutas de `/juegos`: si el tema no llega al mínimo, no hay partida a
-// la que enlazar.
-const jugable = cuantas >= MINIMO_POR_TEMA;
-const juegosListos = JUEGOS.filter((juego) => juego.listo);
+// Mismo criterio que las rutas de `/juegos` (`temasJugables`): un juego se enlaza solo si el
+// tema llega al mínimo de palabras aptas para ese juego; si no, no hay partida a la que ir.
+const palabras = entradas.map(aPalabraDeJuego);
+const juegosListos = JUEGOS.filter(
+  (juego) =>
+    juego.listo &&
+    palabras.filter((palabra) => aptaPara(juego.slug, palabra)).length >= MINIMO_POR_TEMA
+);
+const jugable = juegosListos.length > 0;
 ---
 
 <BaseLayout

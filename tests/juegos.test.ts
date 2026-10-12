@@ -17,12 +17,19 @@ import {
   elegirDistintas,
   grafemasDe,
   memoriaTerminada,
+  nuevaPartidaSopa,
+  sopaTerminada,
+  tocarCasilla,
+  casillasEntre,
+  aptaPara,
+  ANCHO_MAXIMO_SOPA,
   nuevaPartidaMemoria,
   temasJugables,
   tieneLetrasAjenas,
   voltear,
   type PalabraDeJuego,
   type PartidaMemoria,
+  type PartidaSopa,
 } from '../src/data/juegos.ts';
 import type { Categoria, Entrada } from '../src/data/vocabulario.ts';
 
@@ -90,19 +97,19 @@ describe('grafemasDe', () => {
 
 describe('temasJugables', () => {
   it('ofrece los temas con al menos el mínimo de palabras', () => {
-    const jugables = temasJugables(grupos());
+    const jugables = temasJugables(grupos(), 'memoria');
     assert.ok(jugables.length > 0);
     for (const { palabras } of jugables) assert.ok(palabras.length >= MINIMO_POR_TEMA);
   });
 
   it('con la primera exportación, los siete temas se pueden jugar', () => {
-    assert.equal(temasJugables(grupos()).length, 7);
+    assert.equal(temasJugables(grupos(), 'memoria').length, 7);
   });
 
   it('se niega a que un tema se llame como la ruta de la partida mezclada', () => {
     const [primero] = grupos();
     assert.throws(() =>
-      temasJugables([{ ...primero!, categoria: { ...primero!.categoria, slug: TODOS } }])
+      temasJugables([{ ...primero!, categoria: { ...primero!.categoria, slug: TODOS } }], 'memoria')
     );
   });
 });
@@ -152,7 +159,7 @@ describe('memoria', () => {
   });
 
   it('se puede terminar en cada tema jugable', () => {
-    for (const tema of temasJugables(grupos())) {
+    for (const tema of temasJugables(grupos(), 'memoria')) {
       let partida: PartidaMemoria = nuevaPartidaMemoria(tema.palabras, semilla(11));
 
       for (let par = 0; par < partida.palabras.length; par++) {
@@ -169,9 +176,7 @@ describe('memoria', () => {
     let partida = nuevaPartidaMemoria(palabras, semilla(5));
     const primera = 0;
     const distinta = partida.cartas.findIndex((carta) => carta.par !== partida.cartas[0]!.par);
-    const tercera = partida.cartas.findIndex(
-      (_, i) => i !== primera && i !== distinta
-    );
+    const tercera = partida.cartas.findIndex((_, i) => i !== primera && i !== distinta);
 
     partida = voltear(partida, primera);
     partida = voltear(partida, distinta);
@@ -196,5 +201,96 @@ describe('memoria', () => {
     partida = voltear(partida, pareja);
     const despues = voltear(partida, 0);
     assert.equal(despues, partida);
+  });
+});
+
+describe('sopa de letras', () => {
+  it('deja fuera las entradas con espacio y las que traen letras ajenas', () => {
+    const tlamel = palabras.find((p) => p.mam === 'tlamel ja')!;
+    const tutzbil = palabras.find((p) => p.mam === 'tutz’bil')!;
+    assert.equal(aptaPara('sopa-de-letras', tlamel), false);
+    assert.equal(aptaPara('sopa-de-letras', tutzbil), false);
+    assert.equal(aptaPara('memoria', tutzbil), true);
+  });
+
+  it('los siete temas se pueden jugar también en la sopa', () => {
+    assert.equal(temasJugables(grupos(), 'sopa-de-letras').length, 7);
+  });
+
+  it('casillasEntre solo acepta líneas rectas, en los dos sentidos', () => {
+    assert.deepEqual(casillasEntre(5, 0, 3), [0, 1, 2, 3]);
+    assert.deepEqual(casillasEntre(5, 3, 0), [3, 2, 1, 0]);
+    assert.deepEqual(casillasEntre(5, 1, 16), [1, 6, 11, 16]);
+    assert.equal(casillasEntre(5, 0, 6), null);
+  });
+
+  /** Dónde quedó escrita una palabra: busca su primera letra y sigue en las dos direcciones. */
+  function ubicar(partida: PartidaSopa, letras: string[]): [number, number] {
+    const { lado, casillas } = partida;
+    for (let origen = 0; origen < casillas.length; origen++) {
+      const [fila, columna] = [Math.floor(origen / lado), origen % lado];
+      if (columna + letras.length <= lado && letras.every((l, i) => casillas[origen + i] === l)) {
+        return [origen, origen + letras.length - 1];
+      }
+      if (
+        fila + letras.length <= lado &&
+        letras.every((l, i) => casillas[origen + i * lado] === l)
+      ) {
+        return [origen, origen + (letras.length - 1) * lado];
+      }
+    }
+    throw new Error(`«${letras.join('')}» no está en la cuadrícula`);
+  }
+
+  it('en cada tema, con muchas semillas, coloca palabras de verdad y se puede terminar', () => {
+    for (const tema of temasJugables(grupos(), 'sopa-de-letras')) {
+      for (let s = 1; s <= 40; s++) {
+        let partida = nuevaPartidaSopa(tema.palabras, semilla(s));
+        const cuenta = `${tema.categoria.slug}, semilla ${s}`;
+
+        assert.ok(partida.lado <= ANCHO_MAXIMO_SOPA, cuenta);
+        assert.equal(partida.casillas.length, partida.lado * partida.lado, cuenta);
+        assert.ok(partida.palabras.length >= Math.min(4, tema.palabras.length), cuenta);
+
+        partida.palabras.forEach(({ letras }) => {
+          const [desde, hasta] = ubicar(partida, letras);
+          // Al revés: última letra primero.
+          partida = tocarCasilla(tocarCasilla(partida, hasta), desde);
+        });
+
+        assert.ok(sopaTerminada(partida), cuenta);
+        assert.equal(partida.intentos, partida.palabras.length, cuenta);
+      }
+    }
+  });
+
+  it('una casilla por letra Mam: tx’ ocupa una sola', () => {
+    const txotx = palabras.find((p) => p.mam === 'tx’otx’')!;
+    const partida = nuevaPartidaSopa([txotx, ...palabras.slice(0, 3)], semilla(2));
+    assert.ok(partida.casillas.includes('tx’'));
+    assert.ok(!partida.casillas.includes('’'.repeat(2)));
+  });
+
+  it('una selección equivocada cuenta, queda marcada y se limpia al siguiente toque', () => {
+    let partida = nuevaPartidaSopa(palabras, semilla(4));
+    // Dos casillas vecinas casi nunca forman una palabra entera.
+    partida = tocarCasilla(tocarCasilla(partida, 0), 1);
+    assert.equal(partida.intentos, 1);
+    assert.deepEqual(partida.fallidas, [0, 1]);
+    assert.equal(partida.inicio, null);
+
+    partida = tocarCasilla(partida, 5);
+    assert.deepEqual(partida.fallidas, []);
+    assert.equal(partida.inicio, 5);
+  });
+
+  it('cambiar de idea no cuenta como intento', () => {
+    let partida = nuevaPartidaSopa(palabras, semilla(4));
+    const diagonal = partida.lado + 1;
+    partida = tocarCasilla(tocarCasilla(partida, 0), diagonal);
+    assert.equal(partida.intentos, 0);
+    assert.equal(partida.inicio, diagonal);
+    partida = tocarCasilla(partida, diagonal);
+    assert.equal(partida.inicio, null);
   });
 });

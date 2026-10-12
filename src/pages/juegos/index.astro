@@ -18,7 +18,11 @@ import { cargarVocabulario, porTema } from '@/data/vocabulario';
 import { JUEGOS, MINIMO_POR_TEMA, TODOS, temasJugables } from '@/data/juegos';
 
 const vocabulario = await cargarVocabulario();
-const jugables = temasJugables(porTema(vocabulario));
+const grupos = porTema(vocabulario);
+// Cada juego con sus temas: la sopa descarta palabras que el memoria acepta, así que un tema
+// puede alcanzar el mínimo en un juego y no en otro.
+const secciones = JUEGOS.map((juego) => ({ juego, jugables: temasJugables(grupos, juego.slug) }));
+const hayAlguno = secciones.some(({ jugables }) => jugables.length > 0);
 
 const base = import.meta.env.BASE_URL;
 ---
@@ -35,7 +39,7 @@ const base = import.meta.env.BASE_URL;
   </p>
 
   {
-    jugables.length === 0 && (
+    !hayAlguno && (
       <div class="mt-8 rounded-xl border border-borde bg-papel-hondo p-5">
         <p class="font-bold">Todavía no hay palabras suficientes para jugar.</p>
         <p class="mt-2 text-tinta-suave">
@@ -47,7 +51,7 @@ const base = import.meta.env.BASE_URL;
   }
 
   {
-    JUEGOS.map((juego) => (
+    secciones.map(({ juego, jugables }) => (
       <section class="mt-10">
         <RotuloSeccion titulo={juego.nombre} />
         <p class="mt-2 text-tinta-suave">{juego.descripcion}</p>

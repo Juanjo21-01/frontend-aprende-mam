@@ -14,12 +14,14 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import IconoTema from '@/components/IconoTema.astro';
 import Memoria from '@/components/juegos/Memoria';
+import SopaDeLetras from '@/components/juegos/SopaDeLetras';
 import { temaVisual } from '@/data/temas';
 import { cargarVocabulario, porTema, type Categoria } from '@/data/vocabulario';
 import {
   JUEGOS,
   TODOS,
   aPalabraDeJuego,
+  aptaPara,
   temasJugables,
   type PalabraDeJuego,
   type SlugDeJuego,
@@ -27,23 +29,43 @@ import {
 
 export async function getStaticPaths() {
   const vocabulario = await cargarVocabulario();
-  const jugables = temasJugables(porTema(vocabulario));
+  const grupos = porTema(vocabulario);
+  const listos = JUEGOS.filter((juego) => juego.listo);
 
-  const partidas: { categoria: Categoria | null; palabras: PalabraDeJuego[] }[] = [
-    ...jugables,
-    // «Todos» solo tiene sentido si hay más de un tema; con uno sería la misma página dos veces.
-    ...(jugables.length > 1
-      ? [{ categoria: null, palabras: vocabulario.entradas.map(aPalabraDeJuego) }]
-      : []),
-  ];
+  // Qué juegos tiene cada tema: no todos los temas alcanzan el mínimo en todos los juegos,
+  // porque la sopa descarta palabras que el memoria sí acepta.
+  const partidasPorJuego = listos.map((juego) => {
+    const jugables = temasJugables(grupos, juego.slug);
+    const partidas: { categoria: Categoria | null; palabras: PalabraDeJuego[] }[] = [
+      ...jugables,
+      // «Todos» solo tiene sentido con más de un tema; con uno sería la misma página dos veces.
+      ...(jugables.length > 1
+        ? [
+            {
+              categoria: null,
+              palabras: vocabulario.entradas
+                .map(aPalabraDeJuego)
+                .filter((palabra) => aptaPara(juego.slug, palabra)),
+            },
+          ]
+        : []),
+    ];
+    return { juego: juego.slug, partidas };
+  });
 
-  return JUEGOS.filter((juego) => juego.listo).flatMap((juego) =>
+  const juegosDe = (segmento: string): SlugDeJuego[] =>
+    partidasPorJuego
+      .filter(({ partidas }) => partidas.some(({ categoria }) => (categoria?.slug ?? TODOS) === segmento))
+      .map(({ juego }) => juego);
+
+  return partidasPorJuego.flatMap(({ juego, partidas }) =>
     partidas.map(({ categoria, palabras }) => ({
-      params: { juego: juego.slug, tema: categoria?.slug ?? TODOS },
+      params: { juego, tema: categoria?.slug ?? TODOS },
       props: {
-        juego: juego.slug,
+        juego,
         categoria,
         palabras,
+        juegosDelTema: juegosDe(categoria?.slug ?? TODOS),
       },
     }))
   );
@@ -53,13 +75,15 @@ interface Props {
   juego: SlugDeJuego;
   categoria: Categoria | null;
   palabras: PalabraDeJuego[];
+  /** Los juegos que tienen partida para este mismo tema, este incluido. */
+  juegosDelTema: SlugDeJuego[];
 }
 
-const { juego, categoria, palabras } = Astro.props;
+const { juego, categoria, palabras, juegosDelTema } = Astro.props;
 
 const base = import.meta.env.BASE_URL;
 const datosDelJuego = JUEGOS.find((otro) => otro.slug === juego)!;
-const otrosJuegos = JUEGOS.filter((otro) => otro.listo && otro.slug !== juego);
+const otrosJuegos = JUEGOS.filter((otro) => otro.slug !== juego && juegosDelTema.includes(otro.slug));
 const segmento = categoria?.slug ?? TODOS;
 
 const nombreDelTema = categoria?.nombre_es ?? 'Todos los temas';
@@ -103,6 +127,7 @@ const visual = categoria ? temaVisual(categoria.slug) : null;
 
   <div class="mt-6">
     {juego === 'memoria' && <Memoria client:visible palabras={palabras} />}
+    {juego === 'sopa-de-letras' && <SopaDeLetras client:visible palabras={palabras} />}
   </div>
 
   <nav class="mt-10 flex flex-col gap-2 text-tinta-suave" aria-label="Seguir jugando">

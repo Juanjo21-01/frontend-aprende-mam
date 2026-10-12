@@ -51,7 +51,7 @@ export const JUEGOS = [
     slug: 'sopa-de-letras',
     nombre: 'Sopa de letras',
     descripcion: 'Busca en la cuadrícula la palabra en Mam que corresponde a cada pista.',
-    listo: false,
+    listo: true,
   },
   {
     slug: 'cuestionario',
@@ -69,25 +69,45 @@ export const TODOS = 'todos';
 /** Un tema con palabras suficientes para jugarlo. */
 export interface TemaJugable {
   categoria: Categoria;
+  /** Solo las que sirven para ese juego (`aptaPara`). */
   palabras: PalabraDeJuego[];
 }
 
 /**
- * Los temas que se pueden jugar, en el orden del panel. Recibe la salida de `porTema()`.
+ * Si una palabra sirve para un juego.
+ *
+ * La sopa de letras deja fuera tres casos: las entradas de varias palabras (un espacio no es
+ * una casilla), las que traen una letra que no es del alfabeto Mam —enseñar a buscar una `b`
+ * sin saltillo es enseñar una errata— y las que no caben en la cuadrícula más ancha.
+ */
+export function aptaPara(juego: SlugDeJuego, palabra: PalabraDeJuego): boolean {
+  if (juego !== 'sopa-de-letras') return true;
+
+  const letras = grafemasDe(palabra);
+  return !letras.includes(' ') && !tieneLetrasAjenas(palabra) && letras.length <= ANCHO_MAXIMO_SOPA;
+}
+
+/**
+ * Los temas que se pueden jugar a un juego, en el orden del panel. Recibe la salida de
+ * `porTema()`. Un tema entra si tiene al menos `MINIMO_POR_TEMA` palabras aptas para ese juego.
  *
  * Revienta si un tema se llama como la ruta de «todos»: las dos páginas caerían en el mismo
  * archivo de `dist/` y una pisaría a la otra sin ningún error.
  */
 export function temasJugables(
-  grupos: { categoria: Categoria; entradas: Entrada[] }[]
+  grupos: { categoria: Categoria; entradas: Entrada[] }[],
+  juego: SlugDeJuego
 ): TemaJugable[] {
   if (grupos.some(({ categoria }) => categoria.slug === TODOS)) {
     throw new Error(`Hay un tema con el slug «${TODOS}», que es la ruta de la partida mezclada.`);
   }
 
   return grupos
-    .filter(({ entradas }) => entradas.length >= MINIMO_POR_TEMA)
-    .map(({ categoria, entradas }) => ({ categoria, palabras: entradas.map(aPalabraDeJuego) }));
+    .map(({ categoria, entradas }) => ({
+      categoria,
+      palabras: entradas.map(aPalabraDeJuego).filter((palabra) => aptaPara(juego, palabra)),
+    }))
+    .filter(({ palabras }) => palabras.length >= MINIMO_POR_TEMA);
 }
 
 /**
@@ -125,7 +145,8 @@ export function grafemasDe({ mam, orden }: { mam: string; orden: string }): stri
       continue;
     }
 
-    const grafema = GRAFEMAS[posicion - 1] ?? fallo(`la posición ${posicion} no está en el alfabeto.`);
+    const grafema =
+      GRAFEMAS[posicion - 1] ?? fallo(`la posición ${posicion} no está en el alfabeto.`);
     const largo = [...grafema].length;
 
     // El backend compara sin distinguir mayúsculas; aquí se conserva lo que trae `mam`.
@@ -146,7 +167,9 @@ export function grafemasDe({ mam, orden }: { mam: string; orden: string }): stri
 /** Si alguna letra de la palabra no es del alfabeto Mam (ni espacio): un dato para revisar. */
 export function tieneLetrasAjenas(palabra: { mam: string; orden: string }): boolean {
   const alfabeto = new Set<string>(GRAFEMAS);
-  return grafemasDe(palabra).some((letra) => letra !== ' ' && !alfabeto.has(letra.toLocaleLowerCase('es')));
+  return grafemasDe(palabra).some(
+    (letra) => letra !== ' ' && !alfabeto.has(letra.toLocaleLowerCase('es'))
+  );
 }
 
 /** Fuente de azar. Las pruebas pasan una determinista; el navegador, `Math.random`. */
@@ -230,7 +253,13 @@ export function nuevaPartidaMemoria(
     { par, cara: 'espanol', texto: palabra.espanol },
   ]);
 
-  return { palabras: elegidas, cartas: barajar(cartas, azar), arriba: [], encontradas: [], intentos: 0 };
+  return {
+    palabras: elegidas,
+    cartas: barajar(cartas, azar),
+    arriba: [],
+    encontradas: [],
+    intentos: 0,
+  };
 }
 
 /** Si dos cartas que no coinciden están esperando a darse vuelta. */
@@ -266,8 +295,200 @@ export function voltear(partida: PartidaMemoria, indice: number): PartidaMemoria
   const intentos = partida.intentos + 1;
 
   if (otra.par === carta.par) {
-    return { ...partida, arriba: [], encontradas: [...partida.encontradas, carta.par], intentos };
+    return {
+      ...partida,
+      arriba: [],
+      encontradas: [...partida.encontradas, carta.par],
+      intentos,
+    };
   }
 
   return { ...partida, arriba, intentos };
+}
+
+// ────────────────────────────────────────────────────────────────────── Sopa de letras ──
+
+/** Casillas por lado como máximo: 8 de unos 40 px caben en un teléfono de 360 px de ancho. */
+export const ANCHO_MAXIMO_SOPA = 8;
+const ANCHO_MINIMO_SOPA = 5;
+/** Palabras por partida. Más que esto, la lista de pistas empuja la cuadrícula fuera de vista. */
+export const PALABRAS_SOPA = 6;
+
+export interface PalabraEnSopa {
+  palabra: PalabraDeJuego;
+  /** Las letras Mam de la palabra: una por casilla. */
+  letras: string[];
+}
+
+export interface PartidaSopa {
+  lado: number;
+  /** Las casillas por filas: `casillas[fila * lado + columna]`. */
+  casillas: string[];
+  palabras: PalabraEnSopa[];
+  /** Índices en `palabras`, en el orden en que se encontraron. */
+  encontradas: number[];
+  /** Casillas que forman parte de una palabra ya encontrada. */
+  marcadas: number[];
+  /** Primera casilla tocada de la selección en curso. */
+  inicio: number | null;
+  /** Casillas del último intento fallido; se ven en rojo hasta el siguiente toque. */
+  fallidas: number[];
+  intentos: number;
+}
+
+/** Las casillas en línea recta entre dos, ambas incluidas; `null` si no están en línea. */
+export function casillasEntre(lado: number, desde: number, hasta: number): number[] | null {
+  const [f1, c1] = [Math.floor(desde / lado), desde % lado];
+  const [f2, c2] = [Math.floor(hasta / lado), hasta % lado];
+
+  if (f1 !== f2 && c1 !== c2) return null;
+
+  const paso = f1 === f2 ? Math.sign(c2 - c1) : Math.sign(f2 - f1) * lado;
+  const casillas = [desde];
+
+  for (let actual = desde; actual !== hasta;) {
+    actual += paso;
+    casillas.push(actual);
+  }
+
+  return casillas;
+}
+
+/**
+ * Intenta colocar las palabras: solo de izquierda a derecha o de arriba abajo, nunca al revés
+ * ni en diagonal. Dos palabras pueden cruzarse si comparten la letra del cruce. Devuelve las
+ * que entraron; las que no cupieron se quedan fuera de la partida.
+ */
+function colocar(
+  lado: number,
+  palabras: PalabraEnSopa[],
+  azar: Azar
+): { casillas: (string | null)[]; colocadas: PalabraEnSopa[] } {
+  const casillas: (string | null)[] = Array.from({ length: lado * lado }, () => null);
+  const colocadas: PalabraEnSopa[] = [];
+
+  // Las largas primero: son las que menos huecos tienen.
+  const porLargo = [...palabras].sort((a, b) => b.letras.length - a.letras.length);
+
+  for (const entrada of porLargo) {
+    const largo = entrada.letras.length;
+
+    for (let intento = 0; intento < 200; intento++) {
+      const horizontal = azar() < 0.5;
+      const fila = Math.floor(azar() * (horizontal ? lado : lado - largo + 1));
+      const columna = Math.floor(azar() * (horizontal ? lado - largo + 1 : lado));
+      const paso = horizontal ? 1 : lado;
+      const origen = fila * lado + columna;
+
+      const cabe = entrada.letras.every((letra, i) => {
+        const ocupada = casillas[origen + i * paso];
+        return ocupada === null || ocupada === letra;
+      });
+
+      if (!cabe) continue;
+
+      entrada.letras.forEach((letra, i) => (casillas[origen + i * paso] = letra));
+      colocadas.push(entrada);
+      break;
+    }
+  }
+
+  return { casillas, colocadas };
+}
+
+export function nuevaPartidaSopa(
+  palabras: readonly PalabraDeJuego[],
+  azar: Azar = Math.random,
+  cuantas: number = PALABRAS_SOPA
+): PartidaSopa {
+  const aptas = palabras.filter((palabra) => aptaPara('sopa-de-letras', palabra));
+  const elegidas = elegirDistintas(aptas, cuantas, azar).map((palabra) => ({
+    palabra,
+    letras: grafemasDe(palabra).map((letra) => letra.toLocaleLowerCase('es')),
+  }));
+
+  const letrasTotales = elegidas.reduce((suma, { letras }) => suma + letras.length, 0);
+  const masLarga = Math.max(0, ...elegidas.map(({ letras }) => letras.length));
+  const lado = Math.min(
+    ANCHO_MAXIMO_SOPA,
+    Math.max(ANCHO_MINIMO_SOPA, masLarga, Math.ceil(Math.sqrt(letrasTotales * 1.6)))
+  );
+
+  // Varias tiradas y se queda la que coloca más palabras. Con temas de cuatro palabras, perder
+  // una por mala suerte deja la partida a medias.
+  let mejor = colocar(lado, elegidas, azar);
+  for (let tirada = 0; tirada < 30 && mejor.colocadas.length < elegidas.length; tirada++) {
+    const otra = colocar(lado, elegidas, azar);
+    if (otra.colocadas.length > mejor.colocadas.length) mejor = otra;
+  }
+
+  // El relleno sale de las letras de las propias palabras: con letras al azar de todo el
+  // alfabeto, una `ẍ` o un `tx’` sueltos delatarían dónde está cada palabra.
+  const relleno = mejor.colocadas.flatMap(({ letras }) => letras);
+  const casillas = mejor.casillas.map(
+    (letra) => letra ?? relleno[Math.floor(azar() * relleno.length)] ?? 'a'
+  );
+
+  // Las pistas en el orden de la partida original, no en el de colocación por largo.
+  const enJuego = elegidas.filter((entrada) => mejor.colocadas.includes(entrada));
+
+  return {
+    lado,
+    casillas,
+    palabras: enJuego,
+    encontradas: [],
+    marcadas: [],
+    inicio: null,
+    fallidas: [],
+    intentos: 0,
+  };
+}
+
+export function sopaTerminada(partida: PartidaSopa): boolean {
+  return partida.palabras.length > 0 && partida.encontradas.length === partida.palabras.length;
+}
+
+/**
+ * Tocar una casilla. La primera marca el inicio; la segunda cierra la selección y se comprueba.
+ *
+ * - Tocar otra vez la casilla de inicio la suelta.
+ * - Si la segunda no está en línea con la primera, pasa a ser el nuevo inicio: el niño cambió
+ *   de idea, no se equivocó, y no cuenta como intento.
+ * - Se acepta la selección en cualquier sentido —primera letra y luego última, o al revés—
+ *   y se compara por letras, no por posición: si una palabra quedó escrita dos veces por
+ *   casualidad, cualquiera de las dos vale.
+ */
+export function tocarCasilla(partida: PartidaSopa, casilla: number): PartidaSopa {
+  if (casilla < 0 || casilla >= partida.casillas.length) return partida;
+
+  const limpia = { ...partida, fallidas: [] };
+
+  if (partida.inicio === null) return { ...limpia, inicio: casilla };
+  if (partida.inicio === casilla) return { ...limpia, inicio: null };
+
+  const tramo = casillasEntre(partida.lado, partida.inicio, casilla);
+  if (tramo === null) return { ...limpia, inicio: casilla };
+
+  const leido = tramo.map((i) => partida.casillas[i]).join('|');
+  const alReves = [...tramo]
+    .reverse()
+    .map((i) => partida.casillas[i])
+    .join('|');
+  const intentos = partida.intentos + 1;
+
+  const hallada = partida.palabras.findIndex(
+    ({ letras }, i) =>
+      !partida.encontradas.includes(i) &&
+      (letras.join('|') === leido || letras.join('|') === alReves)
+  );
+
+  if (hallada === -1) return { ...limpia, inicio: null, fallidas: tramo, intentos };
+
+  return {
+    ...limpia,
+    inicio: null,
+    intentos,
+    encontradas: [...partida.encontradas, hallada],
+    marcadas: [...new Set([...partida.marcadas, ...tramo])],
+  };
 }

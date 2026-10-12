@@ -126,6 +126,27 @@
     font-weight: 700;
   }
 
+  /*
+   * Mano en todo lo que se puede tocar. Tailwind v4 dejó de ponerla en los botones (sigue al
+   * navegador, que usa la flecha), y en una interfaz para niños la mano es la pista de qué
+   * responde al clic. Va aquí, una sola vez, para que ningún botón nuevo la olvide. Lo
+   * desactivado o ya resuelto —una pareja encontrada— vuelve a la flecha.
+   */
+  button,
+  [role='button'],
+  summary,
+  select,
+  label[for],
+  input[type='checkbox'],
+  input[type='radio'] {
+    cursor: pointer;
+  }
+
+  :disabled,
+  [aria-disabled='true'] {
+    cursor: default;
+  }
+
   /* Foco visible para navegación con teclado. Sin JavaScript, el teclado es la única
      ayuda de accesibilidad que podemos controlar. */
   :focus-visible {
