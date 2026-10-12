@@ -1,0 +1,87 @@
+---
+/**
+ * Banco de pruebas de `ContenidoExterno`. **Solo existe en `npm run dev`.**
+ *
+ * En compilación `getStaticPaths` no devuelve ninguna ruta, así que esta página no llega a
+ * `dist/`, no la precarga el service worker y no la mide `scripts/weight.mjs`. Es una ruta
+ * comodín por eso mismo: una página `.astro` normal se publicaría siempre.
+ *
+ * Existe porque la isla no se puede probar desde la sesión de Claude Code: el panel del
+ * navegador de ese entorno está oculto y `client:visible` nunca llega a hidratar ahí. La
+ * prueba de verdad es tocar los botones en un navegador de verdad, y esta página la deja lista.
+ *
+ * Los ejemplos NO son contenido del proyecto. El video es el que usa la documentación oficial
+ * de la API de YouTube para sus propios ejemplos, y la actividad lleva un identificador que hay
+ * que reemplazar por el de una actividad real para verla cargar.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ContenidoExterno from '@/components/ContenidoExterno.astro';
+
+export function getStaticPaths() {
+  return import.meta.env.DEV ? [{ params: { pagina: undefined } }] : [];
+}
+
+const base = import.meta.env.BASE_URL;
+
+const actividad =
+  '<iframe style="max-width:100%" src="https://wordwall.net/es/embed/REEMPLAZAR?themeId=1&amp;templateId=5" width="500" height="380" frameborder="0" allowfullscreen></iframe>';
+---
+
+<BaseLayout
+  titulo="Prueba de contenido externo"
+  descripcion="Banco de pruebas del componente de video y actividades externas. Solo en desarrollo."
+>
+  <h1 class="text-3xl">Prueba de contenido externo</h1>
+
+  <p class="mt-4 text-lg text-tinta-suave">
+    Esta página solo existe con <code>npm run dev</code>. No se publica.
+  </p>
+
+  <section class="mt-8 rounded-xl border border-oro-borde bg-oro-tinte p-5">
+    <h2 class="text-xl">Qué probar</h2>
+    <ol class="mt-3 list-decimal space-y-2 pl-5 text-tinta-suave">
+      <li>
+        <strong class="text-tinta">Tocar «Ver el video».</strong> Dice «Comprobando la
+        conexión…» un instante y monta el reproductor, que arranca solo. No debería hacer falta
+        tocar dos veces.
+      </li>
+      <li>
+        <strong class="text-tinta">Sin señal antes de tocar.</strong> En las herramientas de
+        desarrollo, pestaña Red, poner «Sin conexión». La fachada cambia sola por el aviso, sin
+        recargar. Al quitarlo vuelve la fachada.
+      </li>
+      <li>
+        <strong class="text-tinta">Sin señal al tocar.</strong> El caso difícil: el teléfono
+        dice tener red pero no hay internet. Para simularlo, bloquear solo la petición{' '}
+        <code>/ping.txt</code> en la pestaña Red y tocar el video. Tiene que salir el aviso con
+        «Intentar de nuevo», nunca un marco en blanco. Al desbloquear, vuelve solo la fachada.
+      </li>
+      <li>
+        <strong class="text-tinta">Teclado.</strong> Llegar con Tab a la fachada y pulsar
+        Intro. Al montarse el reproductor, el foco tiene que quedar dentro de él.
+      </li>
+      <li>
+        <strong class="text-tinta">Ctrl + clic</strong> abre el reproductor de YouTube sin
+        cookies en otra pestaña, en vez de montarlo aquí.
+      </li>
+    </ol>
+  </section>
+
+  <h2 class="mt-10 text-xl">Video</h2>
+  <ContenidoExterno
+    url="https://youtu.be/M7lc1UVf-VE"
+    titulo="Video de ejemplo de la documentación de YouTube"
+  />
+
+  <h2 class="mt-10 text-xl">Actividad</h2>
+  <p class="mt-2 text-tinta-suave">
+    Pegada como código <code>&lt;iframe&gt;</code>, tal como la da Wordwall. El identificador es
+    un marcador: reemplazar <code>REEMPLAZAR</code> en este archivo por el de una actividad
+    real para verla cargar. Con el marcador, la fachada y los avisos se pueden probar igual.
+  </p>
+  <ContenidoExterno
+    url={actividad}
+    titulo="Actividad de ejemplo"
+    alternativa={{ href: `${base}juegos`, texto: 'Ir a los juegos propios' }}
+  />
+</BaseLayout>

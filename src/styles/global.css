@@ -192,4 +192,33 @@
   html[data-conexion='no'] .aviso-conexion {
     display: block;
   }
+
+  /*
+   * Contenido externo antes de tocarlo: fachada si hay señal, aviso si no.
+   *
+   * El mismo mecanismo que `.aviso-conexion`, colgado del atributo que pone la sonda de
+   * BaseLayout.astro. Por eso funciona aunque la isla `IncrustadoExterno` no haya hidratado
+   * todavía, o no llegue a hidratar nunca. Mientras no se sabe nada el atributo no existe y se
+   * ve la fachada: igual que con el aviso global, decir «no hay señal» medio segundo para
+   * desmentirlo después es peor que no decir nada.
+   *
+   * Solo gobierna la fachada. Un reproductor ya montado no se esconde si se cae la señal: un
+   * video con buffer sigue sonando un rato, y el aviso global de arriba ya informa.
+   *
+   * TRAMPA DE CAPAS: estas reglas viven en `components`, y Tailwind pone `utilities` por
+   * encima. Una clase `flex` o `block` en el mismo elemento gana siempre, tenga la
+   * especificidad que tenga, y el aviso no se escondería nunca. Por eso estas dos clases van
+   * en un envoltorio sin ninguna utilidad de `display`, con el contenido dentro.
+   */
+  .incrustado-sin-red {
+    display: none;
+  }
+
+  html[data-conexion='no'] .incrustado-sin-red {
+    display: block;
+  }
+
+  html[data-conexion='no'] .incrustado-con-red {
+    display: none;
+  }
 }

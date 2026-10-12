@@ -1,0 +1,93 @@
+---
+/**
+ * Video externo o actividad de Educaplay/Wordwall, incrustado dentro de una página.
+ *
+ * Es **el único componente** para todo lo que entra como iframe de un tercero. El video no
+ * tiene sección propia: va repartido por cultura, materiales y fichas didácticas, junto al
+ * contenido que acompaña. Si cada página copiara su propio marcado, cada copia divergente
+ * costaría JavaScript en el cliente y tarde o temprano alguna se quedaría sin su aviso de
+ * «sin conexión».
+ *
+ * Uso:
+ *
+ *     <ContenidoExterno
+ *       url="https://youtu.be/…"                    ← o el código <iframe> tal cual se copió
+ *       titulo="Cómo se teje un huipil"
+ *       miniatura={{ src: '/imagenes/huipil.webp', ancho: 640, alto: 360 }}
+ *       alternativa={{ href: '/juegos/memoria', texto: 'Jugar a la memoria' }}
+ *     />
+ *
+ * Lo que hace aquí, en compilación:
+ *
+ *   - Valida la dirección con `prepararIncrustado()`. Un dominio fuera de la lista, un http
+ *     sin cifrar o un enlace de YouTube sin identificador **detienen el build**.
+ *   - Fija el marco con su proporción antes de que llegue nada, para que la página no salte
+ *     cuando aparezca el reproductor.
+ *   - Escribe el pie con el título y el aviso de que necesita internet, en HTML estático: se
+ *     lee aunque la isla no hidrate.
+ *
+ * El resto —fachada, sondeo, montaje del iframe, aviso sin señal— es la isla
+ * `IncrustadoExterno.tsx`.
+ *
+ * OJO AL USARLO EN UNA PÁGINA NUEVA: es una isla, así que la página empieza a mandar
+ * JavaScript. `scripts/weight.mjs` hace fallar `npm run check` hasta que su ruta se agregue a
+ * `CON_ISLA`. Es a propósito: obliga a que cada página con JavaScript sea una decisión.
+ */
+import IncrustadoExterno, {
+  type Alternativa,
+  type Miniatura,
+} from '@/components/IncrustadoExterno.tsx';
+import { prepararIncrustado } from '@/data/incrustado';
+
+interface Props {
+  /** La dirección del video o la actividad, o el código `<iframe>` que da el proveedor. */
+  url: string;
+  /** Título del contenido. Va en el pie y como `title` del iframe, para lectores de pantalla. */
+  titulo: string;
+  /**
+   * Imagen propia para la fachada, con sus medidas reales para reservar el hueco. Sin ella
+   * se muestra el verde de la banda con la cenefa.
+   */
+  miniatura?: Miniatura;
+  /**
+   * Adónde mandar al usuario si no hay señal. En las actividades externas debería ser el
+   * juego propio equivalente: CLAUDE.md pide que el aviso nunca sea un callejón sin salida.
+   */
+  alternativa?: Alternativa;
+  /**
+   * Proporción del marco, como en CSS. Por defecto `16 / 9` en video y `4 / 3` en
+   * actividades, que es la forma que dan por defecto Wordwall y Educaplay.
+   */
+  proporcion?: string;
+  class?: string;
+}
+
+const { url, titulo, miniatura, alternativa, proporcion, class: clase } = Astro.props;
+
+const incrustado = prepararIncrustado(url);
+const aspecto = proporcion ?? (incrustado.tipo === 'video' ? '16 / 9' : '4 / 3');
+const queEs = incrustado.tipo === 'video' ? 'Video' : 'Actividad';
+---
+
+<figure class:list={['my-8', clase]}>
+  <div
+    class="relative overflow-hidden rounded-xl border border-borde bg-jade-hondo"
+    style={`aspect-ratio: ${aspecto}`}
+  >
+    <IncrustadoExterno
+      client:visible
+      src={incrustado.src}
+      respaldo={incrustado.respaldo}
+      permisos={incrustado.permisos}
+      tipo={incrustado.tipo}
+      titulo={titulo}
+      miniatura={miniatura}
+      alternativa={alternativa}
+    />
+  </div>
+
+  <figcaption class="mt-2 text-sm text-tinta-suave">
+    <span class="font-bold text-tinta">{titulo}</span> · {queEs} de {incrustado.nombre}. Necesita
+    internet.
+  </figcaption>
+</figure>

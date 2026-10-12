@@ -57,7 +57,8 @@ export interface Categoria {
   nombre_mam: string | null;
   icono: string | null;
   orden: number;
-  padre: number | null;
+  /** Slug del tema que la contiene, o `null` si es de primer nivel. */
+  padre: string | null;
 }
 
 export interface Vocabulario {
@@ -185,16 +186,16 @@ function validar(datos: unknown, procedencia: string): Vocabulario {
     anterior = entrada;
   }
 
-  const conPadre = categorias.filter((categoria) => categoria.padre !== null);
-  if (conPadre.length > 0) {
-    // La exportación da `padre` como id numérico pero identifica las categorías por `slug`, y
-    // no incluye el id. Con eso la jerarquía no se puede reconstruir en el sitio. Mientras
-    // todas las categorías sean de primer nivel da igual; en cuanto aparezca una anidada, hay
-    // que pedirle al backend que exporte `padre` como slug.
-    console.warn(
-      `  aviso: ${conPadre.length} categoría(s) traen \`padre\` como id numérico, que la ` +
-        `exportación no permite resolver. Se tratan como categorías de primer nivel.`
-    );
+  // `padre` viaja como slug desde el 27 de agosto de 2026; antes salía como id numérico y la
+  // jerarquía era irreconstruible. Ahora que se puede resolver, se comprueba: un padre que no
+  // está en el catálogo deja un tema colgando de la nada, y eso el sitio no lo puede tapar.
+  for (const categoria of categorias) {
+    if (categoria.padre !== null && !slugsConocidos.has(categoria.padre)) {
+      fallo(
+        `la categoría «${categoria.slug}» cuelga de «${categoria.padre}», que no está en ` +
+          `\`categorias\`.`
+      );
+    }
   }
 
   return {
