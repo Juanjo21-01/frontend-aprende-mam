@@ -42,7 +42,11 @@ const PRESUPUESTO = 150 * 1024;
 const PRESUPUESTO_JS = 75 * 1024;
 
 /** Páginas que sí pueden hidratar. El resto del sitio va sin JavaScript, y eso se vigila. */
-const CON_ISLA = [/^\/diccionario\/index\.html$/];
+const CON_ISLA = [
+  /^\/diccionario\/index\.html$/,
+  // Una partida por juego y tema: `/juegos/<juego>/<tema>/`. El índice `/juegos/` no entra.
+  /^\/juegos\/[^/]+\/[^/]+\/index\.html$/,
+];
 
 const brotli = (buffer) =>
   brotliCompressSync(buffer, {

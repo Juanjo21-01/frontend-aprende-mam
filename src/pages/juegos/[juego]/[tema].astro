@@ -1,0 +1,125 @@
+---
+/**
+ * Una partida: un juego sobre un tema, o sobre todos mezclados.
+ *
+ * Una sola ruta para los tres juegos y no una carpeta por juego: el marco —migas, encabezado
+ * con el color del tema, enlaces a los otros juegos— es el mismo, y repetirlo tres veces sería
+ * invitar a que diverja. Solo cambia la isla. Astro manda al navegador únicamente la isla que
+ * se pinta en cada página, así que referenciar las tres aquí no cuesta nada.
+ *
+ * Solo se generan rutas para los juegos marcados `listo` y los temas con palabras suficientes
+ * (`temasJugables`). Un tema por debajo del mínimo no tiene página de juego: un memoria de dos
+ * parejas no es un juego, y el índice ya no lo enlaza.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import IconoTema from '@/components/IconoTema.astro';
+import Memoria from '@/components/juegos/Memoria';
+import { temaVisual } from '@/data/temas';
+import { cargarVocabulario, porTema, type Categoria } from '@/data/vocabulario';
+import {
+  JUEGOS,
+  TODOS,
+  aPalabraDeJuego,
+  temasJugables,
+  type PalabraDeJuego,
+  type SlugDeJuego,
+} from '@/data/juegos';
+
+export async function getStaticPaths() {
+  const vocabulario = await cargarVocabulario();
+  const jugables = temasJugables(porTema(vocabulario));
+
+  const partidas: { categoria: Categoria | null; palabras: PalabraDeJuego[] }[] = [
+    ...jugables,
+    // «Todos» solo tiene sentido si hay más de un tema; con uno sería la misma página dos veces.
+    ...(jugables.length > 1
+      ? [{ categoria: null, palabras: vocabulario.entradas.map(aPalabraDeJuego) }]
+      : []),
+  ];
+
+  return JUEGOS.filter((juego) => juego.listo).flatMap((juego) =>
+    partidas.map(({ categoria, palabras }) => ({
+      params: { juego: juego.slug, tema: categoria?.slug ?? TODOS },
+      props: {
+        juego: juego.slug,
+        categoria,
+        palabras,
+      },
+    }))
+  );
+}
+
+interface Props {
+  juego: SlugDeJuego;
+  categoria: Categoria | null;
+  palabras: PalabraDeJuego[];
+}
+
+const { juego, categoria, palabras } = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+const datosDelJuego = JUEGOS.find((otro) => otro.slug === juego)!;
+const otrosJuegos = JUEGOS.filter((otro) => otro.listo && otro.slug !== juego);
+const segmento = categoria?.slug ?? TODOS;
+
+const nombreDelTema = categoria?.nombre_es ?? 'Todos los temas';
+const visual = categoria ? temaVisual(categoria.slug) : null;
+---
+
+<BaseLayout
+  titulo={`${datosDelJuego.nombre}: ${nombreDelTema}`}
+  descripcion={`${datosDelJuego.descripcion} ${nombreDelTema}, vocabulario Mam de San Marcos. Funciona sin conexión.`}
+>
+  <p class="text-sm text-tinta-suave">
+    <a href={`${base}juegos`} class="underline underline-offset-2">Juegos</a>{' '}
+    <span aria-hidden="true">/</span>{' '}
+    {datosDelJuego.nombre}
+  </p>
+
+  <div
+    class:list={[
+      'mt-2 flex items-center gap-4 rounded-xl border p-5',
+      visual?.ficha ?? 'border-borde bg-papel-hondo',
+    ]}
+  >
+    {categoria && <IconoTema slug={categoria.slug} tamano={40} class={`shrink-0 ${visual!.texto}`} />}
+    <div>
+      <h1 class:list={['text-3xl', visual?.texto ?? 'text-jade-hondo']}>{datosDelJuego.nombre}</h1>
+      <p class="mt-1 text-lg">
+        {nombreDelTema}
+        {
+          categoria?.nombre_mam && (
+            <>
+              {' · '}
+              <span lang="mam" class="mam">
+                {categoria.nombre_mam}
+              </span>
+            </>
+          )
+        }
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-6">
+    {juego === 'memoria' && <Memoria client:visible palabras={palabras} />}
+  </div>
+
+  <nav class="mt-10 flex flex-col gap-2 text-tinta-suave" aria-label="Seguir jugando">
+    {
+      otrosJuegos.map((otro) => (
+        <a href={`${base}juegos/${otro.slug}/${segmento}`} class="underline underline-offset-2">
+          {otro.nombre} con {categoria ? 'este tema' : 'todos los temas'}
+        </a>
+      ))
+    }
+    {
+      categoria && (
+        <a href={`${base}diccionario/tema/${categoria.slug}`} class="underline underline-offset-2">
+          Ver las palabras de {categoria.nombre_es.toLocaleLowerCase('es')} en el diccionario
+        </a>
+      )
+    }
+    <a href={`${base}juegos`} class="underline underline-offset-2">Escoger otro juego o tema</a>
+  </nav>
+</BaseLayout>

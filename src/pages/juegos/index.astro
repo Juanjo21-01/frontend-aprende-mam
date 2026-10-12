@@ -1,19 +1,97 @@
 ---
+/**
+ * El índice de juegos: cada juego con los temas en que se puede jugar.
+ *
+ * HTML estático, sin isla: la partida se hidrata en su propia página. Los juegos que todavía
+ * no están hechos se anuncian como pendientes en vez de esconderse, por la misma razón que
+ * `PlaceholderSection`: «aún no está» se tiene que distinguir de «se rompió».
+ *
+ * Las actividades externas (Wordwall, Educaplay) no aparecen todavía: el backend no las
+ * exporta y no hay enlaces reales. Cuando los haya, van aquí con `ContenidoExterno`, cada una
+ * con su `alternativa` apuntando a una de estas partidas.
+ */
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import PlaceholderSection from '@/components/PlaceholderSection.astro';
+import IconoTema from '@/components/IconoTema.astro';
+import RotuloSeccion from '@/components/RotuloSeccion.astro';
+import { temaVisual } from '@/data/temas';
+import { cargarVocabulario, porTema } from '@/data/vocabulario';
+import { JUEGOS, MINIMO_POR_TEMA, TODOS, temasJugables } from '@/data/juegos';
+
+const vocabulario = await cargarVocabulario();
+const jugables = temasJugables(porTema(vocabulario));
+
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout
   titulo="Juegos"
-  descripcion="Actividades para practicar vocabulario Mam, tres de ellas funcionan sin conexión."
+  descripcion="Juegos para practicar el vocabulario Mam por tema. Funcionan sin conexión."
 >
-  <PlaceholderSection
-    titulo="Juegos"
-    resumen="Actividades para practicar el vocabulario aprendido."
-    pendiente={[
-      'Tres juegos propios que funcionan sin conexión.',
-      'Actividades externas (Educaplay, Wordwall) dentro de un contenedor.',
-      'Sin conexión, el contenedor externo muestra un aviso con enlace a un juego propio equivalente, nunca un marco vacío.',
-    ]}
-  />
+  <h1 class="text-3xl">Juegos</h1>
+
+  <p class="mt-4 text-lg text-tinta-suave">
+    Para practicar las palabras de cada tema. Funcionan sin internet después de la primera
+    visita.
+  </p>
+
+  {
+    jugables.length === 0 && (
+      <div class="mt-8 rounded-xl border border-borde bg-papel-hondo p-5">
+        <p class="font-bold">Todavía no hay palabras suficientes para jugar.</p>
+        <p class="mt-2 text-tinta-suave">
+          Cada tema necesita al menos {MINIMO_POR_TEMA} palabras revisadas por el validador
+          lingüístico.
+        </p>
+      </div>
+    )
+  }
+
+  {
+    JUEGOS.map((juego) => (
+      <section class="mt-10">
+        <RotuloSeccion titulo={juego.nombre} />
+        <p class="mt-2 text-tinta-suave">{juego.descripcion}</p>
+
+        {juego.listo ? (
+          <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {jugables.map(({ categoria, palabras }) => {
+              const visual = temaVisual(categoria.slug);
+              return (
+                <li>
+                  <a
+                    href={`${base}juegos/${juego.slug}/${categoria.slug}`}
+                    class:list={[
+                      'flex min-h-14 items-center gap-3 rounded-xl border p-3 no-underline',
+                      'hover:border-jade focus-visible:border-jade',
+                      visual.ficha,
+                    ]}
+                  >
+                    <IconoTema slug={categoria.slug} tamano={28} class={`shrink-0 ${visual.texto}`} />
+                    <span>
+                      <span class:list={['block font-bold', visual.texto]}>{categoria.nombre_es}</span>
+                      <span class="block text-sm text-tinta-suave">{palabras.length} palabras</span>
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+            {jugables.length > 1 && (
+              <li>
+                <a
+                  href={`${base}juegos/${juego.slug}/${TODOS}`}
+                  class="flex min-h-14 items-center rounded-xl border border-jade-hondo bg-papel p-3 font-bold text-jade-hondo no-underline hover:border-jade"
+                >
+                  Todos los temas
+                </a>
+              </li>
+            )}
+          </ul>
+        ) : (
+          <p class="mt-4 rounded-xl border border-oro-borde bg-oro-tinte p-4 text-tinta-suave">
+            Este juego todavía está en preparación.
+          </p>
+        )}
+      </section>
+    ))
+  }
 </BaseLayout>

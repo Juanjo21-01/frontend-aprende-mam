@@ -11,6 +11,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import EntradaFicha from '@/components/EntradaFicha.astro';
 import IconoTema from '@/components/IconoTema.astro';
 import PieDeFuentes from '@/components/PieDeFuentes.astro';
+import { JUEGOS, MINIMO_POR_TEMA } from '@/data/juegos';
 import { temaVisual } from '@/data/temas';
 import {
   cargarVocabulario,
@@ -52,6 +53,11 @@ const cuantas = entradas.length;
  * cuando la palabra pertenece además a otro tema.
  */
 const visual = temaVisual(categoria.slug);
+
+// Mismo criterio que las rutas de `/juegos`: si el tema no llega al mínimo, no hay partida a
+// la que enlazar.
+const jugable = cuantas >= MINIMO_POR_TEMA;
+const juegosListos = JUEGOS.filter((juego) => juego.listo);
 ---
 
 <BaseLayout
@@ -108,6 +114,26 @@ const visual = temaVisual(categoria.slug);
       ))
     }
   </dl>
+
+  {
+    jugable && (
+      <section class="mt-8 rounded-xl border border-oro-borde bg-oro-tinte p-5">
+        <h2 class="text-xl">Practicar este tema</h2>
+        <ul class="mt-3 flex flex-wrap gap-3">
+          {juegosListos.map((juego) => (
+            <li>
+              <a
+                href={`${base}juegos/${juego.slug}/${categoria.slug}`}
+                class="inline-flex min-h-11 items-center rounded-xl bg-jade-hondo px-4 py-2 font-bold text-papel no-underline hover:bg-jade"
+              >
+                {juego.nombre}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
 
   <PieDeFuentes fuentes={fuentes} />
 
