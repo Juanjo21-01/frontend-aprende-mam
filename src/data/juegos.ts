@@ -516,8 +516,8 @@ export interface Opcion {
  * Una pregunta, con la forma de la tabla `preguntas` del modelo de datos (`enunciado`, `tipo`,
  * `retroalimentacion`) más sus `opciones`.
  *
- * Hoy todas salen del vocabulario, pero el backend tiene previstos cuestionarios redactados a
- * mano. Cuando los exporte, entran en este mismo motor sin tocarlo: lo único que no tendrán es
+ * Todas salen del vocabulario. Los cuestionarios redactados a mano quedaron fuera del alcance;
+ * si algún día se retoman, entran en este mismo motor sin tocarlo: lo único que no tendrán es
  * `termino` ni `palabra`, y la isla funciona sin ellos.
  */
 export interface Pregunta {
