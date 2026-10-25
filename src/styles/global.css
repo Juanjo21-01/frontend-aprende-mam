@@ -243,3 +243,87 @@
     display: none;
   }
 }
+
+/*
+ * El cuerpo de las páginas editoriales (cultura, gramática, base legal), que sale de Markdown y
+ * por tanto no lleva clases. Tailwind v4 no trae el plugin de tipografía y agregarlo sería una
+ * dependencia por unas cuantas reglas: se escriben aquí, solo para lo que `markdown.ts` produce.
+ */
+@layer components {
+  .prosa {
+    font-size: 1.125rem;
+    line-height: 1.7;
+  }
+
+  .prosa > * + * {
+    margin-top: 1rem;
+  }
+
+  .prosa h2 {
+    margin-top: 2rem;
+    font-size: 1.5rem;
+    color: var(--color-jade-hondo);
+  }
+
+  .prosa h3 {
+    margin-top: 1.5rem;
+    font-size: 1.25rem;
+  }
+
+  .prosa h4 {
+    margin-top: 1.25rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+
+  .prosa ul,
+  .prosa ol {
+    padding-left: 1.5rem;
+  }
+
+  .prosa ul {
+    list-style: disc;
+  }
+
+  .prosa ol {
+    list-style: decimal;
+  }
+
+  .prosa li + li {
+    margin-top: 0.25rem;
+  }
+
+  .prosa a {
+    color: var(--color-jade-hondo);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .prosa blockquote {
+    border-left: 4px solid var(--color-oro);
+    padding-left: 1rem;
+    color: var(--color-tinta-suave);
+  }
+
+  .prosa hr {
+    border: 0;
+    border-top: 1px solid var(--color-borde);
+  }
+
+  .prosa code {
+    font-size: 0.95em;
+    background-color: var(--color-papel-hondo);
+    padding: 0.1em 0.3em;
+    border-radius: 0.25rem;
+  }
+
+  /* `width` y `height` del HTML reservan el hueco; esto solo lo hace elástico sin deformarlo. */
+  .prosa img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-borde);
+    object-fit: contain;
+    background-color: var(--color-papel-hondo);
+  }
+}

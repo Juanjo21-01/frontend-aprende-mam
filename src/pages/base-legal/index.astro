@@ -1,20 +1,36 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ListaDePaginas from '@/components/ListaDePaginas.astro';
 import PlaceholderSection from '@/components/PlaceholderSection.astro';
+import { cargarContenido, paginasDe } from '@/data/contenido';
+
+const paginas = paginasDe(await cargarContenido(), 'base_legal');
+const resumen =
+  'El marco normativo que respalda la enseñanza del idioma Mam en el sistema educativo guatemalteco, y las condiciones de uso del contenido de esta biblioteca.';
 ---
 
 <BaseLayout
   titulo="Base legal"
   descripcion="Marco normativo de la educación bilingüe intercultural en Guatemala y condiciones de uso del contenido de AprendeMam."
 >
-  <PlaceholderSection
-    titulo="Base legal"
-    resumen="El marco normativo que respalda la enseñanza del idioma Mam en el sistema educativo guatemalteco, y las condiciones de uso del contenido de esta biblioteca."
-    pendiente={[
-      'Marco normativo de la educación bilingüe intercultural en Guatemala.',
-      'El papel de la Academia de Lenguas Mayas de Guatemala en la ortografía que sigue el sitio.',
-      'De dónde viene cada material de MINEDUC, DIGEBI y ALMG, y con qué licencia.',
-      'Condiciones de uso del sitio. AprendeMam no pide registro ni recoge datos personales.',
-    ]}
-  />
+  {
+    paginas.length === 0 ? (
+      <PlaceholderSection
+        titulo="Base legal"
+        resumen={resumen}
+        pendiente={[
+          'Marco normativo de la educación bilingüe intercultural en Guatemala.',
+          'El papel de la Academia de Lenguas Mayas de Guatemala en la ortografía que sigue el sitio.',
+          'De dónde viene cada material de MINEDUC, DIGEBI y ALMG, y con qué licencia.',
+          'Condiciones de uso del sitio. AprendeMam no pide registro ni recoge datos personales.',
+        ]}
+      />
+    ) : (
+      <>
+        <h1 class="text-3xl">Base legal</h1>
+        <p class="mt-4 text-lg text-tinta-suave">{resumen}</p>
+        <ListaDePaginas paginas={paginas} ruta="base-legal" class="mt-8" />
+      </>
+    )
+  }
 </BaseLayout>

@@ -44,6 +44,12 @@ const PRESUPUESTO_JS = 75 * 1024;
 /** Páginas que sí pueden hidratar. El resto del sitio va sin JavaScript, y eso se vigila. */
 const CON_ISLA = [
   /^\/diccionario\/index\.html$/,
+  // Contenido editorial: puede llevar un video incrustado (`ContenidoExterno`, una isla) y el
+  // botón de descargar la lección (un script de unas líneas). El índice de cada sección y la
+  // gramática, que son HTML puro, no entran. La página de materiales sí: sus documentos
+  // pueden llevar video.
+  /^\/(cultura|gramatica|base-legal)\/[^/]+\/index\.html$/,
+  /^\/materiales\/index\.html$/,
   // Una partida por juego y tema: `/juegos/<juego>/<tema>/`. El índice `/juegos/` no entra.
   /^\/juegos\/[^/]+\/[^/]+\/index\.html$/,
 ];

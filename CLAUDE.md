@@ -127,3 +127,17 @@ primer lote, `entradas` viene vacío y eso es lo correcto, no un fallo.
   `categoria_gramatical` frente a `clase`, `categorias` con objetos frente a `temas` con
   slugs, y `pagina_fuente` suelto frente a `fuente.pagina`. Confundirlos da código que
   compila y falla en el primer build real.
+### Contenido editorial: `contenido.json`
+
+Segunda exportación del backend, `GET /api/v1/export/contenido.json` (mismo token; comparte el
+número de `version` con el vocabulario). Trae las páginas de `cultura`, `gramatica` y
+`base_legal` (cuerpo en **Markdown simple**, `video_url` y `fuente` opcionales) y los
+`documentos` descargables de materiales. El contrato verificado está en
+`docs/contenido.ejemplo.json`, que **nunca se lee en el build** (lleva textos inventados): para
+ver páginas con contenido en desarrollo, copiarlo a `docs/contenido.json`, que sí se lee y se
+ignora si no existe. Sin datos, las secciones salen vacías y el build sigue.
+
+El Markdown se convierte en compilación con `src/data/markdown.ts`, sin dependencias: todo
+sale escapado, los enlaces solo van a https, rutas del sitio o anclas, y las imágenes siempre
+llevan medidas y `loading="lazy"`. Las imágenes del propio dominio viven en `public/` y se miden
+en el build; si una página cita una que no existe, el build falla.

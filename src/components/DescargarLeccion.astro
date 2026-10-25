@@ -1,0 +1,122 @@
+---
+/**
+ * El botón «Descargar esta lección para usar sin internet» de CLAUDE.md.
+ *
+ * La decisión de gastar datos es del usuario, no de la aplicación: por eso es un botón y no algo
+ * que se haga solo al abrir la página. Guarda en la caché `aprendemam-lecciones` las imágenes de
+ * esta página, y el service worker las sirve de ahí (ver `responderImagen`). Es una caché aparte
+ * de la de imágenes bajo demanda porque ésa se poda al llegar a su tope, y una lección que el
+ * usuario pidió guardar no puede desaparecer porque abrió otras.
+ *
+ * Nunca incluye el video: el externo no funciona sin conexión y arrastra cientos de KB.
+ *
+ * Solo imágenes del propio dominio. El service worker no intercepta lo de otro origen (regla 4),
+ * así que guardarlas aquí no serviría de nada y el botón mentiría.
+ *
+ * Sin React: es un script de unas líneas. Una isla le costaría a cada página de contenido los
+ * 52 KB de React solo para un botón.
+ */
+interface Props {
+  /** Cuántas imágenes del propio dominio tiene la página. Con cero, no se pinta el botón. */
+  cantidad: number;
+}
+
+const { cantidad } = Astro.props;
+---
+
+{
+  cantidad > 0 && (
+    <div
+      class="mt-8 rounded-xl border border-borde bg-papel-hondo p-4"
+      data-leccion-descarga
+      data-cantidad={cantidad}
+    >
+      <button
+        type="button"
+        class="min-h-12 rounded-lg border-2 border-jade-hondo bg-papel px-4 font-bold text-jade-hondo hover:bg-papel-hondo disabled:opacity-60"
+      >
+        Descargar esta lección para usar sin internet
+      </button>
+      <p class="mt-2 text-sm text-tinta-suave" role="status" data-estado>
+        Guarda {cantidad === 1 ? 'la imagen' : `las ${cantidad} imágenes`} de esta página en tu
+        teléfono. Gasta datos solo si tú lo pides.
+      </p>
+    </div>
+  )
+}
+
+<script>
+  const CACHE = 'aprendemam-lecciones';
+
+  const caja = document.querySelector<HTMLElement>('[data-leccion-descarga]');
+
+  if (caja) {
+    const boton = caja.querySelector('button')!;
+    const estado = caja.querySelector<HTMLElement>('[data-estado]')!;
+    const inicial = estado.textContent ?? '';
+
+    const direcciones = () =>
+      [...document.querySelectorAll<HTMLImageElement>('img[data-leccion]')]
+        .map((img) => new URL(img.currentSrc || img.src, location.href))
+        .filter((url) => url.origin === location.origin)
+        .map((url) => url.href);
+
+    const decir = (texto: string) => {
+      estado.textContent = texto;
+    };
+
+    const marcarGuardada = (cuantas: number) => {
+      boton.disabled = true;
+      boton.textContent = 'Lección guardada';
+      decir(`Listo: ${cuantas} ${cuantas === 1 ? 'imagen guardada' : 'imágenes guardadas'}. Esta página se ve completa sin internet.`);
+    };
+
+    if (!('caches' in window)) {
+      boton.disabled = true;
+      decir('Este navegador no puede guardar lecciones para usar sin internet.');
+    } else {
+      // Si ya se bajó en otra visita, no ofrecer volver a gastar datos.
+      caches
+        .open(CACHE)
+        .then(async (cache) => {
+          const todas = direcciones();
+          const guardadas = await Promise.all(todas.map((url) => cache.match(url)));
+          if (todas.length > 0 && guardadas.every(Boolean)) marcarGuardada(todas.length);
+        })
+        .catch(() => {});
+
+      boton.addEventListener('click', async () => {
+        if (document.documentElement.dataset.conexion === 'no') {
+          decir('No hay conexión ahora. Inténtalo cuando tengas señal.');
+          return;
+        }
+
+        const todas = direcciones();
+        boton.disabled = true;
+        decir('Descargando…');
+
+        try {
+          const cache = await caches.open(CACHE);
+          let hechas = 0;
+
+          // De una en una: en 3G, diez peticiones a la vez se estorban entre sí y ninguna termina.
+          for (const url of todas) {
+            await cache.add(new Request(url, { cache: 'reload' }));
+            hechas++;
+            decir(`Descargando… ${hechas} de ${todas.length}`);
+          }
+
+          marcarGuardada(todas.length);
+        } catch {
+          boton.disabled = false;
+          decir('No se pudo terminar la descarga. Revisa tu conexión e inténtalo de nuevo.');
+        }
+      });
+    }
+
+    // Por si la página vuelve del historial con el texto cambiado.
+    window.addEventListener('pageshow', () => {
+      if (!boton.disabled && estado.textContent === '') decir(inicial);
+    });
+  }
+</script>

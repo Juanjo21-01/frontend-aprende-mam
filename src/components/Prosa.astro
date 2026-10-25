@@ -1,0 +1,45 @@
+---
+/**
+ * El cuerpo Markdown de una página editorial, ya convertido a HTML.
+ *
+ * Corre en compilación y no manda JavaScript. Lo único que hace además de llamar a
+ * `renderMarkdown` es averiguar las medidas de las imágenes que viven en `public/`, para que el
+ * `<img>` salga con `width` y `height` reales y la página no salte al cargarlas (CLAUDE.md: «no
+ * cargar imágenes sin dimensiones explícitas»). Las de otro dominio no se pueden medir sin
+ * descargarlas en cada build; para ésas `renderMarkdown` reserva un marco 16:9.
+ */
+import { access } from 'node:fs/promises';
+import path from 'node:path';
+
+import { imagenesDe, renderMarkdown, type Medidas } from '@/data/markdown';
+
+interface Props {
+  cuerpo: string;
+}
+
+const { cuerpo } = Astro.props;
+const base = import.meta.env.BASE_URL;
+
+const medidas = new Map<string, Medidas>();
+const locales = imagenesDe(cuerpo).filter((src) => src.startsWith('/'));
+
+if (locales.length > 0) {
+  const { default: sharp } = await import('sharp');
+
+  for (const src of locales) {
+    const archivo = path.join(process.cwd(), 'public', src);
+    try {
+      await access(archivo);
+      const { width, height } = await sharp(archivo).metadata();
+      if (width && height) medidas.set(src, { ancho: width, alto: height });
+    } catch {
+      // Una imagen que no está en `public/` se publicaría rota. Mejor decirlo en el build.
+      throw new Error(`Una página usa la imagen ${src} y no existe en public/.`);
+    }
+  }
+}
+
+const html = renderMarkdown(cuerpo, { medidas: (src) => medidas.get(src), base });
+---
+
+<div class="prosa" set:html={html} />

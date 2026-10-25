@@ -10,19 +10,24 @@
  *  - Cada ejemplo es una palabra real del diccionario, partida en letras con `grafemasDe()`,
  *    igual que en la sopa de letras. Con el corpus completo los ejemplos mejoran solos.
  *
- * Pronombres, numerales y estructura de la oración quedan anunciados como pendientes: piden
- * redactar texto a partir de la gramática pedagógica, y eso no se improvisa.
+ * Pronombres, numerales y estructura de la oración los escribe el docente en el panel como
+ * páginas de la sección `gramatica` (`/gramatica/<slug>`), que se listan debajo del alfabeto.
+ * Mientras no haya ninguna, se anuncian como pendientes: piden redactar texto a partir de la
+ * gramática pedagógica, y eso no se improvisa.
  *
  * HTML estático, sin JavaScript.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ListaDePaginas from '@/components/ListaDePaginas.astro';
 import RotuloSeccion from '@/components/RotuloSeccion.astro';
 import { GRAFEMAS } from '@/data/alfabeto';
+import { cargarContenido, paginasDe } from '@/data/contenido';
 import { grafemasDe } from '@/data/juegos';
 import { cargarVocabulario, porLetra, type Entrada } from '@/data/vocabulario';
 
 const vocabulario = await cargarVocabulario();
 const grupos = porLetra(vocabulario.entradas);
+const lecciones = paginasDe(await cargarContenido(), 'gramatica');
 
 const base = import.meta.env.BASE_URL;
 
@@ -228,10 +233,19 @@ const pendientes = ['Pronombres.', 'Numerales.', 'Estructura de la oración.'];
     </p>
   </div>
 
-  <div class="mt-10 rounded-xl border border-oro-borde bg-oro-tinte p-5">
-    <p class="font-bold text-oro-hondo">Próximamente en esta sección</p>
-    <ul class="mt-3 list-disc space-y-1 pl-5 text-tinta-suave">
-      {pendientes.map((punto) => <li>{punto}</li>)}
-    </ul>
-  </div>
+  {
+    lecciones.length > 0 ? (
+      <>
+        <RotuloSeccion titulo="Más sobre la gramática" class="mt-10" />
+        <ListaDePaginas paginas={lecciones} ruta="gramatica" class="mt-4" />
+      </>
+    ) : (
+      <div class="mt-10 rounded-xl border border-oro-borde bg-oro-tinte p-5">
+        <p class="font-bold text-oro-hondo">Próximamente en esta sección</p>
+        <ul class="mt-3 list-disc space-y-1 pl-5 text-tinta-suave">
+          {pendientes.map((punto) => <li>{punto}</li>)}
+        </ul>
+      </div>
+    )
+  }
 </BaseLayout>

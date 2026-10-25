@@ -1,0 +1,13 @@
+---
+import PaginaEditorial from '@/components/PaginaEditorial.astro';
+import { cargarContenido, paginasDe } from '@/data/contenido';
+
+export async function getStaticPaths() {
+  const paginas = paginasDe(await cargarContenido(), 'base_legal');
+  return paginas.map((pagina) => ({ params: { slug: pagina.slug }, props: { pagina } }));
+}
+
+const { pagina } = Astro.props;
+---
+
+<PaginaEditorial pagina={pagina} volver={{ href: 'base-legal', texto: 'Base legal' }} />

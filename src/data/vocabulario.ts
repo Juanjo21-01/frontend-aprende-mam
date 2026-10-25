@@ -79,12 +79,12 @@ const SEMILLA = path.join(RAIZ, 'docs', 'vocabulario.json');
  * `process.env`. Leer de los dos evita que la misma configuración funcione en local y no en el
  * despliegue, que es un fallo difícil de diagnosticar desde el log de Netlify.
  */
-function variable(nombre: string): string | undefined {
+export function variable(nombre: string): string | undefined {
   const deAstro = (import.meta.env as Record<string, string | undefined>)[nombre];
   return deAstro ?? process.env[nombre];
 }
 
-async function leerArchivo(archivo: string): Promise<unknown | null> {
+export async function leerArchivo(archivo: string): Promise<unknown | null> {
   try {
     return JSON.parse(await readFile(archivo, 'utf8'));
   } catch {
@@ -92,7 +92,7 @@ async function leerArchivo(archivo: string): Promise<unknown | null> {
   }
 }
 
-async function pedir(url: string, token: string | undefined): Promise<unknown> {
+export async function pedir(url: string, token: string | undefined): Promise<unknown> {
   const respuesta = await fetch(url, {
     headers: {
       // `VerifyExportToken` lee `bearerToken()`: el token va en Authorization, no en una

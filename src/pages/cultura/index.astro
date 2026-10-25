@@ -1,19 +1,34 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ListaDePaginas from '@/components/ListaDePaginas.astro';
 import PlaceholderSection from '@/components/PlaceholderSection.astro';
+import { cargarContenido, paginasDe } from '@/data/contenido';
+
+const paginas = paginasDe(await cargarContenido(), 'cultura');
+const resumen = 'Calendario, tradiciones y relatos del pueblo Mam de San Marcos.';
 ---
 
 <BaseLayout
   titulo="Cultura"
   descripcion="Calendario, tradiciones y relatos del pueblo Mam de San Marcos, Guatemala."
 >
-  <PlaceholderSection
-    titulo="Cultura"
-    resumen="Calendario, tradiciones y relatos del pueblo Mam de San Marcos."
-    pendiente={[
-      'El calendario Mam y las tradiciones del pueblo de San Marcos.',
-      'Relatos y textos para leer en clase.',
-      'Videos e imágenes que acompañan cada tema. Los videos necesitan conexión.',
-    ]}
-  />
+  {
+    paginas.length === 0 ? (
+      <PlaceholderSection
+        titulo="Cultura"
+        resumen={resumen}
+        pendiente={[
+          'El calendario Mam y las tradiciones del pueblo de San Marcos.',
+          'Relatos y textos para leer en clase.',
+          'Videos e imágenes que acompañan cada tema. Los videos necesitan conexión.',
+        ]}
+      />
+    ) : (
+      <>
+        <h1 class="text-3xl">Cultura</h1>
+        <p class="mt-4 text-lg text-tinta-suave">{resumen}</p>
+        <ListaDePaginas paginas={paginas} ruta="cultura" class="mt-8" />
+      </>
+    )
+  }
 </BaseLayout>

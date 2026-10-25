@@ -1,0 +1,25 @@
+---
+/** La procedencia bibliográfica de una página o un documento, en una línea. */
+import type { FuenteDeContenido } from '@/data/contenido-esquema';
+
+interface Props {
+  fuente: FuenteDeContenido;
+  class?: string;
+}
+
+const { fuente, class: clase } = Astro.props;
+const detalle = [fuente.institucion, fuente.anio].filter(Boolean).join(', ');
+---
+
+<p class:list={['text-sm text-tinta-suave', clase]}>
+  Fuente:{' '}
+  {
+    fuente.url ? (
+      <a href={fuente.url} rel="noopener noreferrer" class="underline underline-offset-2">
+        {fuente.titulo}
+      </a>
+    ) : (
+      <span>{fuente.titulo}</span>
+    )
+  }{detalle && `. ${detalle}.`}
+</p>

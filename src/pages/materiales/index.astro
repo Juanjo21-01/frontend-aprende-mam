@@ -1,20 +1,108 @@
 ---
+/**
+ * Material didáctico: los PDF que el docente descarga, guarda e imprime.
+ *
+ * Los PDF NO se precachean (CLAUDE.md: revientan la cuota de almacenamiento, y el service worker
+ * los deja pasar). Se bajan cuando el usuario toca el enlace, y la página lo dice con el tamaño
+ * por delante para que la decisión de gastar datos sea suya.
+ *
+ * Cada documento puede llevar un video de apoyo; sale con el mismo `ContenidoExterno` de todo el
+ * sitio, así que sin señal se degrada a un aviso y no a un marco vacío.
+ */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ContenidoExterno from '@/components/ContenidoExterno.astro';
+import FuenteCitada from '@/components/FuenteCitada.astro';
 import PlaceholderSection from '@/components/PlaceholderSection.astro';
+import RotuloSeccion from '@/components/RotuloSeccion.astro';
+import { cargarContenido, documentosEnOrden } from '@/data/contenido';
+import { TIPOS_DOCUMENTO, type TipoDocumento } from '@/data/contenido-esquema';
+
+const documentos = documentosEnOrden(await cargarContenido());
+const base = import.meta.env.BASE_URL;
+
+const TIPOS: Record<TipoDocumento, string> = {
+  guia: 'Guías didácticas',
+  ficha: 'Fichas de trabajo',
+  cuadernillo: 'Cuadernillos de ejercicios',
+  infografia: 'Infografías',
+};
+
+const grupos = TIPOS_DOCUMENTO.map((tipo) => ({
+  tipo,
+  titulo: TIPOS[tipo],
+  documentos: documentos.filter((documento) => documento.tipo === tipo),
+})).filter((grupo) => grupo.documentos.length > 0);
+
+/** `820` → «820 KB»; `2300` → «2.2 MB». */
+function tamano(kb: number): string {
+  return kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`;
+}
+
+/** Las rutas del sitio llevan el prefijo; las https van tal cual. */
+const destino = (url: string) => (url.startsWith('/') ? `${base.replace(/\/$/, '')}${url}` : url);
 ---
 
 <BaseLayout
   titulo="Materiales"
   descripcion="Guías didácticas, fichas de trabajo, cuadernillos e infografías descargables para trabajar el idioma Mam en el aula."
 >
-  <PlaceholderSection
-    titulo="Material didáctico"
-    resumen="Recursos que el docente puede descargar, guardar e imprimir para trabajar en el aula, con o sin conexión."
-    pendiente={[
-      'Guías didácticas, fichas de trabajo, cuadernillos de ejercicios e infografías en PDF.',
-      'Videos de apoyo para la clase. Necesitan conexión.',
-      'Cada documento con su fuente y su licencia de uso.',
-      'Los PDF se descargan solo cuando los pides, para no gastar tus datos.',
-    ]}
-  />
+  {
+    documentos.length === 0 ? (
+      <PlaceholderSection
+        titulo="Material didáctico"
+        resumen="Recursos que el docente puede descargar, guardar e imprimir para trabajar en el aula, con o sin conexión."
+        pendiente={[
+          'Guías didácticas, fichas de trabajo, cuadernillos de ejercicios e infografías en PDF.',
+          'Videos de apoyo para la clase. Necesitan conexión.',
+          'Cada documento con su fuente y su licencia de uso.',
+          'Los PDF se descargan solo cuando los pides, para no gastar tus datos.',
+        ]}
+      />
+    ) : (
+      <>
+        <h1 class="text-3xl">Material didáctico</h1>
+        <p class="mt-4 text-lg text-tinta-suave">
+          Recursos para descargar, guardar e imprimir y trabajar en el aula. Cada PDF se baja solo
+          cuando lo pides, para no gastar tus datos.
+        </p>
+
+        {grupos.map((grupo) => (
+          <section class="mt-10">
+            <RotuloSeccion titulo={grupo.titulo} />
+
+            <ul class="mt-4 flex flex-col gap-4">
+              {grupo.documentos.map((documento) => (
+                <li class="rounded-xl border border-borde p-4">
+                  <h3 class="text-lg">{documento.titulo}</h3>
+                  {documento.descripcion && (
+                    <p class="mt-1 text-tinta-suave">{documento.descripcion}</p>
+                  )}
+
+                  <a
+                    href={destino(documento.archivo_url)}
+                    download
+                    class="mt-3 inline-flex min-h-12 items-center rounded-lg bg-jade-hondo px-4 font-bold text-papel no-underline hover:bg-jade"
+                  >
+                    Descargar PDF{documento.tamano_kb !== null && ` (${tamano(documento.tamano_kb)})`}
+                  </a>
+
+                  {documento.licencia && (
+                    <p class="mt-3 text-sm text-tinta-suave">Licencia: {documento.licencia}</p>
+                  )}
+                  {documento.fuente && <FuenteCitada fuente={documento.fuente} class="mt-1" />}
+
+                  {documento.video_url && (
+                    <ContenidoExterno
+                      url={documento.video_url}
+                      titulo={`Video de apoyo: ${documento.titulo}`}
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </>
+    )
+  }
 </BaseLayout>

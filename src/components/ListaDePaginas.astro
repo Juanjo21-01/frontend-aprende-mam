@@ -1,0 +1,43 @@
+---
+/** Índice de las páginas de una sección: un enlace grande por página. */
+import type { Pagina } from '@/data/contenido-esquema';
+
+interface Props {
+  paginas: Pagina[];
+  /** Carpeta de la sección: `cultura`, `gramatica`, `base-legal`. */
+  ruta: string;
+  class?: string;
+}
+
+const { paginas, ruta, class: clase } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<ul class:list={['grid gap-3 sm:grid-cols-2', clase]}>
+  {
+    paginas.map((pagina) => (
+      <li>
+        <a
+          href={`${base}${ruta}/${pagina.slug}`}
+          class="flex h-full min-h-17 items-center gap-3 rounded-xl border border-borde p-4 no-underline hover:border-jade"
+        >
+          <span class="grow font-bold text-jade-hondo">{pagina.titulo}</span>
+          <svg
+            viewBox="0 0 24 24"
+            width="22"
+            height="22"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            class="shrink-0 text-tinta-suave"
+          >
+            <path d="m9 5 7 7-7 7"></path>
+          </svg>
+        </a>
+      </li>
+    ))
+  }
+</ul>

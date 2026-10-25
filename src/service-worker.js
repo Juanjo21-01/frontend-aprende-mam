@@ -37,6 +37,13 @@ const CACHE = 'aprendemam-__HASH__';
  */
 const CACHE_IMAGENES = 'aprendemam-imagenes';
 
+/**
+ * Imágenes de las lecciones que el usuario pidió guardar con «Descargar esta lección para usar
+ * sin internet». Aparte de la anterior para que `podarImagenes` nunca las descarte: las pidió él,
+ * con sus datos. El nombre lo escribe `DescargarLeccion.astro`; los dos tienen que coincidir.
+ */
+const CACHE_LECCIONES = 'aprendemam-lecciones';
+
 /** Tope de imágenes guardadas. Al pasarse se descartan las más antiguas. */
 const TOPE_IMAGENES = 80;
 
@@ -147,7 +154,13 @@ async function limpiar() {
 
   await Promise.all(
     nombres
-      .filter((n) => n.startsWith('aprendemam-') && n !== CACHE && n !== CACHE_IMAGENES)
+      .filter(
+        (n) =>
+          n.startsWith('aprendemam-') &&
+          n !== CACHE &&
+          n !== CACHE_IMAGENES &&
+          n !== CACHE_LECCIONES
+      )
       .map((n) => caches.delete(n))
   );
 
@@ -208,6 +221,9 @@ async function responderImagen(peticion) {
   // guardado, que es justo la impresión de «aplicación rota» que todo lo demás evita.
   const precargada = await caches.match(peticion, { ...BUSQUEDA, cacheName: CACHE });
   if (precargada) return precargada;
+
+  const deLeccion = await caches.match(peticion, { ...BUSQUEDA, cacheName: CACHE_LECCIONES });
+  if (deLeccion) return deLeccion;
 
   const cache = await caches.open(CACHE_IMAGENES);
 
