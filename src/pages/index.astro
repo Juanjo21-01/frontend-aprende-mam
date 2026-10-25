@@ -22,7 +22,6 @@ const vocabulario = await cargarVocabulario();
 const temas = porTema(vocabulario);
 
 const base = import.meta.env.BASE_URL;
-const total = vocabulario.entradas.length;
 
 const otrasSecciones = [
   { href: 'gramatica', titulo: 'Gramática', texto: 'Las 32 letras del alfabeto' },
@@ -187,20 +186,4 @@ const otrasSecciones = [
     </div>
   </div>
 
-  <section class="mt-10 rounded-xl border border-borde bg-papel-hondo p-5">
-    <h2 class="text-xl">Estado del proyecto</h2>
-    <p class="mt-3 text-tinta-suave">
-      {
-        total === 0
-          ? 'Todavía no hay palabras publicadas: solo se publica lo que el validador lingüístico ya revisó. Las secciones de contenido están en preparación.'
-          : `Hay ${total} palabras publicadas. Las secciones de cultura, gramática y materiales están en preparación.`
-      }
-      La página de{' '}
-      <a href={`${base}prueba-tipografica`} class="underline underline-offset-2">
-        prueba tipográfica
-      </a>{' '}
-      sirve para verificar que la letra <span lang="mam" class="mam">ẍ</span> se dibuja con los
-      trazos de Charis SIL y no con los de una fuente sustituta.
-    </p>
-  </section>
 </BaseLayout>
