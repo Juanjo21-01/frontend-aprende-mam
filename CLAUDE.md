@@ -18,7 +18,7 @@ Presupuesto: **menos de 150 KB comprimidos** en la carga inicial. Antes de agreg
 
 Por defecto **no hidratar nada**. Las secciones culturales, el vocabulario y la gramática son HTML estático sin JavaScript.
 
-Solo se hidratan tres cosas: el buscador del diccionario, los tres juegos propios y el contenedor de actividades externas y video incrustado.
+Solo se hidratan tres cosas: el buscador del diccionario, los tres juegos propios y el contenedor de video incrustado. Las actividades externas (Educaplay, Wordwall) quedaron **fuera del alcance** en octubre de 2026; `ContenidoExterno` las admite pero ninguna página las usa.
 
 Usar `client:visible` salvo que exista una razón concreta para `client:load`.
 
@@ -36,7 +36,7 @@ Usar `client:visible` salvo que exista una razón concreta para `client:load`.
 - Bajo demanda: imágenes y PDF. **No precachear los PDF descargables**, revientan la cuota de almacenamiento.
 - Botón explícito «Descargar esta lección para usar sin internet» por categoría, que fija en caché las imágenes del tema completo. La decisión sobre el consumo de datos es del usuario, no de la app. El video externo nunca entra en esa descarga.
 - `navigator.onLine` no basta: solo informa si existe interfaz de red, no si hay internet. Combinar con una sonda ligera al propio dominio.
-- Los iframes externos (Educaplay, Wordwall, video) nunca funcionan sin conexión. **Sustituirlos por un aviso claro con enlace a un juego propio equivalente.** Nunca dejar el marco vacío: el usuario interpreta que la aplicación se rompió.
+- Los iframes externos (video, y Educaplay o Wordwall si se retomaran) nunca funcionan sin conexión. **Sustituirlos por un aviso claro con enlace a un juego propio equivalente.** Nunca dejar el marco vacío: el usuario interpreta que la aplicación se rompió.
 
 ## Contenido audiovisual
 
