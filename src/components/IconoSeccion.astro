@@ -1,0 +1,28 @@
+---
+/*
+ * El ícono de una sección: un trazo de `src/data/secciones.ts` en un SVG de 24×24. Toma el
+ * color del texto que lo rodea. Decorativo: siempre va junto al nombre de la sección.
+ */
+interface Props {
+  d: string;
+  tamano?: number;
+  class?: string;
+}
+
+const { d, tamano = 24, class: clase } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 24 24"
+  width={tamano}
+  height={tamano}
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  class:list={['shrink-0', clase]}
+>
+  <path d={d}></path>
+</svg>

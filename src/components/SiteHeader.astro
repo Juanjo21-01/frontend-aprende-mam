@@ -1,62 +1,27 @@
 ---
-import { Image } from 'astro:assets';
+import Logo from './Logo.astro';
 import MainNav from './MainNav.astro';
 
 /*
- * El logo lleva `alt=""` a propósito: el nombre del sitio va escrito al lado, dentro del mismo
- * enlace. Con un texto alternativo, un lector de pantalla anunciaría «AprendeMam AprendeMam».
+ * Encabezado claro: el logotipo a la izquierda y, de tableta para arriba, la navegación a la
+ * derecha. En el teléfono solo va el logotipo; las secciones están en la barra inferior.
  *
- * Y lleva `loading="eager"` explícito, que es la excepción a la regla general del proyecto de
- * cargar las imágenes en diferido. `<Image>` pone `lazy` por su cuenta si no se le dice nada, y
- * esta imagen está arriba del todo: diferirla solo consigue que el encabezado aparezca vacío y
- * se rellene medio segundo después. Las medidas explícitas sí van, para que ese hueco esté
- * reservado desde el primer pintado.
+ * Fondo papel con una línea de borde, no una banda de color: con la tonalidad «B2 · Claro» el
+ * color fuerte se reserva para lo que se toca, y un encabezado lleno de verde le quitaría peso
+ * a los rumbos de la portada.
  *
- * `rounded-full` no es adorno: el WebP es el logo circular sobre un cuadrado blanco, y sin el
- * recorte se ven cuatro esquinas blancas sobre el verde de la banda.
- *
- * La cenefa se cierra aquí abajo y no en el layout, para que el encabezado sea una pieza
- * completa: quien lo mueva se lleva su remate con él.
+ * El ancho es el del armazón (`max-w-6xl`) en todas las páginas, también en las de lectura: el
+ * encabezado y el pie son el marco, y la columna de texto se centra dentro.
  */
-interface Props {
-  ancho?: 'lectura' | 'panel';
-}
-
-const { ancho = 'lectura' } = Astro.props;
-
 const base = import.meta.env.BASE_URL;
-const contenedor = ancho === 'panel' ? 'max-w-5xl' : 'max-w-3xl';
 ---
 
-<header class="bg-jade-hondo">
-  <div
-    class:list={[
-      'mx-auto flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8',
-      contenedor,
-    ]}
-  >
-    <a href={base} class="flex items-center gap-3 no-underline">
-      <Image
-        src={`${base}logo.webp`}
-        alt=""
-        width="48"
-        height="48"
-        loading="eager"
-        decoding="async"
-        class="size-12 shrink-0 rounded-full"
-      />
-      <span class="block">
-        <span class="block text-2xl font-bold text-papel"
-          >Aprende<span class="text-oro">Mam</span></span
-        >
-        <span class="block text-sm text-jade-claro">
-          Idioma <span lang="mam">Mam</span> · San Marcos, Guatemala
-        </span>
-      </span>
+<header class="border-b border-borde bg-papel">
+  <div class="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-6 px-4 md:px-6">
+    <a href={base} class="flex min-h-11 items-center no-underline">
+      <Logo tamano={36} compactoEnTableta />
     </a>
 
     <MainNav />
   </div>
 </header>
-
-<div class="cenefa"></div>

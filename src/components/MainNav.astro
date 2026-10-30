@@ -1,46 +1,39 @@
 ---
-// Navegación principal. Sin JavaScript: en pantallas angostas los enlaces simplemente
-// se acomodan en varias filas. Un menú hamburguesa exigiría hidratar una isla para algo
-// que el ajuste de línea resuelve gratis.
-//
-// Va dentro de la banda verde del encabezado, así que los colores son los de sobre fondo
-// oscuro: `jade-claro` para lo inactivo (5.4:1, pasa AA) y papel con filo dorado para la
-// sección en la que estamos. El dorado marca la posición sin depender solo del peso de la
-// letra, que en una pantalla barata bajo el sol casi no se distingue.
-//
-// Las cinco áreas de contenido para estudiantes y docentes. «Base legal» queda en el pie:
-// es material de respaldo institucional, no algo que una estudiante busque a diario.
-const enlaces = [
-  { href: '/diccionario', texto: 'Diccionario' },
-  { href: '/gramatica', texto: 'Gramática' },
-  { href: '/cultura', texto: 'Cultura' },
-  { href: '/materiales', texto: 'Materiales' },
-  { href: '/juegos', texto: 'Juegos' },
-];
+import { ESTILO_RUMBO, NAV_SUPERIOR, esActiva, href } from '@/data/secciones';
 
+/*
+ * Navegación superior, de tableta para arriba. En el teléfono la reemplaza la barra inferior
+ * (`NavInferior.astro`): nunca se ven las dos a la vez.
+ *
+ * La sección en la que estamos lleva el campo claro de su rumbo —rojo en Juegos, amarillo en
+ * Cultura— además de negrita y `aria-current`. Así el color de la sección se aprende desde la
+ * navegación, y el activo no depende solo del color: el fondo cambia de forma, no solo de tono.
+ *
+ * Sin JavaScript. A 768 px caben las seis secciones en una fila; si un nombre largo llegara a
+ * no caber, `flex-wrap` las acomoda en dos en vez de esconder ninguna.
+ */
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const actual = Astro.url.pathname.replace(/\/$/, '');
+const actual = Astro.url.pathname;
 ---
 
-<nav aria-label="Secciones del sitio">
-  <ul class="flex flex-wrap gap-x-5 gap-y-1">
+<nav aria-label="Secciones del sitio" class="hidden md:block">
+  <ul class="flex flex-wrap justify-end gap-1">
     {
-      enlaces.map(({ href, texto }) => {
-        const ruta = `${base}${href}`;
-        const activo = actual === ruta || actual.startsWith(`${ruta}/`);
+      NAV_SUPERIOR.map((seccion) => {
+        const activa = esActiva(seccion, actual, base);
         return (
           <li>
             <a
-              href={ruta}
-              aria-current={activo ? 'page' : undefined}
+              href={href(seccion, base)}
+              aria-current={activa ? 'page' : undefined}
               class:list={[
-                'inline-block border-b-[3px] py-2.5 no-underline',
-                activo
-                  ? 'border-oro font-bold text-papel'
-                  : 'border-transparent text-jade-claro hover:text-papel',
+                'flex min-h-11 items-center rounded-xl px-3 text-base no-underline lg:px-3.5',
+                activa
+                  ? [ESTILO_RUMBO[seccion.rumbo].activo, 'font-bold']
+                  : 'text-tinta-suave hover:bg-papel-hondo hover:text-tinta',
               ]}
             >
-              {texto}
+              {seccion.nombre}
             </a>
           </li>
         );

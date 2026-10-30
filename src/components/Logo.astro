@@ -2,7 +2,7 @@
 /*
  * El logotipo: volcán y libro, con el nombre escrito al lado.
  *
- * Sale del logo ilustrado anterior (`public/logo.webp`), reducido a lo que se lee a 16 px: el
+ * Sale del logo ilustrado anterior (`marca/logo.png`), reducido a lo que se lee a 16 px: el
  * volcán de San Marcos con su nieve, el sol detrás y un libro abierto en abanico sobre una tapa
  * roja. El libro va sin contorno a propósito: el volumen lo hacen las dos capas de hojas, y el
  * contorno grueso de las pruebas anteriores lo hacía parecer una canasta. Se eligió el 29 de
@@ -24,10 +24,15 @@ interface Props {
   tamano?: number;
   /** Solo la marca, sin el nombre (para espacios estrechos). */
   soloMarca?: boolean;
+  /**
+   * Esconde el nombre solo en tableta (768–1023 px), donde el encabezado tiene que dejar sitio a
+   * las seis secciones en una fila. Lo esconde a la vista, no al lector de pantalla.
+   */
+  compactoEnTableta?: boolean;
   class?: string;
 }
 
-const { tamano = 32, soloMarca = false, class: clase } = Astro.props;
+const { tamano = 32, soloMarca = false, compactoEnTableta = false, class: clase } = Astro.props;
 ---
 
 <span class:list={['inline-flex items-center gap-2.5', clase]}>
@@ -44,7 +49,13 @@ const { tamano = 32, soloMarca = false, class: clase } = Astro.props;
   </svg>
   {
     !soloMarca && (
-      <span class="font-bold leading-none text-tinta" style={`font-size: ${tamano * 0.7}px`}>
+      <span
+        class:list={[
+          'font-bold leading-none text-tinta',
+          compactoEnTableta && 'md:max-lg:sr-only',
+        ]}
+        style={`font-size: ${Math.round(tamano * 0.7)}px`}
+      >
         Aprende<span class="text-verde">Mam</span>
       </span>
     )

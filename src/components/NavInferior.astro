@@ -1,0 +1,67 @@
+---
+import IconoSeccion from './IconoSeccion.astro';
+import { ESTILO_RUMBO, ICONO_MAS, NAV_INFERIOR, esActiva, href } from '@/data/secciones';
+
+/*
+ * Barra inferior del teléfono: Inicio, Diccionario, Juegos y Más, al alcance del pulgar. Desde
+ * tableta desaparece y manda la barra superior.
+ *
+ * «Más» no abre ningún menú: es un enlace al bloque «Todas las secciones» del pie (`#secciones`).
+ * Un menú desplegable necesitaría JavaScript o la API de popover, que en los navegadores viejos
+ * de los teléfonos que se usan en San Marcos no responde y deja el botón muerto. Un ancla
+ * funciona en todos.
+ *
+ * Fija abajo con el hueco de la barra del sistema (`safe-area-inset-bottom`), y el `<body>`
+ * reserva ese mismo alto para que el pie no quede tapado. El activo lleva una píldora con el
+ * campo claro de su rumbo detrás del ícono y el nombre en negrita: no depende solo del color.
+ */
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const actual = Astro.url.pathname;
+---
+
+<nav
+  aria-label="Secciones principales"
+  class="fixed inset-x-0 bottom-0 z-40 border-t border-borde bg-papel pb-[env(safe-area-inset-bottom)] md:hidden"
+>
+  <ul class="grid grid-cols-4">
+    {
+      NAV_INFERIOR.map((seccion) => {
+        const activa = esActiva(seccion, actual, base);
+        const estilo = ESTILO_RUMBO[seccion.rumbo];
+        return (
+          <li>
+            <a
+              href={href(seccion, base)}
+              aria-current={activa ? 'page' : undefined}
+              class:list={[
+                'flex min-h-16 flex-col items-center justify-center gap-0.5 text-sm no-underline',
+                activa ? [estilo.texto, 'font-bold'] : 'text-tinta-suave',
+              ]}
+            >
+              <span
+                class:list={[
+                  'grid h-8 w-14 place-items-center rounded-full',
+                  activa && estilo.activo,
+                ]}
+              >
+                <IconoSeccion d={seccion.icono} />
+              </span>
+              <span>{seccion.nombre}</span>
+            </a>
+          </li>
+        );
+      })
+    }
+    <li>
+      <a
+        href="#secciones"
+        class="flex min-h-16 flex-col items-center justify-center gap-0.5 text-sm text-tinta-suave no-underline"
+      >
+        <span class="grid h-8 w-14 place-items-center rounded-full">
+          <IconoSeccion d={ICONO_MAS} />
+        </span>
+        <span>Más</span>
+      </a>
+    </li>
+  </ul>
+</nav>

@@ -1,90 +1,102 @@
 /**
- * Genera los iconos de instalación a partir del emblema de `marca/`.
+ * Genera el favicon y los iconos de instalación a partir de `marca/logo.svg`.
  *
  * Uso: `npm run icons`. Se ejecuta a mano y su salida se versiona, igual que el subconjunto
  * de fuentes. No entra en `npm run build` porque el logo cambia una vez cada nunca y no tiene
  * sentido pagarlo en cada despliegue de Netlify.
  *
- * Los originales viven en `marca/` y no en `public/`, que es la carpeta que Astro copia tal
- * cual a `dist/`.
+ * El original vive en `marca/` y no en `public/`, que es la carpeta que Astro copia tal cual a
+ * `dist/`. Es una copia de la marca de `src/components/Logo.astro` con los colores en
+ * hexadecimal; si cambia uno, hay que cambiar el otro y volver a correr esto.
  *
- * ## El emblema es redondo y el lienzo es cuadrado
+ * ## Por qué los iconos no se generan todos igual
  *
- * Ese choque es el que gobierna todo lo de abajo, y cada sistema lo resuelve de una manera
- * distinta. Por eso los iconos **no** se generan todos igual:
+ * Cada sistema recorta el icono a su manera:
  *
- *  - **`icon-192` y `icon-512` (`purpose: any`)** conservan la transparencia del original. Son
- *    los que usan el escritorio, el conmutador de tareas y el diálogo de instalación de
- *    Chrome, y ninguno de ellos recorta nada: si se les aplana el fondo, el emblema redondo
- *    aparece metido dentro de una baldosa cuadrada de color.
- *  - **`icon-maskable-512`** es justo el contrario: tiene que llenar el lienzo de borde a
- *    borde, porque es Android quien lo recorta —en círculo, en `squircle` o en gota, según el
- *    fabricante—. Aquí la transparencia no vale: dejaría las esquinas en negro o en blanco
- *    según el lanzador.
- *  - **`apple-touch-icon`** es opaco y cuadrado a propósito. iOS le aplica **su propia**
- *    máscara redondeada, así que la forma la pone el sistema; lo que no perdona es el canal
- *    alfa, que pinta de **negro**.
+ *  - **`icon-128`, `icon-192` e `icon-512` (`purpose: any`)** conservan la transparencia. Los
+ *    usan el escritorio, el conmutador de tareas y el diálogo de instalación de Chrome, y
+ *    ninguno recorta nada: con fondo, la marca aparecería metida en una baldosa.
+ *  - **`icon-maskable-512`** llena el lienzo de borde a borde, porque es Android quien lo
+ *    recorta —en círculo, en `squircle` o en gota, según el fabricante—. La especificación solo
+ *    garantiza el círculo central del 80 %, y la marca es ancha (el libro va de lado a lado),
+ *    así que va al 64 % para que ninguna máscara le muerda la tapa.
+ *  - **`apple-touch-icon`** es opaco y cuadrado. iOS le pone su propia máscara redondeada; lo
+ *    que no perdona es el canal alfa, que pinta de negro.
+ *  - **`favicon.svg`** es la marca tal cual, para los navegadores que aceptan SVG, y
+ *    **`favicon.ico`** el respaldo de 32 px para los que no, y para quien pide `/favicon.ico`
+ *    a ciegas.
  *
- * ## Por qué el fondo es verde y no crema
- *
- * Los dos iconos que llevan fondo lo llevan del verde del anillo del emblema, no del papel
- * del sitio. Con el fondo crema, el recorte circular de Android deja un aro claro alrededor
- * del aro verde del propio emblema: se ven dos círculos concéntricos y parece un error de
- * montaje. Con el verde, el fondo y el anillo son el mismo color, el borde desaparece y el
- * icono se lee como una sola pieza redonda.
+ * El fondo de los iconos opacos es el papel del sitio: la marca se diseñó sobre papel, y el
+ * libro (hojas claras) se perdería sobre un fondo de color.
  */
 
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 import sharp from 'sharp';
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const ORIGEN = path.join(RAIZ, 'marca', 'icono.png');
-const LOGO = path.join(RAIZ, 'marca', 'logo.png');
+const ORIGEN = path.join(RAIZ, 'marca', 'logo.svg');
 const PUBLICO = path.join(RAIZ, 'public');
 
-/** El verde del anillo exterior del emblema, muestreado del original. */
-const VERDE = { r: 0x03, g: 0x45, b: 0x33, alpha: 1 };
+/** El papel del sitio, `--color-papel`. */
+const PAPEL = { r: 0xff, g: 0xfd, b: 0xf8, alpha: 1 };
 
-/**
- * Fracción del lienzo que ocupa el emblema en los iconos con fondo.
- *
- * La especificación de `maskable` solo garantiza el 80 % central, pero ese mínimo está pensado
- * para logotipos rectangulares que se recortarían por las esquinas. Este emblema ya es un
- * círculo inscrito, así que la máscara circular —la más agresiva de las que usa Android— cae
- * prácticamente sobre su propio borde. Al 92 % llena el icono sin que ninguna máscara le
- * muerda nada; al 80 % se veía pequeño, flotando en medio del verde.
- */
-const ESCALA = 0.92;
+/** Fracción del lienzo que ocupa la marca en el icono enmascarable (ver arriba). */
+const ESCALA_MASCARA = 0.64;
 
-const PNG = { compressionLevel: 9, palette: true, colours: 128 };
+/** Fracción en el de Apple, que solo redondea las esquinas y deja ver casi todo. */
+const ESCALA_APPLE = 0.8;
 
-/** Emblema a todo el lienzo, conservando las esquinas transparentes del original. */
+const PNG = { compressionLevel: 9, palette: true, colours: 64 };
+
+/** El SVG rasterizado con nitidez: `density` escala el lienzo vectorial antes de reducirlo. */
+function marca(lado) {
+  return sharp(ORIGEN, { density: Math.ceil((lado / 64) * 72 * 2) }).resize(lado, lado);
+}
+
+/** Marca a todo el lienzo, con fondo transparente. */
 async function iconoSuelto(lado) {
-  return sharp(ORIGEN)
-    .resize(lado, lado, { fit: 'contain', background: { ...VERDE, alpha: 0 } })
+  return marca(lado).png(PNG).toBuffer();
+}
+
+/** Marca centrada sobre papel, sin canal alfa. */
+async function iconoConFondo(lado, escala) {
+  const interior = Math.round(lado * escala);
+  const margen = Math.round((lado - interior) / 2);
+
+  return sharp({
+    // `channels: 3` es lo que garantiza que no salga canal alfa, que es lo que iOS no perdona.
+    create: { width: lado, height: lado, channels: 3, background: PAPEL },
+  })
+    .composite([{ input: await marca(interior).png().toBuffer(), top: margen, left: margen }])
     .png(PNG)
     .toBuffer();
 }
 
-/** Emblema sobre fondo verde a sangre, sin canal alfa. */
-async function iconoConFondo(lado) {
-  const emblema = Math.round(lado * ESCALA);
-  const margen = Math.round((lado - emblema) / 2);
+/**
+ * Un `.ico` con un único PNG dentro. Es el formato que aceptan todos los navegadores desde
+ * Windows Vista: una cabecera de 6 bytes, una entrada de 16 y el PNG tal cual. Así no hace
+ * falta otra dependencia para escribir ICO.
+ */
+function ico(png, lado) {
+  const cabecera = Buffer.alloc(6);
+  cabecera.writeUInt16LE(0, 0); // reservado
+  cabecera.writeUInt16LE(1, 2); // tipo: icono
+  cabecera.writeUInt16LE(1, 4); // una imagen
 
-  const encogido = await sharp(ORIGEN)
-    .resize(emblema, emblema, { fit: 'contain', background: { ...VERDE, alpha: 0 } })
-    .toBuffer();
+  const entrada = Buffer.alloc(16);
+  entrada.writeUInt8(lado, 0);
+  entrada.writeUInt8(lado, 1);
+  entrada.writeUInt8(0, 2); // sin paleta
+  entrada.writeUInt8(0, 3);
+  entrada.writeUInt16LE(1, 4); // planos
+  entrada.writeUInt16LE(32, 6); // bits por píxel
+  entrada.writeUInt32LE(png.length, 8);
+  entrada.writeUInt32LE(6 + 16, 12); // el PNG empieza tras cabecera y entrada
 
-  return sharp({
-    // `channels: 3` es lo que garantiza que no salga canal alfa, que es lo que iOS no perdona.
-    create: { width: lado, height: lado, channels: 3, background: VERDE },
-  })
-    .composite([{ input: encogido, top: margen, left: margen }])
-    .png(PNG)
-    .toBuffer();
+  return Buffer.concat([cabecera, entrada, png]);
 }
 
 async function main() {
@@ -94,22 +106,9 @@ async function main() {
     ['icon-128.png', await iconoSuelto(128)],
     ['icon-192.png', await iconoSuelto(192)],
     ['icon-512.png', await iconoSuelto(512)],
-    ['icon-maskable-512.png', await iconoConFondo(512)],
-    ['apple-touch-icon.png', await iconoConFondo(180)],
-
-    // El logo completo, con el texto y la cenefa. Es el del encabezado del sitio, no un icono
-    // de instalación: aquí sí se conserva la transparencia, porque va sobre el papel de la
-    // página y no dentro de ninguna baldosa.
-    [
-      'logo.webp',
-      await sharp(LOGO)
-        .resize(512, 512, {
-          fit: 'contain',
-          background: { ...VERDE, alpha: 0 },
-        })
-        .webp({ quality: 82 })
-        .toBuffer(),
-    ],
+    ['icon-maskable-512.png', await iconoConFondo(512, ESCALA_MASCARA)],
+    ['apple-touch-icon.png', await iconoConFondo(180, ESCALA_APPLE)],
+    ['favicon.ico', ico(await marca(32).png().toBuffer(), 32)],
   ];
 
   for (const [nombre, datos] of salidas) {
@@ -117,13 +116,9 @@ async function main() {
     console.log(`${nombre.padEnd(24)} ${(datos.length / 1024).toFixed(1)} KB`);
   }
 
-  const original = (await readFile(ORIGEN)).length + (await readFile(LOGO)).length;
-  const generado = salidas.reduce((total, [, datos]) => total + datos.length, 0);
-
-  console.log(
-    `\n${(original / 1024 / 1024).toFixed(2)} MB de originales → ` +
-      `${(generado / 1024).toFixed(0)} KB publicados.`
-  );
+  await copyFile(ORIGEN, path.join(PUBLICO, 'favicon.svg'));
+  const svg = (await readFile(ORIGEN)).length;
+  console.log(`${'favicon.svg'.padEnd(24)} ${(svg / 1024).toFixed(1)} KB`);
 }
 
 main().catch((error) => {

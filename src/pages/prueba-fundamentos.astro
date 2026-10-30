@@ -58,7 +58,7 @@ const temas = [
         <li class="overflow-hidden rounded-2xl border-2 border-borde">
           <div class:list={['h-10', m.pleno]} />
           <div class:list={['px-3 py-3 font-bold', m.campo, m.texto]}>
-            {m.nombre}
+            <span class="block">{m.nombre}</span>
             <span class="block text-sm font-normal">Texto sobre campo {m.contraste}</span>
           </div>
         </li>
@@ -125,7 +125,7 @@ const temas = [
   <p lang="mam" class="mam mt-2 text-2xl">Ẍiky kyiẍ i’ẍ napẍ q’aq’ tx’otx’</p>
   <p class="mt-4 max-w-[68ch]">
     Texto de lectura a 18 px con interlineado de 1.6. Se busca en <span lang="mam">Mam</span> y en
-    castellano, y no hace falta el saltillo ni la diéresis: «xiky» encuentra
+    castellano, y no hace falta el saltillo ni la diéresis: «xiky» encuentra{' '}
     <span lang="mam" class="mam">ẍiky</span>. Selecciona este párrafo para ver el color de la
     selección.
   </p>

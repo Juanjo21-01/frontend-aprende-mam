@@ -2,6 +2,7 @@
 import '@/styles/global.css';
 import SiteHeader from '@/components/SiteHeader.astro';
 import SiteFooter from '@/components/SiteFooter.astro';
+import NavInferior from '@/components/NavInferior.astro';
 
 interface Props {
   titulo: string;
@@ -13,20 +14,19 @@ interface Props {
    * cansar. Lo usan las entradas del diccionario, la cultura, la gramática y el material
    * de respaldo, que son páginas para leer seguido.
    *
-   * `panel` son 1024 px, para las dos páginas que son rejilla y no texto —el inicio y el
-   * índice del diccionario—, donde a 768 px las fichas de tema se quedan en dos columnas
-   * con medio monitor vacío al lado.
+   * `panel` son 1152 px, el mismo ancho que el encabezado y el pie, para las páginas que son
+   * rejilla y no texto —el inicio y el índice del diccionario—, donde a 768 px las fichas de
+   * tema se quedan en dos columnas con medio monitor vacío al lado.
    *
-   * El mismo valor viaja al encabezado y al pie: si el contenido de la banda verde se
-   * alineara a otro ancho que el del cuerpo, el desfase se nota en cuanto la ventana pasa
-   * de los 1024 px.
+   * El encabezado y el pie van siempre a 1152 px: son el marco, y una columna de lectura se
+   * centra dentro de él.
    */
   ancho?: 'lectura' | 'panel';
 }
 
 const { titulo, descripcion, ancho = 'lectura' } = Astro.props;
 
-const contenedor = ancho === 'panel' ? 'max-w-5xl' : 'max-w-3xl';
+const contenedor = ancho === 'panel' ? 'max-w-6xl' : 'max-w-3xl';
 
 const base = import.meta.env.BASE_URL;
 const canonica = new URL(Astro.url.pathname, Astro.site);
@@ -94,12 +94,13 @@ const fuentes = [
       ))
     }
 
-    <link rel="icon" href={`${base}favicon.ico`} type="image/x-icon" />
+    <link rel="icon" href={`${base}favicon.ico`} sizes="32x32" />
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
     <link rel="manifest" href={`${base}manifest.webmanifest`} />
-    {/* El verde de la banda del encabezado. Con el jade claro, la barra de estado de
-        Android salía de un verde distinto al de la primera franja de la página. */}
-    <meta name="theme-color" content="#0a4f47" />
+    {/* El papel del encabezado, para que la barra de estado de Android sea la primera franja
+        de la página y no un color distinto encima de ella. */}
+    <meta name="theme-color" content="#fffdf8" />
     <meta name="apple-mobile-web-app-title" content="AprendeMam" />
 
     <meta property="og:type" content="website" />
@@ -108,10 +109,14 @@ const fuentes = [
     <meta property="og:locale" content="es_GT" />
   </head>
 
-  <body class="flex min-h-dvh flex-col bg-papel text-tinta">
+  {/* El relleno inferior del teléfono reserva el alto de la barra inferior fija (4 rem más
+      el hueco de la barra del sistema), para que el final del pie no quede debajo de ella. */}
+  <body
+    class="flex min-h-dvh flex-col bg-papel pb-[calc(4.25rem+env(safe-area-inset-bottom))] text-tinta md:pb-0"
+  >
     <a
       href="#contenido"
-      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-jade focus:px-4 focus:py-2 focus:text-papel"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-xl focus:bg-verde-campo focus:px-4 focus:py-2 focus:font-bold focus:text-verde-texto"
     >
       Saltar al contenido
     </a>
@@ -122,13 +127,15 @@ const fuentes = [
       internet.
     </p>
 
-    <SiteHeader ancho={ancho} />
+    <SiteHeader />
 
-    <main id="contenido" class:list={['mx-auto w-full flex-1 px-5 py-10', contenedor]}>
+    <main id="contenido" class:list={['mx-auto w-full flex-1 px-4 py-8 md:px-6 md:py-10', contenedor]}>
       <slot />
     </main>
 
-    <SiteFooter ancho={ancho} />
+    <SiteFooter />
+
+    <NavInferior />
 
     <script define:vars={{ base, conServiceWorker: import.meta.env.PROD }}>
       (function () {

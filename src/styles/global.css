@@ -306,13 +306,21 @@
    * eso, cada carga enseñaría el aviso durante medio segundo antes de desmentirse, que es
    * peor que no avisar.
    */
+  /*
+   * En el campo amarillo con su texto café (7.5:1) y no en rojo: no hay ningún error que
+   * corregir, el sitio sigue funcionando con lo guardado. El rojo diría «se rompió», que es
+   * justo lo que el aviso quiere evitar que piense un niño. La palabra «Sin conexión.» en
+   * negrita es la señal; el color solo acompaña.
+   */
   .aviso-conexion {
     display: none;
-    padding: 0.625rem 1.25rem;
-    background-color: var(--color-alerta);
-    color: var(--color-papel);
-    font-size: 0.875rem;
-    line-height: 1.4;
+    padding: 0.625rem 1rem;
+    background-color: var(--color-amarillo-campo);
+    color: var(--color-amarillo-texto);
+    border-bottom: 1px solid var(--color-amarillo);
+    font-size: 1rem;
+    line-height: 1.45;
+    text-align: center;
   }
 
   html[data-conexion='no'] .aviso-conexion {

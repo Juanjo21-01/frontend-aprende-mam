@@ -49,15 +49,15 @@ const PRECARGABLES = new Set(['.css', '.js', '.woff2', '.json', '.webmanifest', 
 /**
  * Excepciones a lo anterior, una por una.
  *
- * Las dos aparecen en todas las páginas, así que sin ellas el sitio sin conexión se ve roto en
- * vez de simplemente desconectado: el navegador enseñaría la hoja en blanco genérica en la
- * pestaña y un hueco donde va el logo del encabezado, justo cuando el usuario está comprobando
- * si la aplicación le sirve sin señal.
+ * Los dos favicons aparecen en todas las páginas, así que sin ellos el sitio sin conexión se ve
+ * roto en vez de simplemente desconectado: el navegador enseñaría la hoja en blanco genérica en
+ * la pestaña, justo cuando el usuario está comprobando si la aplicación le sirve sin señal. El
+ * logo del encabezado ya no hace falta aquí: desde el rediseño es SVG dentro del propio HTML.
 
- * Van una por una y no por extensión porque las imágenes de contenido sí tienen que ir bajo
+ * Van uno por uno y no por extensión porque las imágenes de contenido sí tienen que ir bajo
  * demanda: esta lista es de recursos de la interfaz, no de contenido.
  */
-const EXTRA = ['/favicon.ico', '/logo.webp'];
+const EXTRA = ['/favicon.ico', '/favicon.svg'];
 
 /**
  * Lo que nunca entra en la precarga aunque tenga una extensión de la lista.
@@ -80,6 +80,7 @@ const ICONOS = [
   'icon-maskable-512.png',
   'apple-touch-icon.png',
   'favicon.ico',
+  'favicon.svg',
 ];
 
 async function archivos(dir, base = dir) {

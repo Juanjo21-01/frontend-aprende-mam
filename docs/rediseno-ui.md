@@ -163,6 +163,22 @@ siguiente. Los retoques que surjan se anotan en este documento.
   conexión (`BaseLayout`, `SiteHeader`, `MainNav`, `SiteFooter`). Incluye regenerar el favicon,
   los íconos de la PWA (`public/icon-*.png`, `apple-touch-icon.png`) y el color del manifiesto
   con el logotipo nuevo; `public/logo.webp` deja de usarse.
+  - Hecho (pendiente de tu visto bueno):
+    - `src/data/secciones.ts` es la fuente única de secciones, rumbo, palabra Mam e ícono; lo
+      usan las dos navegaciones, el pie y (en la Fase 2) la portada.
+    - Encabezado papel con borde. En tableta (768–1023 px) el logotipo muestra solo la marca,
+      para que las seis secciones quepan en una fila; desde 1024 px, marca y nombre.
+    - La sección activa lleva el campo claro de su rumbo (Gramática, que es blanco, va en papel
+      hondo con filo) además de negrita.
+    - Barra inferior en teléfono (`NavInferior.astro`): Inicio, Diccionario, Juegos y Más.
+      **«Más» es un ancla a «Todas las secciones» del pie**, no un menú: un desplegable pediría
+      JavaScript o la API de popover, que en navegadores viejos deja el botón muerto.
+    - Pie en papel hondo con «Todas las secciones» como tarjetas tocables y los créditos.
+    - Aviso sin conexión en amarillo claro y no en rojo: no es un error, el sitio sigue
+      funcionando.
+    - Íconos de la PWA, `favicon.ico` y `favicon.svg` generados desde `marca/logo.svg` con
+      `npm run icons`; manifiesto y `theme-color` en papel. `public/logo.webp` borrado.
+    - El ancho `panel` pasa a 1152 px (`max-w-6xl`), el mismo del encabezado y el pie.
 - [ ] **Fase 2 — Portada.** Buscador-enlace, los cuatro rumbos, temas, palabra del día.
 - [ ] **Fase 3 — Diccionario.** Buscador (isla), tarjeta y fila de entrada, páginas de letra y de
   tema, índice alfabético.
