@@ -32,8 +32,10 @@ const PLANTILLA = path.join(RAIZ, 'src', 'service-worker.js');
  * mirarla en un teléfono real y comprobar que la `ẍ` sale con la fuente correcta. No es
  * contenido para nadie más, y guardarla ocuparía la cuota de un usuario que nunca la va a
  * abrir.
+ *
+ * `prueba-fundamentos` es el muestrario del rediseño, por la misma razón. Se borra en la Fase 7.
  */
-const FUERA = [/^\/prueba-tipografica$/];
+const FUERA = [/^\/prueba-tipografica$/, /^\/prueba-fundamentos$/];
 
 /**
  * Extensiones que se precargan de `dist/`, aparte del HTML.

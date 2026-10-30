@@ -29,13 +29,61 @@
   --font-mam: 'Charis SIL', 'Gentium Plus', Georgia, 'Times New Roman', serif;
 
   /*
-   * Paleta base. Sigue siendo corta: cada tono extra es CSS que viaja por 3G.
+   * Neutros del rediseño (docs/rediseno-ui.md). Conservan los nombres de antes para que las
+   * páginas todavía sin migrar tomen los valores nuevos sin tocarlas.
+   *
+   * Contraste: tinta sobre papel 15.9:1; tinta-suave sobre papel 7.4:1 y sobre cualquier
+   * campo claro de los rumbos ≥ 5.4:1.
    */
-  --color-papel: #fdfcf9;
-  --color-papel-hondo: #f5f2ec;
-  --color-tinta: #1f1c19;
-  --color-tinta-suave: #57504a;
-  --color-borde: #e0dad0;
+  --color-papel: #fffdf8;
+  --color-papel-hondo: #f5f0e6;
+  --color-tinta: #262019;
+  --color-tinta-suave: #5b5348;
+  --color-borde: #ece5d8;
+
+  /*
+   * Los cuatro rumbos y el centro, tonalidad «B2 · Claro».
+   *
+   * Cada color tiene tres papeles y no se mezclan:
+   * - `-campo`: el fondo claro de un botón de sección.
+   * - `-texto`: el texto que va encima de ese campo, del mismo matiz. Ninguno baja de 6.4:1.
+   * - el nombre solo (`--color-rojo`): el color pleno, que solo aparece en la sombra del botón,
+   *   en íconos grandes y en el logotipo. Nunca como fondo de un área grande: el usuario los
+   *   encontró demasiado fuertes, y por eso se eligió esta tonalidad.
+   *
+   * Reglas que no se negocian: nada de texto blanco sobre amarillo ni de texto amarillo sobre
+   * papel (1.9:1), y nunca rojo frente a verde como única señal.
+   */
+  --color-verde: #12773a;
+  --color-verde-campo: #cfe8d6;
+  --color-verde-texto: #0b5228;
+
+  --color-rojo: #c62828;
+  --color-rojo-campo: #f6d3cd;
+  --color-rojo-texto: #8e1c1c;
+
+  --color-amarillo: #d9a404;
+  --color-amarillo-campo: #f8e3a3;
+  --color-amarillo-texto: #5c4100;
+
+  --color-negro: #262019;
+  --color-negro-campo: #e6dfd4;
+  --color-negro-texto: #262019;
+
+  /*
+   * Tintes de tema: más pálidos que los campos de los rumbos, para que una tarjeta de tema no
+   * se confunda con un botón de sección. El texto va en el `-texto` del rumbo de su grupo.
+   */
+  --color-rojo-tinte: #fbe4e1;
+  --color-amarillo-tinte: #fdf3cf;
+  --color-amarillo-tinte-texto: #7a5603;
+  --color-verde-tinte: #ddf1e2;
+
+  /*
+   * --- Paleta anterior (B+C) ---
+   * Se queda mientras haya componentes que la usan. Cada fase del rediseño migra los suyos, y
+   * la Fase 7 borra lo que quede sin uso.
+   */
   --color-jade: #0f6f63;
   --color-jade-hondo: #0a4f47;
   --color-alerta: #9a3412;
@@ -115,8 +163,29 @@
     font-synthesis-weight: none;
   }
 
+  /*
+   * Base de 18 px en el cuerpo y no en `html`: así el texto corrido crece sin arrastrar todas
+   * las medidas en `rem` del sitio (márgenes, anchos, objetivos táctiles).
+   */
   body {
+    font-size: 1.125rem;
+    line-height: 1.6;
     text-wrap: pretty;
+  }
+
+  /* Las superficies que pone el navegador también llevan la paleta. */
+  ::selection {
+    background-color: var(--color-amarillo-campo);
+    color: var(--color-tinta);
+  }
+
+  input,
+  textarea {
+    caret-color: var(--color-verde);
+  }
+
+  a {
+    text-underline-offset: 0.18em;
   }
 
   h1,
@@ -147,11 +216,47 @@
     cursor: default;
   }
 
-  /* Foco visible para navegación con teclado. Sin JavaScript, el teclado es la única
-     ayuda de accesibilidad que podemos controlar. */
+  /*
+   * Foco visible para navegación con teclado. Sin JavaScript, el teclado es la única ayuda de
+   * accesibilidad que podemos controlar.
+   *
+   * En tinta y no en verde: el foco cae también sobre los campos verde, rojo y amarillo de los
+   * rumbos, y solo la tinta contrasta con todos (≥ 11:1). Tres píxeles y separado del borde,
+   * para que no se confunda con el contorno de la tarjeta.
+   */
   :focus-visible {
-    outline: 2px solid var(--color-jade);
-    outline-offset: 2px;
+    outline: 3px solid var(--color-tinta);
+    outline-offset: 3px;
+  }
+}
+
+/*
+ * Lo tocable: la sombra inferior sin difuminar que hace que una tarjeta parezca un botón físico,
+ * y el hundido al pulsarla. Es la firma visual del rediseño, así que vive en un solo lugar.
+ *
+ * Solo va en lo que responde al dedo. Lo que solo se lee queda plano, para que la sombra siga
+ * queriendo decir «tócame».
+ *
+ * El color de la sombra sale de `--tocable-sombra`, que pone quien lo usa (el color pleno del
+ * rumbo, o el borde en lo neutro): `class="tocable [--tocable-sombra:var(--color-rojo)]"`.
+ *
+ * El hundido mueve la caja los mismos 4 px que mide la sombra, así que el contenido de abajo no
+ * se desplaza. Con `prefers-reduced-motion` el cambio es instantáneo, pero sigue ocurriendo:
+ * es la confirmación de que el toque llegó, no un adorno.
+ */
+@utility tocable {
+  box-shadow: 0 4px 0 var(--tocable-sombra, var(--color-borde));
+  transition:
+    transform 80ms ease-out,
+    box-shadow 80ms ease-out;
+
+  &:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--tocable-sombra, var(--color-borde));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 }
 

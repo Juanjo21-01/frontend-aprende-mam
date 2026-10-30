@@ -1,0 +1,133 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Logo from '@/components/Logo.astro';
+
+/*
+ * Muestrario de la Fase 0 del rediseño (docs/rediseno-ui.md): los tokens, el logotipo y lo
+ * tocable, juntos en una página para validarlos en teléfono, tableta y escritorio antes de
+ * migrar las páginas reales.
+ *
+ * Es una página de trabajo, como `prueba-tipografica`: fuera del sitemap y del precache. Se
+ * borra en la Fase 7, cuando `DESIGN.md` documente el sistema terminado.
+ *
+ * El encabezado y el pie todavía son los de la dirección anterior: los migra la Fase 1.
+ */
+
+const rumbos = [
+  { palabra: 'kyeq', seccion: 'Juegos', texto: 'Practica jugando', campo: 'bg-rojo-campo', tinta: 'text-rojo-texto', sombra: '[--tocable-sombra:var(--color-rojo)]' },
+  { palabra: 'q’an', seccion: 'Cultura', texto: 'Relatos y calendario', campo: 'bg-amarillo-campo', tinta: 'text-amarillo-texto', sombra: '[--tocable-sombra:var(--color-amarillo)]' },
+  { palabra: 'saq', seccion: 'Gramática', texto: 'Las 32 letras', campo: 'bg-papel border-2 border-borde', tinta: 'text-tinta', sombra: '' },
+  { palabra: 'q’eq', seccion: 'Materiales', texto: 'Para el aula', campo: 'bg-negro-campo', tinta: 'text-negro-texto', sombra: '[--tocable-sombra:var(--color-negro)]' },
+];
+
+const muestras = [
+  { nombre: 'Verde', pleno: 'bg-verde', campo: 'bg-verde-campo', texto: 'text-verde-texto', contraste: '7.18:1' },
+  { nombre: 'Rojo', pleno: 'bg-rojo', campo: 'bg-rojo-campo', texto: 'text-rojo-texto', contraste: '6.48:1' },
+  { nombre: 'Amarillo', pleno: 'bg-amarillo', campo: 'bg-amarillo-campo', texto: 'text-amarillo-texto', contraste: '7.47:1' },
+  { nombre: 'Negro', pleno: 'bg-negro', campo: 'bg-negro-campo', texto: 'text-negro-texto', contraste: '12.18:1' },
+];
+
+const temas = [
+  { nombre: 'Animales', cuenta: 8, tinte: 'bg-rojo-tinte text-rojo-texto' },
+  { nombre: 'La familia', cuenta: 6, tinte: 'bg-amarillo-tinte text-amarillo-tinte-texto' },
+  { nombre: 'Colores', cuenta: 5, tinte: 'bg-verde-tinte text-verde-texto' },
+  { nombre: 'Números', cuenta: 4, tinte: 'bg-amarillo-tinte text-amarillo-tinte-texto' },
+];
+---
+
+<BaseLayout titulo="Fundamentos del rediseño" descripcion="Muestrario de la Fase 0." ancho="panel">
+  <h1 class="text-3xl md:text-4xl">Fundamentos del rediseño</h1>
+  <p class="mt-2 max-w-[68ch] text-tinta-suave">
+    Tokens, logotipo y lo tocable de la Fase 0. El encabezado y el pie de esta página todavía son
+    los anteriores.
+  </p>
+
+  <h2 class="mt-10 text-2xl">Logotipo</h2>
+  <div class="mt-4 flex flex-wrap items-end gap-8">
+    <Logo tamano={48} />
+    <Logo tamano={32} />
+    <Logo tamano={24} />
+    <Logo tamano={48} soloMarca />
+    <Logo tamano={16} soloMarca />
+  </div>
+
+  <h2 class="mt-10 text-2xl">Paleta · B2 Claro</h2>
+  <ul class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+    {
+      muestras.map((m) => (
+        <li class="overflow-hidden rounded-2xl border-2 border-borde">
+          <div class:list={['h-10', m.pleno]} />
+          <div class:list={['px-3 py-3 font-bold', m.campo, m.texto]}>
+            {m.nombre}
+            <span class="block text-sm font-normal">Texto sobre campo {m.contraste}</span>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2 class="mt-10 text-2xl">Lo tocable</h2>
+  <p class="mt-1 text-tinta-suave">Pulsa una tarjeta: se hunde 4 px. Con el teclado, Tab muestra el foco.</p>
+
+  <a
+    href="#"
+    class="tocable mt-4 flex max-w-xl items-center gap-3 rounded-full bg-verde-campo px-5 py-3.5 font-bold text-verde-texto no-underline [--tocable-sombra:var(--color-verde)]"
+  >
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"></circle>
+      <path d="M16.5 16.5 21 21"></path>
+    </svg>
+    Buscar una palabra
+  </a>
+
+  <ul class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+    {
+      rumbos.map((r) => (
+        <li>
+          <a
+            href="#"
+            class:list={['tocable flex min-h-24 flex-col justify-between rounded-2xl p-3.5 no-underline', r.campo, r.tinta, r.sombra]}
+          >
+            <span lang="mam" class="mam text-sm font-bold opacity-85">{r.palabra}</span>
+            <span>
+              <span class="block font-bold">{r.seccion}</span>
+              <span class="block text-sm">{r.texto}</span>
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2 class="mt-10 text-2xl">Temas</h2>
+  <ul class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+    {
+      temas.map((t) => (
+        <li>
+          <a href="#" class="tocable flex items-center gap-3 rounded-2xl border-2 border-borde bg-papel p-3 no-underline">
+            <span class:list={['grid size-10 shrink-0 place-items-center rounded-xl', t.tinte]}>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                <path d="M12 3 21 12 12 21 3 12Z"></path>
+              </svg>
+            </span>
+            <span>
+              <span class="block font-bold text-tinta">{t.nombre}</span>
+              <span class="block text-sm text-tinta-suave">{t.cuenta} palabras</span>
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2 class="mt-10 text-2xl">Tipografía</h2>
+  <p lang="mam" class="mam mt-4 text-4xl font-bold">Ẍiky kyiẍ i’ẍ napẍ q’aq’ tx’otx’</p>
+  <p lang="mam" class="mam mt-2 text-2xl">Ẍiky kyiẍ i’ẍ napẍ q’aq’ tx’otx’</p>
+  <p class="mt-4 max-w-[68ch]">
+    Texto de lectura a 18 px con interlineado de 1.6. Se busca en <span lang="mam">Mam</span> y en
+    castellano, y no hace falta el saltillo ni la diéresis: «xiky» encuentra
+    <span lang="mam" class="mam">ẍiky</span>. Selecciona este párrafo para ver el color de la
+    selección.
+  </p>
+  <p class="mt-2 max-w-[68ch] text-tinta-suave">Texto secundario en tinta suave, 7.4:1 sobre el fondo.</p>
+</BaseLayout>
