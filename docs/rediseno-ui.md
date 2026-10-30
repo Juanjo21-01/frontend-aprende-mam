@@ -180,6 +180,23 @@ siguiente. Los retoques que surjan se anotan en este documento.
       `npm run icons`; manifiesto y `theme-color` en papel. `public/logo.webp` borrado.
     - El ancho `panel` pasa a 1152 px (`max-w-6xl`), el mismo del encabezado y el pie.
 - [ ] **Fase 2 — Portada.** Buscador-enlace, los cuatro rumbos, temas, palabra del día.
+  - Hecho (pendiente de tu visto bueno):
+    - Los temas pasan a los **tres grupos de color** en `src/data/temas.ts` y se borran los siete
+      tokens `--color-tema-*`. Afecta a todo el sitio, no solo a la portada: las páginas de
+      tema, los juegos y el buscador ya toman los tintes nuevos aunque su maquetación siga
+      siendo la vieja.
+    - `FichaTema` es papel con borde, `tocable`, con el color solo en el cuadro del ícono. Por
+      debajo de 420 px el ícono va encima del nombre para que quepan dos por fila a 360 px.
+    - Los rumbos llevan la palabra en Mam arriba a la derecha, como sello, y no encima del
+      nombre (ahí se leería como rótulo).
+    - Palabra del día en `PalabraDelDia.astro`: la de la compilación ya pintada, y un guion en
+      línea que pone la del día del teléfono. Lista acotada a 60 entradas repartidas por el
+      alfabeto. En escritorio va en columna lateral fija; en teléfono y tableta, después de los
+      rumbos.
+    - Se quitaron la franja «Juega y practica» y el bloque «Y también»: los cuatro rumbos los
+      sustituyen. El texto de presentación se acortó.
+    - Los temas van a 3 columnas en escritorio y no a 4: la columna lateral de la palabra del
+      día se lleva el ancho.
 - [ ] **Fase 3 — Diccionario.** Buscador (isla), tarjeta y fila de entrada, páginas de letra y de
   tema, índice alfabético.
 - [ ] **Fase 4 — Juegos.** Índice y los tres juegos; correcto/incorrecto con ícono y texto.

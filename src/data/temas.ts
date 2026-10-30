@@ -15,14 +15,22 @@
  *     simplemente deja de aparecer. Eso no se puede detectar desde aquí; se ve mirando el
  *     sitio.
  *
- * Las claves del mapa son los slugs del backend; los nombres de los tokens son cortos y
- * no siempre coinciden (`la-familia` → `familia`), porque el token es un nombre de color
- * y el slug es una URL.
+ * ## Tres grupos, no siete colores
+ *
+ * Desde el rediseño (docs/rediseno-ui.md) los temas no tienen un matiz cada uno: se reparten
+ * en los tres colores de la paleta, rojo, amarillo y verde, en su tinte más pálido. **Lo que
+ * distingue a un tema es su ícono** (`IconoTema.astro`); el color solo agrupa. Siete matices
+ * propios competían con los cuatro rumbos y rompían la paleta.
+ *
+ * Los tintes son más pálidos que los campos de los rumbos, para que una ficha de tema no se
+ * confunda con un botón de sección. Todo el texto pasa AA sobre su tinte (≥ 6:1).
  */
 
 export interface TemaVisual {
-  /** Fondo y borde de la ficha del tema. */
+  /** Fondo y borde de una ficha teñida entera (juegos, cabecera de la página del tema). */
   ficha: string;
+  /** El cuadro del ícono en las fichas sobre papel: tinte de fondo y trazo del color. */
+  chip: string;
   /** Color del nombre y del trazo del ícono. */
   texto: string;
   /** Fondo de la etiqueta que acompaña a una entrada del diccionario. */
@@ -35,58 +43,49 @@ export interface TemaVisual {
  * Clases **completas**, nunca compuestas.
  *
  * El escáner de Tailwind v4 lee el código fuente como texto: no ve
- * `` `bg-tema-${slug}-tinte` `` y esa clase no se genera, así que el color no aparece y
- * no hay ningún error que lo delate. Por eso cada cadena está escrita entera.
+ * `` `bg-${grupo}-tinte` `` y esa clase no se genera, así que el color no aparece y no hay
+ * ningún error que lo delate. Por eso cada cadena está escrita entera.
  */
+const ROJO: TemaVisual = {
+  ficha: 'bg-rojo-tinte border-rojo-campo',
+  chip: 'bg-rojo-tinte text-rojo-texto',
+  texto: 'text-rojo-texto',
+  etiqueta: 'bg-rojo-tinte text-rojo-texto',
+  punto: 'bg-rojo',
+};
+
+const AMARILLO: TemaVisual = {
+  ficha: 'bg-amarillo-tinte border-amarillo-campo',
+  chip: 'bg-amarillo-tinte text-amarillo-tinte-texto',
+  texto: 'text-amarillo-tinte-texto',
+  etiqueta: 'bg-amarillo-tinte text-amarillo-tinte-texto',
+  punto: 'bg-amarillo',
+};
+
+const VERDE: TemaVisual = {
+  ficha: 'bg-verde-tinte border-verde-campo',
+  chip: 'bg-verde-tinte text-verde-texto',
+  texto: 'text-verde-texto',
+  etiqueta: 'bg-verde-tinte text-verde-texto',
+  punto: 'bg-verde',
+};
+
+/** El reparto aprobado en docs/rediseno-ui.md. Un tema nuevo entra en uno de los tres. */
 const POR_SLUG: Record<string, TemaVisual> = {
-  animales: {
-    ficha: 'bg-tema-animales-tinte border-tema-animales-borde',
-    texto: 'text-tema-animales',
-    etiqueta: 'bg-tema-animales-tinte text-tema-animales',
-    punto: 'bg-tema-animales',
-  },
-  'la-familia': {
-    ficha: 'bg-tema-familia-tinte border-tema-familia-borde',
-    texto: 'text-tema-familia',
-    etiqueta: 'bg-tema-familia-tinte text-tema-familia',
-    punto: 'bg-tema-familia',
-  },
-  colores: {
-    ficha: 'bg-tema-colores-tinte border-tema-colores-borde',
-    texto: 'text-tema-colores',
-    etiqueta: 'bg-tema-colores-tinte text-tema-colores',
-    punto: 'bg-tema-colores',
-  },
-  numeros: {
-    ficha: 'bg-tema-numeros-tinte border-tema-numeros-borde',
-    texto: 'text-tema-numeros',
-    etiqueta: 'bg-tema-numeros-tinte text-tema-numeros',
-    punto: 'bg-tema-numeros',
-  },
-  'la-naturaleza': {
-    ficha: 'bg-tema-naturaleza-tinte border-tema-naturaleza-borde',
-    texto: 'text-tema-naturaleza',
-    etiqueta: 'bg-tema-naturaleza-tinte text-tema-naturaleza',
-    punto: 'bg-tema-naturaleza',
-  },
-  'la-casa': {
-    ficha: 'bg-tema-casa-tinte border-tema-casa-borde',
-    texto: 'text-tema-casa',
-    etiqueta: 'bg-tema-casa-tinte text-tema-casa',
-    punto: 'bg-tema-casa',
-  },
-  alimentos: {
-    ficha: 'bg-tema-alimentos-tinte border-tema-alimentos-borde',
-    texto: 'text-tema-alimentos',
-    etiqueta: 'bg-tema-alimentos-tinte text-tema-alimentos',
-    punto: 'bg-tema-alimentos',
-  },
+  animales: ROJO,
+  'la-casa': ROJO,
+  'la-familia': AMARILLO,
+  numeros: AMARILLO,
+  alimentos: AMARILLO,
+  colores: VERDE,
+  'la-naturaleza': VERDE,
 };
 
 /** Tema sin color asignado. Se ve como el resto del sitio, no roto. */
 const NEUTRO: TemaVisual = {
   ficha: 'bg-papel-hondo border-borde',
-  texto: 'text-jade-hondo',
+  chip: 'bg-papel-hondo text-tinta',
+  texto: 'text-tinta',
   etiqueta: 'bg-papel-hondo text-tinta-suave',
   punto: 'bg-tinta-suave',
 };

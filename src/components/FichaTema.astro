@@ -1,12 +1,19 @@
 ---
 /**
- * La ficha de un tema: color, ícono, nombre y cuántas palabras tiene.
+ * La ficha de un tema: ícono en su cuadro de color, nombre y cuántas palabras tiene.
  *
- * Toda la tarjeta es el enlace, no solo el nombre. Un objetivo de 104 px de alto se acierta
- * a la primera con el pulgar; un enlace de una línea de texto, no.
+ * Toda la tarjeta es el enlace, no solo el nombre: un objetivo de 72 px de alto se acierta a la
+ * primera con el pulgar; un enlace de una línea de texto, no.
  *
- * El color sale de `temaVisual()`, que devuelve cadenas de clase completas. Un tema que el
- * backend agregue y que todavía no tenga color se ve gris, nunca roto.
+ * Por debajo de 420 px (casi todos los teléfonos de gama baja miden 360) el ícono va encima del
+ * nombre y no al lado: así caben dos fichas por fila sin partir «La naturaleza» en dos líneas.
+ *
+ * Desde el rediseño la tarjeta es papel con borde y el color va solo en el cuadro del ícono. Los
+ * temas se reparten en tres colores (ver `temas.ts`), así que lo que distingue a uno de otro es
+ * el ícono; teñir la tarjeta entera haría que siete fichas en tres colores se leyeran como tres
+ * botones repetidos. Es `tocable`: tiene la sombra de botón y se hunde al pulsarla.
+ *
+ * Un tema que el backend agregue y que todavía no tenga color se ve gris, nunca roto.
  */
 import IconoTema from '@/components/IconoTema.astro';
 import { temaVisual } from '@/data/temas';
@@ -25,29 +32,23 @@ const visual = temaVisual(categoria.slug);
 
 <a
   href={`${base}diccionario/tema/${categoria.slug}`}
-  class:list={[
-    'flex min-h-26 flex-col gap-2 rounded-xl border p-4 no-underline',
-    'hover:border-jade focus-visible:border-jade',
-    visual.ficha,
-  ]}
+  class="tocable flex h-full min-h-18 flex-col items-start gap-2 rounded-2xl border-2 border-borde bg-papel p-3 no-underline min-[420px]:flex-row min-[420px]:items-center min-[420px]:gap-3"
 >
-  <IconoTema slug={categoria.slug} class={visual.texto} />
+  <span class:list={['grid size-12 shrink-0 place-items-center rounded-xl', visual.chip]}>
+    <IconoTema slug={categoria.slug} tamano={28} />
+  </span>
 
-  <div>
-    <div class:list={['font-bold', visual.texto]}>
-      {categoria.nombre_es}
-    </div>
-
+  <span class="min-w-0">
+    <span class="block leading-tight font-bold text-tinta">{categoria.nombre_es}</span>
     {
       categoria.nombre_mam && (
-        <div lang="mam" class="mam text-sm text-tinta-suave">
+        <span lang="mam" class="mam block text-base text-tinta-suave">
           {categoria.nombre_mam}
-        </div>
+        </span>
       )
     }
-
-    <div class="text-sm text-tinta-suave">
+    <span class="block text-base text-tinta-suave">
       {cantidad === 0 ? 'Sin palabras todavía' : `${cantidad} palabra${cantidad === 1 ? '' : 's'}`}
-    </div>
-  </div>
+    </span>
+  </span>
 </a>

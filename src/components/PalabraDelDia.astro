@@ -1,0 +1,100 @@
+---
+import type { Categoria, Entrada } from '@/data/vocabulario';
+
+/*
+ * La palabra del día: una entrada del diccionario que cambia cada día aunque no se publique
+ * nada nuevo.
+ *
+ * Funciona en dos tiempos. Al compilar se pinta la palabra que toca el día de la compilación,
+ * así que sin JavaScript —o mientras el guion no ha corrido— ya hay una palabra real y nunca un
+ * hueco. Después, un guion en línea de una docena de líneas calcula la del día del teléfono y
+ * cambia el texto si es otra.
+ *
+ * El guion va en línea y no como módulo por la misma razón que la sonda de conexión de
+ * BaseLayout: `scripts/weight.mjs` exige que las páginas sin isla no descarguen ningún módulo.
+ * La lista viaja dentro del propio HTML.
+ *
+ * LA LISTA ESTÁ ACOTADA. Con el corpus completo serían miles de entradas en la portada, que es
+ * la página más visitada. Se toman como mucho `MAXIMO`, repartidas a lo largo del orden
+ * alfabético para que no salgan todas de la «a». Cada una son ~50 bytes: 60 entradas son ~3 KB
+ * sin comprimir, ~1 KB comprimido.
+ *
+ * El mismo día da la misma palabra en todos los teléfonos: el índice sale de la fecha local,
+ * no del azar. Así una maestra puede decir «la palabra de hoy» y todos ven la misma.
+ */
+interface Props {
+  entradas: Entrada[];
+  categorias: Categoria[];
+}
+
+const { entradas, categorias } = Astro.props;
+
+const MAXIMO = 60;
+
+const base = import.meta.env.BASE_URL;
+const nombreDeTema = new Map(categorias.map((c) => [c.slug, c.nombre_es]));
+
+const paso = Math.max(1, Math.ceil(entradas.length / MAXIMO));
+const lista = entradas
+  .filter((_, i) => i % paso === 0)
+  .slice(0, MAXIMO)
+  .map((e) => {
+    const tema = e.temas[0];
+    return {
+      m: e.mam,
+      e: e.espanol,
+      d: [e.clase, tema && nombreDeTema.get(tema)].filter(Boolean).join(' · '),
+      h: tema ? `${base}diccionario/tema/${tema}` : `${base}diccionario`,
+    };
+  });
+
+// Días desde 1970 en la fecha del calendario, no en milisegundos: así cambia a medianoche y no
+// a la hora de la compilación. El guion de abajo repite esta misma cuenta.
+const hoy = new Date();
+const dia = Math.floor(Date.UTC(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()) / 864e5);
+const inicial = lista.length ? lista[dia % lista.length] : null;
+---
+
+{
+  inicial && (
+    <section
+      id="palabra-del-dia"
+      aria-labelledby="palabra-del-dia-titulo"
+      class="rounded-2xl border-2 border-borde bg-papel p-5"
+    >
+      <h2 id="palabra-del-dia-titulo" class="text-lg text-tinta-suave">
+        Palabra del día
+      </h2>
+      <p lang="mam" class="mam mt-2 text-4xl leading-tight font-bold" data-campo="m">
+        {inicial.m}
+      </p>
+      <p class="mt-1 text-xl" data-campo="e">{inicial.e}</p>
+      <p class="mt-1 text-base text-tinta-suave" data-campo="d">{inicial.d}</p>
+      <a
+        href={inicial.h}
+        data-campo="h"
+        class="mt-4 inline-flex min-h-11 items-center font-bold text-verde-texto underline"
+      >
+        Ver más palabras del tema
+      </a>
+    </section>
+  )
+}
+
+{
+  lista.length > 1 && (
+    <script is:inline define:vars={{ lista }}>
+      (function () {
+        var caja = document.getElementById('palabra-del-dia');
+        if (!caja) return;
+        var hoy = new Date();
+        var dia = Math.floor(Date.UTC(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()) / 864e5);
+        var p = lista[dia % lista.length];
+        caja.querySelector('[data-campo="m"]').textContent = p.m;
+        caja.querySelector('[data-campo="e"]').textContent = p.e;
+        caja.querySelector('[data-campo="d"]').textContent = p.d;
+        caja.querySelector('[data-campo="h"]').href = p.h;
+      })();
+    </script>
+  )
+}
