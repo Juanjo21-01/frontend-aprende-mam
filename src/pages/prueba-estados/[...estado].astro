@@ -1,0 +1,15 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import DescargarLeccion from '@/components/DescargarLeccion.astro';
+export function getStaticPaths() {
+  return import.meta.env.DEV ? ['descarga', 'fallo', 'sin-imagenes'].map(estado => ({ params: { estado } })) : [];
+}
+const fallo = Astro.params.estado === 'fallo';
+const vacia = Astro.params.estado === 'sin-imagenes';
+---
+<BaseLayout titulo="Prueba de guardado" descripcion="Muestra exclusiva de desarrollo para verificar los estados de descarga.">
+  <h1 class="text-3xl">Prueba de guardado</h1>
+  <p class="mt-4 text-tinta-suave">Solo en desarrollo. {fallo ? 'La segunda imagen falta a propósito para comprobar el error recuperable.' : vacia ? 'El contador simula una imagen ausente del contenido; el guardado debe detectarlo.' : 'Estas imágenes de la interfaz permiten comprobar el guardado.'}</p>
+  {!vacia && <div class="mt-6 flex gap-4"><img src="/icon-128.png?estado-prueba=1" width="128" height="128" alt="Marca de prueba" data-leccion /><img hidden={fallo} src={fallo ? '/prueba-recurso-ausente.png' : '/icon-192.png?estado-prueba=1'} width="128" height="128" alt={fallo ? 'Recurso de prueba ausente' : 'Segunda marca de prueba'} data-leccion /></div>}
+  <DescargarLeccion cantidad={2} />
+</BaseLayout>

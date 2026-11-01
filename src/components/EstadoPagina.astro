@@ -1,0 +1,20 @@
+---
+import IconoSeccion from './IconoSeccion.astro';
+interface Props {
+  titulo: string;
+  descripcion: string;
+  icono: string;
+  aviso?: boolean;
+  accion: { href: string; texto: string };
+}
+const { titulo, descripcion, icono, aviso = false, accion } = Astro.props;
+---
+<header>
+  <span class:list={['mb-4 grid size-14 place-items-center rounded-2xl', aviso ? 'bg-amarillo-campo text-amarillo-texto' : 'bg-papel-hondo text-tinta']} aria-hidden="true">
+    <IconoSeccion d={icono} tamano={30} />
+  </span>
+  <h1 class="text-3xl leading-tight md:text-4xl">{titulo}</h1>
+  <p class="mt-4 max-w-[68ch] text-tinta-suave">{descripcion}</p>
+</header>
+<a href={accion.href} class="tocable mt-6 inline-flex min-h-12 items-center justify-center rounded-2xl bg-verde-campo px-5 py-3 font-bold text-verde-texto no-underline hover:bg-verde-tinte [--tocable-sombra:var(--color-verde)]">{accion.texto}</a>
+<slot />

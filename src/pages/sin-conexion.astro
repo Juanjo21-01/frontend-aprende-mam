@@ -12,32 +12,28 @@
  * que sí está guardado, así que la salida está siempre a un toque.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import EstadoPagina from '@/components/EstadoPagina.astro';
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout
   titulo="Sin conexión"
   descripcion="Esta página no está guardada en el teléfono y ahora mismo no hay señal."
 >
-  <h1 class="text-3xl">Sin conexión</h1>
-
-  <p class="mt-4 text-lg text-tinta-suave">
-    Esta página no está guardada en tu teléfono y ahora mismo no hay señal para descargarla.
-  </p>
-
-  <div class="mt-8 rounded-lg border border-borde bg-papel-hondo p-5">
-    <p class="font-bold">Lo que sí puedes seguir usando</p>
-    <ul class="mt-3 list-disc space-y-1 pl-5 text-tinta-suave">
-      <li>El diccionario completo, con el buscador y las listas por letra y por tema.</li>
-      <li>Los juegos: memoria, sopa de letras y cuestionario.</li>
-      <li>Las secciones de cultura, gramática, materiales y base legal.</li>
-    </ul>
-    <p class="mt-4 text-tinta-suave">
-      Los videos y las actividades de otras páginas sí necesitan internet: vuelve a intentarlo
-      cuando tengas señal.
-    </p>
-  </div>
-
-  <p class="mt-8">
-    <a href={import.meta.env.BASE_URL} class="font-bold">Ir al inicio</a>
-  </p>
+  <EstadoPagina
+    titulo="Esta página no está guardada"
+    descripcion="Ahora no hay conexión para abrirla. Puedes volver a intentarlo cuando tengas señal o seguir con lo que ya está guardado en este navegador."
+    icono="M2 8a16 16 0 0 1 20 0M5 12a11 11 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 20h.01M3 3l18 18"
+    aviso
+    accion={{ href: `${base}diccionario`, texto: 'Ir al diccionario' }}
+  />
+  <section class="mt-8 rounded-2xl bg-papel-hondo p-5">
+    <h2 class="text-xl">Sigue aprendiendo sin señal</h2>
+    <p class="mt-3 text-tinta-suave">El diccionario, los juegos y las lecturas que ya se guardaron pueden seguir funcionando. Los videos y los PDF que aún no descargaste necesitan internet.</p>
+    <p class="mt-3 text-tinta-suave">Cuando vuelva la señal, abre de nuevo el enlace que te trajo aquí.</p>
+  </section>
+  <nav class="mt-6 flex flex-wrap gap-4" aria-label="Seguir aprendiendo">
+    <a href={`${base}juegos`} class="tocable inline-flex min-h-12 items-center rounded-2xl bg-rojo-campo px-4 py-2 font-bold text-rojo-texto no-underline [--tocable-sombra:var(--color-rojo)]">Ir a juegos</a>
+    <a href={base} class="inline-flex min-h-12 items-center px-2 underline">Volver al inicio</a>
+  </nav>
 </BaseLayout>

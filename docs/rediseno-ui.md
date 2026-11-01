@@ -248,9 +248,9 @@ siguiente. Los retoques que surjan se anotan en este documento.
       inicial: 106,2 KB Brotli (116,8 KB gzip), por debajo de 150 KB. Revisión visual
       independiente: `ship`. Capturas y dictamen en `.impeccable/review/juegos/`.
       El detector solo señaló el borde editorial ya reservado para la Fase 5.
-- [ ] **Fase 5 — Editorial.** Cultura, gramática, base legal, materiales, prosa y el contenedor
+- [x] **Fase 5 — Editorial.** Cultura, gramática, base legal, materiales, prosa y el contenedor
   de video.
-  - Hecho (pendiente de tu visto bueno):
+  - Hecho y aprobado al continuar con la Fase 6:
     - Cabeceras de sección compartidas en los cuatro índices y en las lecturas. Se mantiene
       el ancho de lectura; los índices de páginas usan enlaces `tocable` sobre papel.
     - Gramática conserva sus 32 letras, ejemplos y reglas. Las letras con entradas son
@@ -278,5 +278,33 @@ siguiente. Los retoques que surjan se anotan en este documento.
       Revisión independiente: `ship`, sin hallazgos materiales. Capturas y dictamen en
       `.impeccable/review/editorial/`.
 - [ ] **Fase 6 — Estados especiales.** 404, sin conexión, secciones vacías, descarga de lección.
+  - Hecho (pendiente de tu visto bueno):
+    - `EstadoPagina.astro` comparte el armazón de 404 y sin conexión: ícono, título claro,
+      explicación y acción principal verde al diccionario. La página 404 mantiene salidas
+      a inicio, juegos y gramática; sin conexión ofrece juegos y vuelta al inicio.
+    - El respaldo distingue una página no guardada de una dirección inexistente y habla de
+      contenido guardado en este navegador, sin prometer que todo esté disponible. Los
+      videos y los PDF aún no descargados siguen necesitando señal.
+    - Las secciones editoriales vacías ofrecen diccionario y juegos. Los temas sin palabras
+      enlazan a otros temas; una búsqueda sin resultados propone cambiar la palabra o
+      explorar los temas de abajo.
+    - Guardado de lección: explicación de qué se guarda y qué queda fuera, estado con ícono
+      y texto anunciado, acción desactivada mientras trabaja y `aria-busy`. Reconoce lo ya
+      guardado al volver; informa si no hay imágenes propias, JavaScript o almacenamiento.
+      El fallo permite reintentar y explica cómo recuperarse.
+    - `guardarImagenes()` deduplica direcciones, conserva descargas parciales y evita volver
+      a bajar imágenes guardadas. No anuncia éxito con una lista vacía ni si falla alguna
+      imagen. Se mantienen las descargas de una en una y las cachés existentes.
+    - Pruebas: 52 pasan, incluidas tres nuevas de progreso, duplicados, error parcial,
+      reintento y lista vacía. Build, HTML y presupuesto pasan: máximo 106,1 KB Brotli y
+      116,7 KB gzip. Detector sin hallazgos.
+    - Navegador: seis estados en 360, 768 y 1280 px, sin desbordamiento; éxito y reconocimiento
+      de imágenes guardadas tras recargar; error recuperable y reintento con teclado.
+      HTTP 404 verificado. Con el servidor compilado detenido, una dirección no guardada
+      mostró el respaldo del service worker y permitió volver al diccionario y buscar.
+    - Muestras de guardado en `/prueba-estados/descarga`, `/prueba-estados/fallo` y
+      `/prueba-estados/sin-imagenes`, solo en desarrollo; no salen en `dist/`.
+      Revisión independiente: `ship`, sin defectos materiales en 20 capturas finales.
+      Capturas, medidas y dictamen en `.impeccable/review/estados/`.
 - [ ] **Fase 7 — Cierre.** Auditoría de accesibilidad y peso (< 150 KB), pulido, `DESIGN.md`.
 - [ ] **Fase 8 — Tema oscuro.** Variante oscura de todos los tokens, con contraste medido de nuevo.

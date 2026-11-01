@@ -165,7 +165,7 @@ export default function BuscadorDiccionario({ ruta, total, base }: Props) {
         {estado.fase === 'listo' && consultando && (
           <p className="mt-4 text-base text-tinta-suave">
             {resultados.length === 0
-              ? 'Ninguna palabra coincide.'
+              ? 'Ninguna palabra coincide. Prueba con otra palabra o explora los temas de abajo.'
               : resultados.length > MAXIMO
                 ? `${resultados.length} palabras; se muestran las primeras ${MAXIMO}.`
                 : `${resultados.length} palabra${resultados.length === 1 ? '' : 's'}.`}
