@@ -8,7 +8,7 @@ web
 
 ## Users
 
-- **Primarios:** niñas y niños de primaria de San Marcos, Guatemala, que aprenden Mam en la
+- **Primarios:** estudiantes de primaria y básicos de San Marcos, Guatemala, que aprenden Mam en la
   escuela o en casa. Muchos todavía leen despacio. Usan teléfonos de gama baja, a menudo
   prestados o compartidos, con 3G o sin señal, muchas veces con luz de día.
 - **Secundarios:** docentes que preparan clase con el diccionario, los juegos y los

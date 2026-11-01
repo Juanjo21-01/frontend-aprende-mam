@@ -123,7 +123,7 @@ Un tema nuevo que llegue del backend entra en uno de los tres grupos; el mapa si
 | Tableta `md ≥ 768` | Barra superior con las seis secciones | 1 fila de 4 | 3 columnas | — |
 | Escritorio `lg ≥ 1024` | Barra superior | 1 fila de 4 | 4 columnas | Columna lateral fija con la palabra del día |
 
-Nunca las dos navegaciones a la vez. Contenido limitado a 1120 px de ancho. Objetivos táctiles
+Nunca las dos navegaciones a la vez. Contenido de panel limitado a 1152 px de ancho. Objetivos táctiles
 de 44 px como mínimo.
 
 ## Páginas interiores
@@ -144,26 +144,27 @@ compilar. No es una isla de React.
 
 - Al pulsar, lo tocable se hunde 4 px en 80 ms.
 - En los juegos, una celebración breve al acertar (rebote del ícono, < 400 ms).
-- Nada de animaciones al hacer scroll. Todo se desactiva con `prefers-reduced-motion`.
+- Nada de animaciones al hacer scroll. Con `prefers-reduced-motion`, el hundido de los
+  controles es instantáneo y se desactiva la celebración.
 
 ## Fases
 
 Cada fase se valida en el navegador (teléfono, tableta y escritorio) antes de pasar a la
 siguiente. Los retoques que surjan se anotan en este documento.
 
-- [ ] **Fase 0 — Fundamentos.** Cerrar la tonalidad de la paleta con una página de comparación;
+- [x] **Fase 0 — Fundamentos.** Cerrar la tonalidad de la paleta con una página de comparación;
   tokens en `@theme` de `src/styles/global.css`; tipografía; foco; sombra de botón y su
   hundido; logotipo SVG nuevo.
-  - Hecho (pendiente de tu visto bueno): tonalidad B2; tokens nuevos en `global.css` junto a los
+  - Hecho (incluido en la validación del cierre): tonalidad B2; tokens nuevos en `global.css` junto a los
     viejos (los neutros `papel`, `tinta`, `tinta-suave` y `borde` ya tienen los valores nuevos);
     cuerpo a 18 px; foco de 3 px en tinta; selección y cursor de la paleta; utilidad `tocable`
     con sombra y hundido; `src/components/Logo.astro`. Muestrario en `/prueba-fundamentos`
     (fuera del sitemap y del precache; se borra en la Fase 7).
-- [ ] **Fase 1 — Armazón.** Encabezado, navegación superior y barra inferior, pie, aviso sin
+- [x] **Fase 1 — Armazón.** Encabezado, navegación superior y barra inferior, pie, aviso sin
   conexión (`BaseLayout`, `SiteHeader`, `MainNav`, `SiteFooter`). Incluye regenerar el favicon,
   los íconos de la PWA (`public/icon-*.png`, `apple-touch-icon.png`) y el color del manifiesto
   con el logotipo nuevo; `public/logo.webp` deja de usarse.
-  - Hecho (pendiente de tu visto bueno):
+  - Hecho (incluido en la validación del cierre):
     - `src/data/secciones.ts` es la fuente única de secciones, rumbo, palabra Mam e ícono; lo
       usan las dos navegaciones, el pie y (en la Fase 2) la portada.
     - Encabezado papel con borde. En tableta (768–1023 px) el logotipo muestra solo la marca,
@@ -179,8 +180,8 @@ siguiente. Los retoques que surjan se anotan en este documento.
     - Íconos de la PWA, `favicon.ico` y `favicon.svg` generados desde `marca/logo.svg` con
       `npm run icons`; manifiesto y `theme-color` en papel. `public/logo.webp` borrado.
     - El ancho `panel` pasa a 1152 px (`max-w-6xl`), el mismo del encabezado y el pie.
-- [ ] **Fase 2 — Portada.** Buscador-enlace, los cuatro rumbos, temas, palabra del día.
-  - Hecho (pendiente de tu visto bueno):
+- [x] **Fase 2 — Portada.** Buscador-enlace, los cuatro rumbos, temas, palabra del día.
+  - Hecho (incluido en la validación del cierre):
     - Los temas pasan a los **tres grupos de color** en `src/data/temas.ts` y se borran los siete
       tokens `--color-tema-*`. Afecta a todo el sitio, no solo a la portada: las páginas de
       tema, los juegos y el buscador ya toman los tintes nuevos aunque su maquetación siga
@@ -197,9 +198,9 @@ siguiente. Los retoques que surjan se anotan en este documento.
       sustituyen. El texto de presentación se acortó.
     - Los temas van a 3 columnas en escritorio y no a 4: la columna lateral de la palabra del
       día se lleva el ancho.
-- [ ] **Fase 3 — Diccionario.** Buscador (isla), tarjeta y fila de entrada, páginas de letra y de
+- [x] **Fase 3 — Diccionario.** Buscador (isla), tarjeta y fila de entrada, páginas de letra y de
   tema, índice alfabético.
-  - Hecho (pendiente de tu visto bueno):
+  - Hecho (incluido en la validación del cierre):
     - **Franja de sección** de 6 px bajo el encabezado, la pinta `BaseLayout` sola a partir de
       la ruta (`seccionDe()` en `secciones.ts`). Ya aparece en todas las secciones, también en
       las que aún no se migran. La portada y las páginas sueltas no llevan.
@@ -277,8 +278,8 @@ siguiente. Los retoques que surjan se anotan en este documento.
       de aproximadamente 106,1 KB Brotli / 116,7 KB gzip. Detector sin hallazgos.
       Revisión independiente: `ship`, sin hallazgos materiales. Capturas y dictamen en
       `.impeccable/review/editorial/`.
-- [ ] **Fase 6 — Estados especiales.** 404, sin conexión, secciones vacías, descarga de lección.
-  - Hecho (pendiente de tu visto bueno):
+- [x] **Fase 6 — Estados especiales.** 404, sin conexión, secciones vacías, descarga de lección.
+  - Hecho y aprobado al continuar con la Fase 7:
     - `EstadoPagina.astro` comparte el armazón de 404 y sin conexión: ícono, título claro,
       explicación y acción principal verde al diccionario. La página 404 mantiene salidas
       a inicio, juegos y gramática; sin conexión ofrece juegos y vuelta al inicio.
@@ -307,4 +308,25 @@ siguiente. Los retoques que surjan se anotan en este documento.
       Revisión independiente: `ship`, sin defectos materiales en 20 capturas finales.
       Capturas, medidas y dictamen en `.impeccable/review/estados/`.
 - [ ] **Fase 7 — Cierre.** Auditoría de accesibilidad y peso (< 150 KB), pulido, `DESIGN.md`.
+  - Hecho (pendiente de tu revisión final):
+    - Auditoría completa en [`auditoria-ui.md`](auditoria-ui.md), con alcance y límites:
+      61 páginas a 320 px; 42 capturas representativas a 320, 768 y 1280 px, más estados
+      de foco y selección; 1937 enlaces internos y anclas sin destinos ausentes.
+    - Enlaces de tema y referencias bibliográficas dedicadas de al menos 44 px. El enlace
+      compacto de la marca en tableta pasa de 36 × 44 a 44 × 44 px; comprobado en las
+      14 vistas de tableta. Espacio de desplazamiento para evitar que la barra tape el foco.
+    - Paleta jade/oro/alerta y cenefa sin uso retiradas. Se elimina `/prueba-fundamentos`;
+      `/prueba-tipografica` pasa a existir solo en desarrollo. Ninguna prueba sale en la
+      compilación, el sitemap ni la precarga; `check:html` rechaza muestras publicadas.
+    - [`DESIGN.md`](../DESIGN.md) extraído del sistema final: 21 tokens de color y reglas
+      de tipografía, composición, controles y movimiento. `.impeccable/design.json` incluye
+      diez ejemplos de componentes autónomos; no añade dependencias al sitio.
+    - `npm run check`: 52 pruebas, 61 páginas, HTML y peso aprobados. Carga máxima de
+      106,0 KB Brotli / 116,6 KB gzip, dentro de los 150 KB.
+    - Detector: solo un aviso informativo de 10 px en la prueba tipográfica de desarrollo;
+      no se publica ni se convierte en token. Revisión independiente de 45 capturas;
+      único P2 corregido y dictamen de esa corrección: `ship`, sin pendientes.
+    - Se concilian el ancho de panel de 1152 px y la respuesta instantánea con movimiento
+      reducido. La validación cultural, las pruebas con estudiantes/dispositivos físicos
+      y el tema oscuro de Fase 8 siguen fuera de lo comprobado por esta auditoría.
 - [ ] **Fase 8 — Tema oscuro.** Variante oscura de todos los tokens, con contraste medido de nuevo.

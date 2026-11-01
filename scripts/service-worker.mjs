@@ -25,17 +25,8 @@ import path from 'node:path';
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PLANTILLA = path.join(RAIZ, 'src', 'service-worker.js');
 
-/**
- * Páginas que se compilan pero no se precargan.
- *
- * `prueba-tipografica` es la prueba de aceptación de la ortografía del Mam: existe para
- * mirarla en un teléfono real y comprobar que la `ẍ` sale con la fuente correcta. No es
- * contenido para nadie más, y guardarla ocuparía la cuota de un usuario que nunca la va a
- * abrir.
- *
- * `prueba-fundamentos` es el muestrario del rediseño, por la misma razón. Se borra en la Fase 7.
- */
-const FUERA = [/^\/prueba-tipografica$/, /^\/prueba-fundamentos$/];
+/** Las muestras de desarrollo nunca se precargan, aunque aparezcan por error en dist/. */
+const FUERA = [/^\/prueba(?:-|\/|$)/];
 
 /**
  * Extensiones que se precargan de `dist/`, aparte del HTML.

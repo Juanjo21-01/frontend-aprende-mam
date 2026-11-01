@@ -83,7 +83,7 @@ const tinte = temaDelTinte ? temaVisual(temaDelTinte).etiqueta : 'bg-papel-hondo
       marca !== null && (
         <a
           href="#fuentes"
-          class="ml-1 align-super text-sm text-verde-texto underline"
+          class="ml-1 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg align-middle text-sm text-verde-texto underline"
           aria-label={`Fuente ${marca}`}
         >
           {marca}
@@ -118,7 +118,7 @@ const tinte = temaDelTinte ? temaVisual(temaDelTinte).etiqueta : 'bg-papel-hondo
               <a
                 href={`${base}diccionario/tema/${tema.slug}`}
                 class:list={[
-                  'inline-flex min-h-8 items-center gap-1.5 rounded-full px-2.5 text-sm no-underline',
+                  'inline-flex min-h-11 items-center gap-1.5 rounded-full px-2.5 text-sm no-underline',
                   tema.visual.etiqueta,
                 ]}
               >

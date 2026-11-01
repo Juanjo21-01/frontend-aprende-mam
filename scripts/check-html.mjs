@@ -64,8 +64,15 @@ async function main() {
   }
 
   let total = 0;
+  const archivos = (await paginas()).sort();
+  const muestras = archivos.filter((archivo) =>
+    /^prueba(?:-|\/)/.test(path.relative(DIST, archivo).replaceAll(path.sep, '/'))
+  );
+  if (muestras.length > 0) {
+    throw new Error(`Se publicaron páginas de prueba: ${muestras.map((archivo) => path.relative(DIST, archivo)).join(', ')}`);
+  }
 
-  for (const archivo of (await paginas()).sort()) {
+  for (const archivo of archivos) {
     const html = await readFile(archivo, 'utf8');
     const ruta = '/' + path.relative(DIST, archivo).replaceAll(path.sep, '/');
     const hallazgos = [];

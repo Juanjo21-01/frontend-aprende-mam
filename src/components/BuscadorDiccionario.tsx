@@ -202,7 +202,7 @@ export default function BuscadorDiccionario({ ruta, total, base }: Props) {
                         <a
                           key={slug}
                           href={`${base}diccionario/tema/${slug}`}
-                          className={`inline-flex min-h-8 items-center gap-1.5 rounded-full px-2.5 text-sm no-underline ${visual.etiqueta}`}
+                          className={`inline-flex min-h-11 items-center gap-1.5 rounded-full px-2.5 text-sm no-underline ${visual.etiqueta}`}
                         >
                           <span
                             className={`size-2 rounded-full ${visual.punto}`}

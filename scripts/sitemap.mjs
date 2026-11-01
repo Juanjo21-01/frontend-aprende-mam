@@ -16,14 +16,8 @@ import { readdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-/**
- * Páginas que existen pero no son para buscadores:
- *  - `prueba-tipografica`: la prueba de aceptación de la ortografía, para mirarla en un teléfono.
- *  - `prueba-fundamentos`: el muestrario del rediseño; se borra en la Fase 7.
- *  - `sin-conexion`: el respaldo del service worker; solo tiene sentido sin señal.
- * `404.html` no aparece porque no es un `index.html`.
- */
-const FUERA = [/^\/prueba-tipografica\/$/, /^\/prueba-fundamentos\/$/, /^\/sin-conexion\/$/];
+/** Defensa adicional: ninguna ruta de pruebas debe indexarse, aunque se publique por error. */
+const FUERA = [/^\/prueba(?:-|\/|$)/, /^\/sin-conexion\/$/];
 
 async function paginas(dir, base = dir) {
   const encontradas = [];
