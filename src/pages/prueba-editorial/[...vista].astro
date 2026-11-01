@@ -1,0 +1,29 @@
+---
+// Muestras de interfaz: ninguna ruta se emite en la compilación pública.
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PaginaEditorial from '@/components/PaginaEditorial.astro';
+import DocumentoFicha from '@/components/DocumentoFicha.astro';
+import ListaDePaginas from '@/components/ListaDePaginas.astro';
+import CabeceraSeccion from '@/components/CabeceraSeccion.astro';
+import { MATERIALES } from '@/data/secciones';
+export function getStaticPaths() {
+  return import.meta.env.DEV ? ['lectura', 'materiales'].map(vista => ({ params: { vista } })) : [];
+}
+const fuente = { titulo: 'Muestra de interfaz, sin fuente académica', institucion: null, anio: null, url: null };
+const pagina = {
+  slug: 'muestra', titulo: 'Muestra de lectura (prueba)', orden: 1, fuente,
+  video_url: 'https://youtu.be/M7lc1UVf-VE',
+  cuerpo: 'Esta es una muestra de maquetación, no una lección publicada.\n\n## Texto y vocabulario\n\nPrueba tipográfica: **Ẍiky kyiẍ i’ẍ napẍ q’aq’ tx’otx’**. El texto mantiene su ortografía y se presenta con espacio para leer.\n\n> Esta cita es una muestra visual. El fondo y el espacio la distinguen del texto principal.\n\n### Para leer en clase\n\n- Una idea por párrafo.\n- Una lista breve para repasar.\n\nConsulta el [diccionario](/diccionario) para seguir leyendo.\n\n![Imagen de prueba de la interfaz](/icon-128.png)',
+};
+const documento = { slug: 'muestra', titulo: 'Guía de lectura (muestra de interfaz)', descripcion: 'Datos de prueba para revisar la ficha, el tamaño y la licencia.', tipo: 'guia' as const, archivo_url: 'https://example.org/muestra.pdf', tamano_kb: 820, licencia: 'Licencia de muestra; no corresponde a un documento real.', orden: 1, video_url: null, fuente };
+---
+{Astro.params.vista === 'lectura' ? (
+  <PaginaEditorial pagina={pagina} volver={{ href: 'cultura', texto: 'Volver a cultura' }} />
+) : (
+  <BaseLayout titulo="Muestra de materiales" descripcion="Solo en desarrollo. Datos de prueba.">
+    <CabeceraSeccion seccion={MATERIALES} titulo="Muestra de materiales"><p>Solo en desarrollo. El PDF y su licencia son datos de prueba.</p></CabeceraSeccion>
+    <div class="mt-8"><DocumentoFicha documento={documento} /></div>
+    <h2 class="mt-10 text-xl">Índice de muestra</h2>
+    <ListaDePaginas paginas={[pagina, { ...pagina, slug: 'otra-muestra', titulo: 'Un título más largo para comprobar cómo se distribuye en una pantalla pequeña' }]} ruta="cultura" class="mt-4" />
+  </BaseLayout>
+)}

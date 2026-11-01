@@ -19,9 +19,9 @@ const base = import.meta.env.BASE_URL;
       <li>
         <a
           href={`${base}${ruta}/${pagina.slug}`}
-          class="flex h-full min-h-17 items-center gap-3 rounded-xl border border-borde p-4 no-underline hover:border-jade"
+          class="flex h-full min-h-17 items-center gap-3 tocable rounded-2xl border-2 border-borde bg-papel p-4 no-underline hover:bg-papel-hondo"
         >
-          <span class="grow font-bold text-jade-hondo">{pagina.titulo}</span>
+          <span class="min-w-0 grow font-bold text-tinta">{pagina.titulo}</span>
           <svg
             viewBox="0 0 24 24"
             width="22"

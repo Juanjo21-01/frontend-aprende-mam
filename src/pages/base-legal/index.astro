@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import CabeceraSeccion from '@/components/CabeceraSeccion.astro';
+import { BASE_LEGAL } from '@/data/secciones';
 import ListaDePaginas from '@/components/ListaDePaginas.astro';
 import PlaceholderSection from '@/components/PlaceholderSection.astro';
 import { cargarContenido, paginasDe } from '@/data/contenido';
@@ -15,7 +17,7 @@ const resumen =
 >
   {
     paginas.length === 0 ? (
-      <PlaceholderSection
+      <PlaceholderSection seccion={BASE_LEGAL}
         titulo="Base legal"
         resumen={resumen}
         pendiente={[
@@ -27,8 +29,7 @@ const resumen =
       />
     ) : (
       <>
-        <h1 class="text-3xl">Base legal</h1>
-        <p class="mt-4 text-lg text-tinta-suave">{resumen}</p>
+        <CabeceraSeccion seccion={BASE_LEGAL} titulo="Base legal"><p>{resumen}</p></CabeceraSeccion>
         <ListaDePaginas paginas={paginas} ruta="base-legal" class="mt-8" />
       </>
     )

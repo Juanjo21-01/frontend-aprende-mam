@@ -33,11 +33,11 @@ const { cantidad } = Astro.props;
     >
       <button
         type="button"
-        class="min-h-12 rounded-lg border-2 border-jade-hondo bg-papel px-4 font-bold text-jade-hondo hover:bg-papel-hondo disabled:opacity-60"
+        class="tocable min-h-12 rounded-2xl border-2 border-borde bg-papel px-4 py-2 font-bold text-tinta hover:bg-papel-hondo disabled:shadow-none"
       >
         Descargar esta lección para usar sin internet
       </button>
-      <p class="mt-2 text-sm text-tinta-suave" role="status" data-estado>
+      <p class="mt-2 text-base text-tinta-suave" role="status" data-estado>
         Guarda {cantidad === 1 ? 'la imagen' : `las ${cantidad} imágenes`} de esta página en tu
         teléfono. Gasta datos solo si tú lo pides.
       </p>

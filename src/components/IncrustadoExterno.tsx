@@ -138,7 +138,7 @@ export default function IncrustadoExterno({
           href={respaldo}
           onClick={alTocar}
           aria-busy={fase === 'comprobando'}
-          className="relative flex size-full items-center justify-center no-underline"
+          className="relative flex size-full items-center justify-center text-tinta no-underline focus-visible:-outline-offset-4"
         >
           {miniatura ? (
             <img
@@ -150,18 +150,13 @@ export default function IncrustadoExterno({
               decoding="async"
               className="absolute inset-0 size-full object-cover"
             />
-          ) : (
-            // Sin miniatura propia queda el verde de la banda con su cenefa. Nunca la imagen
-            // de YouTube: pedirla filtraría la visita a Google antes de que nadie toque nada,
-            // y no estaría guardada sin conexión.
-            <span className="cenefa absolute inset-x-0 bottom-0" aria-hidden="true" />
-          )}
+          ) : null}
 
           <span className="relative flex flex-col items-center gap-3 px-4">
-            <span className="flex size-18 items-center justify-center rounded-full bg-oro text-jade-hondo shadow-lg">
+            <span className="tocable flex size-16 items-center justify-center rounded-2xl bg-amarillo-campo text-amarillo-texto [--tocable-sombra:var(--color-amarillo)]">
               {esVideo ? <IconoReproducir /> : <IconoActividad />}
             </span>
-            <span className="rounded-full bg-jade-hondo/90 px-4 py-1.5 text-center font-bold text-papel">
+            <span className="rounded-xl bg-papel px-4 py-1.5 text-center font-bold text-tinta">
               {fase === 'comprobando'
                 ? 'Comprobando la conexión…'
                 : esVideo
@@ -197,8 +192,16 @@ function Aviso({
   alternativa?: Alternativa;
   alReintentar?: () => void;
 }) {
+  const aviso = useRef<HTMLDivElement>(null);
+  const reintentable = Boolean(alReintentar);
+  useEffect(() => {
+    if (reintentable) aviso.current?.focus();
+  }, [reintentable]);
+
   return (
     <div
+      ref={aviso}
+      tabIndex={-1}
       role="status"
       className="flex size-full flex-col items-center justify-center gap-2 overflow-auto bg-papel-hondo p-4 text-center"
     >
@@ -208,7 +211,7 @@ function Aviso({
       </p>
       {/* Corto a propósito: en un teléfono, un marco de 16/9 deja unos 190 px de alto para
           todo el aviso. Con botón no hace falta decir «vuelve a intentarlo», ya lo dice él. */}
-      <p className="max-w-sm text-sm text-tinta-suave">
+      <p className="max-w-sm text-base text-tinta-suave">
         {alReintentar ? 'Ahora no hay señal.' : 'Ahora no hay señal. Cuando vuelva, aparecerá aquí.'}
       </p>
 
@@ -218,7 +221,7 @@ function Aviso({
             <button
               type="button"
               onClick={alReintentar}
-              className="min-h-11 rounded-full border-2 border-jade-hondo bg-papel px-4 font-bold text-jade-hondo"
+              className="tocable min-h-11 rounded-xl border-2 border-borde bg-papel px-4 font-bold text-tinta"
             >
               Intentar de nuevo
             </button>
@@ -226,7 +229,7 @@ function Aviso({
           {alternativa && (
             <a
               href={alternativa.href}
-              className="inline-flex min-h-11 items-center rounded-full bg-jade px-4 font-bold text-papel no-underline"
+              className="tocable inline-flex min-h-11 items-center rounded-xl bg-verde-campo px-4 font-bold text-verde-texto no-underline [--tocable-sombra:var(--color-verde)]"
             >
               {alternativa.texto}
             </a>
@@ -285,7 +288,7 @@ function IconoSinSenal() {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      className="shrink-0 text-oro-hondo"
+      className="shrink-0 text-amarillo-texto"
     >
       <path d="M12 20.5v-.01" />
       <path d="M8.2 16.6a5.4 5.4 0 0 1 7.6 0" />

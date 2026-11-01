@@ -332,6 +332,8 @@
  */
 @layer components {
   .prosa {
+    max-width: 68ch;
+    overflow-wrap: break-word;
     font-size: 1.125rem;
     line-height: 1.7;
   }
@@ -343,7 +345,7 @@
   .prosa h2 {
     margin-top: 2rem;
     font-size: 1.5rem;
-    color: var(--color-jade-hondo);
+    color: var(--color-tinta);
   }
 
   .prosa h3 {
@@ -375,14 +377,15 @@
   }
 
   .prosa a {
-    color: var(--color-jade-hondo);
+    color: var(--color-tinta);
     text-decoration: underline;
     text-underline-offset: 2px;
   }
 
   .prosa blockquote {
-    border-left: 4px solid var(--color-oro);
-    padding-left: 1rem;
+    background-color: var(--color-papel-hondo);
+    border-radius: 1rem;
+    padding: 1.25rem;
     color: var(--color-tinta-suave);
   }
 

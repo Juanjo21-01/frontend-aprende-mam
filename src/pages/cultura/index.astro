@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import CabeceraSeccion from '@/components/CabeceraSeccion.astro';
+import { CULTURA } from '@/data/secciones';
 import ListaDePaginas from '@/components/ListaDePaginas.astro';
 import PlaceholderSection from '@/components/PlaceholderSection.astro';
 import { cargarContenido, paginasDe } from '@/data/contenido';
@@ -14,7 +16,7 @@ const resumen = 'Calendario, tradiciones y relatos del pueblo Mam de San Marcos.
 >
   {
     paginas.length === 0 ? (
-      <PlaceholderSection
+      <PlaceholderSection seccion={CULTURA}
         titulo="Cultura"
         resumen={resumen}
         pendiente={[
@@ -25,8 +27,7 @@ const resumen = 'Calendario, tradiciones y relatos del pueblo Mam de San Marcos.
       />
     ) : (
       <>
-        <h1 class="text-3xl">Cultura</h1>
-        <p class="mt-4 text-lg text-tinta-suave">{resumen}</p>
+        <CabeceraSeccion seccion={CULTURA} titulo="Cultura"><p>{resumen}</p></CabeceraSeccion>
         <ListaDePaginas paginas={paginas} ruta="cultura" class="mt-8" />
       </>
     )

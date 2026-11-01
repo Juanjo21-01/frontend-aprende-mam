@@ -18,6 +18,8 @@
  * HTML estático, sin JavaScript.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import CabeceraSeccion from '@/components/CabeceraSeccion.astro';
+import { GRAMATICA } from '@/data/secciones';
 import ListaDePaginas from '@/components/ListaDePaginas.astro';
 import RotuloSeccion from '@/components/RotuloSeccion.astro';
 import { GRAFEMAS } from '@/data/alfabeto';
@@ -85,13 +87,13 @@ const separada = (entrada: Entrada) => (letrasDe.get(entrada) ?? [entrada.mam]).
   titulo="Gramática"
   descripcion="Las 32 letras del alfabeto Mam, cómo se agrupan y la regla del apóstrofo, con ejemplos del diccionario."
 >
-  <h1 class="text-3xl">Gramática</h1>
-
-  <p class="mt-4 text-lg text-tinta-suave">
+  <CabeceraSeccion seccion={GRAMATICA} titulo="Gramática">
+  <p>
     El alfabeto <span lang="mam">Mam</span> tiene {GRAFEMAS.length} letras. Algunas se escriben
     con dos o tres caracteres, pero son una sola letra:{' '}
     <span lang="mam" class="mam">tx’</span> es una letra, no tres.
   </p>
+  </CabeceraSeccion>
 
   <RotuloSeccion titulo="Las 32 letras, en orden" class="mt-10" />
 
@@ -109,7 +111,7 @@ const separada = (entrada: Entrada) => (letrasDe.get(entrada) ?? [entrada.mam]).
               href={`${base}diccionario/letra/${slug}`}
               lang="mam"
               aria-label={`Letra ${grafema}: ${cuantas} palabra${cuantas === 1 ? '' : 's'}`}
-              class="mam inline-flex h-12 min-w-14 shrink-0 items-center justify-center rounded-lg border border-jade/35 px-2 text-2xl font-bold text-jade-hondo no-underline hover:border-jade hover:bg-papel-hondo"
+              class="mam inline-flex h-12 min-w-14 shrink-0 items-center justify-center tocable rounded-xl border-2 border-borde bg-papel px-2 text-2xl font-bold text-tinta no-underline hover:bg-papel-hondo"
             >
               {grafema}
             </a>
@@ -123,7 +125,7 @@ const separada = (entrada: Entrada) => (letrasDe.get(entrada) ?? [entrada.mam]).
             </span>
           )}
           <div class="min-w-0">
-            <p class="text-sm text-tinta-suave">Letra {indice + 1}</p>
+            <p class="text-base text-tinta-suave">Letra {indice + 1}</p>
             {ejemplo ? (
               <p>
                 <span lang="mam" class="mam text-lg font-bold">
@@ -195,11 +197,11 @@ const separada = (entrada: Entrada) => (letrasDe.get(entrada) ?? [entrada.mam]).
       {
         conGlotalizada && (
           <p class="mt-2">
-            <span lang="mam" class="mam text-xl font-bold text-jade-hondo">
+            <span lang="mam" class="mam text-xl font-bold text-tinta">
               {conGlotalizada.mam}
             </span>{' '}
             <span class="text-tinta-suave">— {conGlotalizada.espanol}</span>
-            <span class="mt-1 block text-sm text-tinta-suave">
+            <span class="mt-1 block text-base text-tinta-suave">
               Letras: <span lang="mam" class="mam">{separada(conGlotalizada)}</span>
             </span>
           </p>
@@ -214,11 +216,11 @@ const separada = (entrada: Entrada) => (letrasDe.get(entrada) ?? [entrada.mam]).
       {
         conSaltillo && (
           <p class="mt-2">
-            <span lang="mam" class="mam text-xl font-bold text-jade-hondo">
+            <span lang="mam" class="mam text-xl font-bold text-tinta">
               {conSaltillo.mam}
             </span>{' '}
             <span class="text-tinta-suave">— {conSaltillo.espanol}</span>
-            <span class="mt-1 block text-sm text-tinta-suave">
+            <span class="mt-1 block text-base text-tinta-suave">
               Letras: <span lang="mam" class="mam">{separada(conSaltillo)}</span>
             </span>
           </p>

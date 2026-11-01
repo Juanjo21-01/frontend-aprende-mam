@@ -46,7 +46,7 @@ interface Props {
   titulo: string;
   /**
    * Imagen propia para la fachada, con sus medidas reales para reservar el hueco. Sin ella
-   * se muestra el verde de la banda con la cenefa.
+   * se muestra una superficie neutra con el control de reproducción.
    */
   miniatura?: Miniatura;
   /**
@@ -71,7 +71,7 @@ const queEs = incrustado.tipo === 'video' ? 'Video' : 'Actividad';
 
 <figure class:list={['my-8', clase]}>
   <div
-    class="relative overflow-hidden rounded-xl border border-borde bg-jade-hondo"
+    class="relative w-full min-h-56 overflow-hidden rounded-2xl border border-borde bg-papel-hondo"
     style={`aspect-ratio: ${aspecto}`}
   >
     <IncrustadoExterno
@@ -86,7 +86,7 @@ const queEs = incrustado.tipo === 'video' ? 'Video' : 'Actividad';
     />
   </div>
 
-  <figcaption class="mt-2 text-sm text-tinta-suave">
+  <figcaption class="mt-3 text-base text-tinta-suave">
     <span class="font-bold text-tinta">{titulo}</span> · {queEs} de {incrustado.nombre}. Necesita
     internet.
   </figcaption>

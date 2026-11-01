@@ -10,15 +10,15 @@
  * sitio, así que sin señal se degrada a un aviso y no a un marco vacío.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import ContenidoExterno from '@/components/ContenidoExterno.astro';
-import FuenteCitada from '@/components/FuenteCitada.astro';
+import CabeceraSeccion from '@/components/CabeceraSeccion.astro';
+import { MATERIALES } from '@/data/secciones';
+import DocumentoFicha from '@/components/DocumentoFicha.astro';
 import PlaceholderSection from '@/components/PlaceholderSection.astro';
 import RotuloSeccion from '@/components/RotuloSeccion.astro';
 import { cargarContenido, documentosEnOrden } from '@/data/contenido';
 import { TIPOS_DOCUMENTO, type TipoDocumento } from '@/data/contenido-esquema';
 
 const documentos = documentosEnOrden(await cargarContenido());
-const base = import.meta.env.BASE_URL;
 
 const TIPOS: Record<TipoDocumento, string> = {
   guia: 'Guías didácticas',
@@ -33,21 +33,6 @@ const grupos = TIPOS_DOCUMENTO.map((tipo) => ({
   documentos: documentos.filter((documento) => documento.tipo === tipo),
 })).filter((grupo) => grupo.documentos.length > 0);
 
-/** `820` → «820 KB»; `2300` → «2.2 MB». */
-function tamano(kb: number): string {
-  return kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`;
-}
-
-/** Las rutas del sitio llevan el prefijo; las https van tal cual. */
-const destino = (url: string) => (url.startsWith('/') ? `${base.replace(/\/$/, '')}${url}` : url);
-
-/**
- * Un PDF puede vivir en el sitio o en otro (Google Drive, por ejemplo). El atributo `download` solo
- * lo respeta el navegador con archivos del mismo origen, y el botón no puede prometer una
- * descarga que decide un tercero: con uno externo dice «Abrir» y avisa adónde sale.
- */
-const externo = (url: string) => url.startsWith('https://');
-const sitio = (url: string) => new URL(url).hostname.replace(/^www\./, '');
 ---
 
 <BaseLayout
@@ -56,7 +41,7 @@ const sitio = (url: string) => new URL(url).hostname.replace(/^www\./, '');
 >
   {
     documentos.length === 0 ? (
-      <PlaceholderSection
+      <PlaceholderSection seccion={MATERIALES}
         titulo="Material didáctico"
         resumen="Recursos que el docente puede descargar, guardar e imprimir para trabajar en el aula, con o sin conexión."
         pendiente={[
@@ -68,11 +53,12 @@ const sitio = (url: string) => new URL(url).hostname.replace(/^www\./, '');
       />
     ) : (
       <>
-        <h1 class="text-3xl">Material didáctico</h1>
-        <p class="mt-4 text-lg text-tinta-suave">
+        <CabeceraSeccion seccion={MATERIALES} titulo="Material didáctico">
+        <p>
           Recursos para descargar, guardar e imprimir y trabajar en el aula. Cada PDF se baja solo
           cuando lo pides, para no gastar tus datos.
         </p>
+        </CabeceraSeccion>
 
         {grupos.map((grupo) => (
           <section class="mt-10">
@@ -80,39 +66,7 @@ const sitio = (url: string) => new URL(url).hostname.replace(/^www\./, '');
 
             <ul class="mt-4 flex flex-col gap-4">
               {grupo.documentos.map((documento) => (
-                <li class="rounded-xl border border-borde p-4">
-                  <h3 class="text-lg">{documento.titulo}</h3>
-                  {documento.descripcion && (
-                    <p class="mt-1 text-tinta-suave">{documento.descripcion}</p>
-                  )}
-
-                  <a
-                    href={destino(documento.archivo_url)}
-                    download={externo(documento.archivo_url) ? undefined : ''}
-                    rel={externo(documento.archivo_url) ? 'noopener noreferrer' : undefined}
-                    class="mt-3 inline-flex min-h-12 items-center rounded-lg bg-jade-hondo px-4 font-bold text-papel no-underline hover:bg-jade"
-                  >
-                    {externo(documento.archivo_url) ? 'Abrir PDF' : 'Descargar PDF'}
-                    {documento.tamano_kb !== null && ` (${tamano(documento.tamano_kb)})`}
-                  </a>
-                  {externo(documento.archivo_url) && (
-                    <p class="mt-1 text-sm text-tinta-suave">
-                      Se abre en {sitio(documento.archivo_url)}. Necesita internet.
-                    </p>
-                  )}
-
-                  {documento.licencia && (
-                    <p class="mt-3 text-sm text-tinta-suave">Licencia: {documento.licencia}</p>
-                  )}
-                  {documento.fuente && <FuenteCitada fuente={documento.fuente} class="mt-1" />}
-
-                  {documento.video_url && (
-                    <ContenidoExterno
-                      url={documento.video_url}
-                      titulo={`Video de apoyo: ${documento.titulo}`}
-                    />
-                  )}
-                </li>
+                <li><DocumentoFicha documento={documento} /></li>
               ))}
             </ul>
           </section>

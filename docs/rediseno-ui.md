@@ -215,8 +215,8 @@ siguiente. Los retoques que surjan se anotan en este documento.
     - Índice alfabético: las letras con palabras son `tocable`; las vacías, planas con borde
       punteado; la actual en verde.
     - «Practicar este tema» en el rojo de Juegos, con botones tocables.
-- [ ] **Fase 4 — Juegos.** Índice y los tres juegos; correcto/incorrecto con ícono y texto.
-  - Hecho (pendiente de tu visto bueno, 1-nov-2026):
+- [x] **Fase 4 — Juegos.** Índice y los tres juegos; correcto/incorrecto con ícono y texto.
+  - Hecho y aprobado (1-nov-2026):
     - **Entrada juego → tema**, confirmada antes de implementar: tres tarjetas desplegables
       nativas (`details`), apiladas en teléfono y tableta y en tres columnas desde 1024 px.
       El índice no carga una isla ni necesita JavaScript para mostrar los temas.
@@ -249,8 +249,34 @@ siguiente. Los retoques que surjan se anotan en este documento.
       independiente: `ship`. Capturas y dictamen en `.impeccable/review/juegos/`.
       El detector solo señaló el borde editorial ya reservado para la Fase 5.
 - [ ] **Fase 5 — Editorial.** Cultura, gramática, base legal, materiales, prosa y el contenedor
-  de video. La cita de `.prosa blockquote` lleva un borde izquierdo de 4 px en oro que el
-  detector de impeccable marca como tic de diseño; se replantea aquí.
+  de video.
+  - Hecho (pendiente de tu visto bueno):
+    - Cabeceras de sección compartidas en los cuatro índices y en las lecturas. Se mantiene
+      el ancho de lectura; los índices de páginas usan enlaces `tocable` sobre papel.
+    - Gramática conserva sus 32 letras, ejemplos y reglas. Las letras con entradas son
+      botones con relieve neutro; las vacías mantienen el borde punteado. Metadatos a 16 px.
+    - Prosa a 18 px, limitada a 68 caracteres aproximados por línea. Las citas pasan a
+      papel hondo con relleno y radio de 16 px; se retira el borde dorado lateral. Títulos
+      y enlaces usan tinta; los enlaces conservan subrayado.
+    - `DocumentoFicha.astro` reúne la ficha de PDF existente: título, descripción, tamaño,
+      licencia y fuente. Acción en negro claro; se conserva «Abrir» para archivos externos
+      y «Descargar» para los propios. Los PDF siguen fuera de la precarga.
+    - Fachada de video neutra con control amarillo claro, sin cenefa ni colores antiguos.
+      Se reserva altura suficiente para los avisos, con ancho explícito para evitar
+      desbordamiento en teléfono. El iframe solo se monta al pedirlo; recibe el foco. Al
+      fallar la sonda, el foco pasa al aviso con «Intentar de nuevo».
+    - Fuentes y avisos a 16 px. Guardado de lección con botón neutro y estado anunciado;
+      no se alteran las reglas de caché ni se guarda el video externo.
+    - Validación en 360, 768 y 1280 px: cuatro índices y dos muestras de componentes reales,
+      18 vistas sin desbordamiento. Video bajo demanda y foco comprobados; sin servidor
+      auxiliar, aviso recuperable sin iframe. Guardado explícito de una imagen comprobado.
+    - El contenido editorial real sigue vacío. Las muestras de lectura, PDF e índices
+      están en `/prueba-editorial/lectura` y `/prueba-editorial/materiales`, solo con
+      `npm run dev`; no se compilan, no se precargan ni se publican datos de prueba.
+    - `npm run check`: 49 pruebas, compilación, HTML y presupuesto pasan; carga máxima
+      de aproximadamente 106,1 KB Brotli / 116,7 KB gzip. Detector sin hallazgos.
+      Revisión independiente: `ship`, sin hallazgos materiales. Capturas y dictamen en
+      `.impeccable/review/editorial/`.
 - [ ] **Fase 6 — Estados especiales.** 404, sin conexión, secciones vacías, descarga de lección.
 - [ ] **Fase 7 — Cierre.** Auditoría de accesibilidad y peso (< 150 KB), pulido, `DESIGN.md`.
 - [ ] **Fase 8 — Tema oscuro.** Variante oscura de todos los tokens, con contraste medido de nuevo.
