@@ -216,6 +216,38 @@ siguiente. Los retoques que surjan se anotan en este documento.
       punteado; la actual en verde.
     - «Practicar este tema» en el rojo de Juegos, con botones tocables.
 - [ ] **Fase 4 — Juegos.** Índice y los tres juegos; correcto/incorrecto con ícono y texto.
+  - Hecho (pendiente de tu visto bueno, 1-nov-2026):
+    - **Entrada juego → tema**, confirmada antes de implementar: tres tarjetas desplegables
+      nativas (`details`), apiladas en teléfono y tableta y en tres columnas desde 1024 px.
+      El índice no carga una isla ni necesita JavaScript para mostrar los temas.
+    - Las partidas usan `CabeceraSeccion`, la franja roja y el tema con su ícono. Memoria y
+      Cuestionario conservan ancho de lectura; Sopa usa ancho de panel, con pistas al lado
+      del tablero en escritorio.
+    - **Memoria:** dos columnas por debajo de 480 px y cuatro desde ese ancho; cartas de al
+      menos 128 px de alto, castellano a 18 px y Mam a 20 px. Las cartas llevan número y
+      «Voltear»; las parejas encontradas pierden relieve y salen del recorrido de Tab.
+    - **Sopa:** casillas de 44–52 px y desplazamiento horizontal dentro del tablero cuando no
+      cabe. Un solo punto de entrada con Tab, flechas para moverse, Inicio/Fin y Control para
+      los extremos; Tab sale sin recorrer cada casilla. Se conservan los dos toques y el
+      grafema Mam completo por casilla.
+    - **Cuestionario:** una pregunta a la vez, respuesta correcta y elección fallida señaladas
+      con ícono y texto, y repaso al finalizar. El foco acompaña la siguiente pregunta, el
+      resultado y el reinicio; también se verificó el foco al terminar y reiniciar los otros
+      dos juegos.
+    - `ElementosJuego.tsx` comparte botones, fichas y avisos. Los tres juegos usan los campos
+      B2, con ícono y texto además del color para acierto/error. El ícono de acierto rebota
+      320 ms y no se anima con movimiento reducido. Sin JavaScript queda una lista para
+      estudiar y una explicación de cómo habilitar el juego.
+    - Una interfaz compartida para primaria y básicos, sin nuevos niveles, cronómetro ni
+      cambios de reglas. Las parejas fallidas siguen visibles hasta el siguiente toque.
+    - **Validación:** índice y tres juegos a 360, 768 y 1280 px, sin desbordamiento de página;
+      casillas medidas en 44 px en teléfono. Partidas completas con acierto, error, final,
+      reinicio y teclado. Con el servidor compilado detenido, la sopa recargó y las otras
+      partidas y el índice siguieron funcionando desde la caché del service worker.
+    - `npm run check` pasa: 49 pruebas, 63 páginas, revisión de HTML y peso. Máximo de carga
+      inicial: 106,2 KB Brotli (116,8 KB gzip), por debajo de 150 KB. Revisión visual
+      independiente: `ship`. Capturas y dictamen en `.impeccable/review/juegos/`.
+      El detector solo señaló el borde editorial ya reservado para la Fase 5.
 - [ ] **Fase 5 — Editorial.** Cultura, gramática, base legal, materiales, prosa y el contenedor
   de video. La cita de `.prosa blockquote` lleva un borde izquierdo de 4 px en oro que el
   detector de impeccable marca como tic de diseño; se replantea aquí.

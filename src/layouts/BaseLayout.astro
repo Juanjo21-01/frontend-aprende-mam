@@ -44,6 +44,9 @@ const fuentes = [
   `${base}fonts/charis-sil-700.woff2`,
 ];
 
+// El relleno inferior del teléfono reserva el alto de la barra inferior fija (4 rem más
+// el hueco de la barra del sistema), para que el final del pie no quede debajo de ella.
+
 /*
  * Lo que sigue documenta el aviso de conexión y el registro del service worker, que están
  * más abajo en el marcado.
@@ -114,8 +117,6 @@ const fuentes = [
     <meta property="og:locale" content="es_GT" />
   </head>
 
-  {/* El relleno inferior del teléfono reserva el alto de la barra inferior fija (4 rem más
-      el hueco de la barra del sistema), para que el final del pie no quede debajo de ella. */}
   <body
     class="flex min-h-dvh flex-col bg-papel pb-[calc(4.25rem+env(safe-area-inset-bottom))] text-tinta md:pb-0"
   >

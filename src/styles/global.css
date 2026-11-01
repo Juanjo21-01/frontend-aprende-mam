@@ -214,6 +214,20 @@
   }
 }
 
+/* Una confirmación breve al acertar, solo en el ícono. */
+@keyframes juego-acierto {
+  0%, 100% { transform: translateY(0); }
+  45% { transform: translateY(-4px); }
+}
+
+.juego-acierto {
+  animation: juego-acierto 320ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .juego-acierto { animation: none; }
+}
+
 @layer components {
   /*
    * Texto en Mam. Se usa junto a lang="mam" en el marcado.

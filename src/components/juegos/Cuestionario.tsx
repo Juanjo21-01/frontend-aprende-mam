@@ -1,87 +1,66 @@
-/**
- * Cuestionario: preguntas de opción múltiple, una a la vez.
- *
- * Toda la mecánica está en `src/data/juegos.ts` y probada en Node; aquí solo se pinta.
- *
- * Hoy las preguntas salen del vocabulario, pero la isla trabaja con la forma genérica
- * `Pregunta` —la de las tablas `preguntas` y `opciones` del backend—, así que un cuestionario
- * redactado a mano entra por aquí sin cambios: si no trae `termino` ni `palabra`, se muestra el
- * enunciado y la retroalimentación, y nada más.
- *
- * La respuesta correcta se enseña en cuanto se responde, con la ficha de la palabra: el
- * cuestionario es para aprender, no para examinar.
- */
+/** Cuestionario de práctica: una pregunta cada vez, sin reloj ni penalizaciones nuevas. */
 import { useEffect, useRef, useState } from 'react';
-
 import {
-  acerto,
-  aciertos,
-  cuestionarioTerminado,
-  nuevaPartidaCuestionario,
-  preguntasDesdeVocabulario,
-  responder,
-  siguiente,
-  type PalabraDeJuego,
-  type PartidaCuestionario,
-  type Pregunta,
+  acerto, aciertos, cuestionarioTerminado, nuevaPartidaCuestionario, preguntasDesdeVocabulario,
+  responder, siguiente, type PalabraDeJuego, type PartidaCuestionario, type Pregunta,
 } from '@/data/juegos';
 import ListaDePalabras from './ListaDePalabras';
+import { BOTON_JUEGO, FichaPalabra, Marca, MensajeJuego } from './ElementosJuego';
 
-interface Props {
-  palabras: PalabraDeJuego[];
-}
-
-const nueva = (palabras: PalabraDeJuego[]) =>
-  nuevaPartidaCuestionario(preguntasDesdeVocabulario(palabras));
+interface Props { palabras: PalabraDeJuego[] }
+const nueva = (palabras: PalabraDeJuego[]) => nuevaPartidaCuestionario(preguntasDesdeVocabulario(palabras));
 
 export default function Cuestionario({ palabras }: Props) {
-  // `null` en el HTML compilado: el reparto al azar solo puede hacerse en el navegador.
   const [partida, setPartida] = useState<PartidaCuestionario | null>(null);
   const botonSiguiente = useRef<HTMLButtonElement>(null);
+  const tituloPregunta = useRef<HTMLHeadingElement>(null);
+  const tituloResultado = useRef<HTMLHeadingElement>(null);
+  const enfocarInicio = useRef(false);
+  const respondida = partida !== null && partida.respuestas[partida.actual] != null;
+  const terminada = partida !== null && cuestionarioTerminado(partida);
 
   useEffect(() => setPartida(nueva(palabras)), [palabras]);
-
-  const respondida = partida !== null && partida.respuestas[partida.actual] != null;
-
-  // Al responder, el foco pasa a «Siguiente»: con teclado se juega con Tab y Enter sin buscar
-  // el botón, y el lector de pantalla llega a la retroalimentación justo antes.
+  // El siguiente paso lleva al enunciado nuevo; la hidratación inicial conserva el foco.
   useEffect(() => {
-    if (respondida) botonSiguiente.current?.focus();
-  }, [respondida]);
+    if (enfocarInicio.current) {
+      (terminada ? tituloResultado : tituloPregunta).current?.focus();
+      enfocarInicio.current = false;
+    } else if (respondida) botonSiguiente.current?.focus();
+  }, [partida, respondida, terminada]);
 
   if (partida === null) return <ListaDePalabras palabras={palabras} />;
-
   const total = partida.preguntas.length;
+  if (total === 0) return <MensajeJuego tipo="pista" titulo="Este tema todavía no tiene palabras distintas suficientes para jugar." />;
 
-  if (cuestionarioTerminado(partida)) {
+  if (terminada) {
     const falladas = partida.preguntas.filter((_, i) => !acerto(partida, i));
-
     return (
-      <section className="rounded-xl border border-oro-borde bg-oro-tinte p-5">
-        <p className="text-xl font-bold text-jade-hondo">
-          Acertaste {aciertos(partida)} de {total}.
-        </p>
-
+      <section className="max-w-2xl" aria-labelledby="cuestionario-resultado">
+        <div className="rounded-2xl bg-verde-tinte p-5 text-verde-texto">
+          <div className="flex items-start gap-3">
+            <Marca tipo="acierto" animar />
+            <h2 id="cuestionario-resultado" ref={tituloResultado} tabIndex={-1} className="text-2xl leading-tight">
+              ¡Terminaste el cuestionario!
+            </h2>
+          </div>
+          <p className="mt-3 text-xl font-bold">Acertaste {aciertos(partida)} de {total}.</p>
+          <p className="mt-2">{falladas.length > 0 ? 'Puedes repasar estas palabras y volver a intentarlo.' : '¡Reconociste todas las palabras de esta partida!'}</p>
+        </div>
         {falladas.length > 0 && (
-          <>
-            <h2 className="mt-5 text-lg">Para repasar</h2>
-            <dl className="mt-2 flex flex-col gap-2">
-              {falladas.map((pregunta, i) =>
-                pregunta.palabra ? (
-                  <Ficha key={i} palabra={pregunta.palabra} />
-                ) : (
-                  <p key={i}>{pregunta.retroalimentacion ?? pregunta.enunciado}</p>
-                )
-              )}
+          <section className="mt-6" aria-labelledby="cuestionario-repaso">
+            <h3 id="cuestionario-repaso" className="text-xl">Para repasar</h3>
+            <dl className="mt-3 flex flex-col gap-4">
+              {falladas.filter((pregunta) => pregunta.palabra).map((pregunta, i) => (
+                <FichaPalabra key={i} palabra={pregunta.palabra!} />
+              ))}
             </dl>
-          </>
+            {falladas.filter((pregunta) => !pregunta.palabra).map((pregunta, i) => (
+              <p key={i} className="mt-3">{pregunta.retroalimentacion ?? pregunta.enunciado}</p>
+            ))}
+          </section>
         )}
-
-        <button
-          type="button"
-          onClick={() => setPartida(nueva(palabras))}
-          className="mt-5 min-h-11 rounded-xl bg-jade-hondo px-5 py-2 font-bold text-papel hover:bg-jade"
-        >
+        <button type="button" className={`mt-6 ${BOTON_JUEGO}`}
+          onClick={() => { enfocarInicio.current = true; setPartida(nueva(palabras)); }}>
           Jugar otra vez
         </button>
       </section>
@@ -94,76 +73,58 @@ export default function Cuestionario({ palabras }: Props) {
   const ultima = partida.actual === total - 1;
 
   return (
-    <section>
-      <p className="flex flex-wrap gap-x-6 font-bold">
-        <span>
-          Pregunta {partida.actual + 1} de {total}
-        </span>
-        <span>Aciertos: {aciertos(partida)}</span>
+    <section className="max-w-2xl" aria-labelledby="cuestionario-pregunta">
+      <p className="flex flex-wrap items-center gap-x-6 gap-y-1 font-bold tabular-nums">
+        <span>Pregunta {partida.actual + 1} de {total}</span>
+        <span className="text-base font-normal text-tinta-suave">Aciertos: {aciertos(partida)}</span>
       </p>
-
-      <div className="mt-4 rounded-xl border border-borde p-5">
+      <h2 id="cuestionario-pregunta" ref={tituloPregunta} tabIndex={-1} className="mt-5 text-xl leading-relaxed">
         <Enunciado pregunta={pregunta} />
-
-        <ul className="mt-5 flex flex-col gap-3">
-          {pregunta.opciones.map((opcion, indice) => {
-            const estilo = !respondida
-              ? 'border-borde bg-papel hover:border-jade'
-              : opcion.es_correcta
-                ? 'border-jade bg-papel'
-                : indice === elegida
-                  ? 'border-alerta bg-papel'
-                  : 'border-borde bg-papel opacity-60';
-
-            return (
-              <li key={indice}>
-                <button
-                  type="button"
-                  disabled={respondida}
-                  onClick={() => setPartida(responder(partida, indice))}
-                  className={`flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border-2 px-4 py-2 text-left ${estilo}`}
-                >
-                  {opcion.idioma === 'mam' ? (
-                    <span lang="mam" className="mam text-xl font-bold text-jade-hondo">
-                      {opcion.texto}
-                    </span>
-                  ) : (
-                    <span className="text-lg">{opcion.texto}</span>
-                  )}
-                  {respondida && (opcion.es_correcta || indice === elegida) && (
-                    <Marca correcta={opcion.es_correcta} />
-                  )}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-
-      <div aria-live="polite">
+      </h2>
+      <p className="mt-2 text-tinta-suave">Escoge una respuesta.</p>
+      <ul className="mt-5 flex flex-col gap-3" aria-label="Respuestas">
+        {pregunta.opciones.map((opcion, indice) => {
+          const marcada = respondida && (opcion.es_correcta || indice === elegida);
+          const estilo = !respondida
+            ? 'tocable border-borde bg-papel hover:border-rojo [--tocable-sombra:var(--color-borde)]'
+            : opcion.es_correcta
+              ? 'border-verde bg-verde-tinte text-verde-texto'
+              : indice === elegida
+                ? 'border-rojo bg-rojo-tinte text-rojo-texto'
+                : 'border-borde bg-papel text-tinta-suave';
+          return (
+            <li key={indice}>
+              <button type="button" disabled={respondida} onClick={() => setPartida(responder(partida, indice))}
+                className={`flex min-h-16 w-full flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-2xl border-2 px-4 py-3 text-left ${estilo}`}>
+                {opcion.idioma === 'mam'
+                  ? <span lang="mam" className="mam min-w-0 text-xl font-bold [overflow-wrap:anywhere]">{opcion.texto}</span>
+                  : <span className="min-w-0 text-lg [overflow-wrap:anywhere]">{opcion.texto}</span>}
+                {marcada && (
+                  <span className="inline-flex items-center gap-2 text-base font-bold">
+                    <Marca tipo={opcion.es_correcta ? 'acierto' : 'error'} />
+                    <span>{opcion.es_correcta ? 'Correcta' : 'Tu respuesta'}</span>
+                  </span>
+                )}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="mt-5" aria-live="polite" aria-atomic="true">
         {respondida && (
-          <div className="mt-4 rounded-xl border border-borde bg-papel-hondo p-4">
-            <p className={`font-bold ${bien ? 'text-jade-hondo' : 'text-alerta'}`}>
-              {bien ? '¡Correcto!' : 'No era esa.'}
-            </p>
-            {pregunta.palabra ? (
-              <dl className="mt-2">
-                <Ficha palabra={pregunta.palabra} />
-              </dl>
-            ) : (
-              pregunta.retroalimentacion && <p className="mt-2">{pregunta.retroalimentacion}</p>
-            )}
+          <div id="cuestionario-retroalimentacion">
+            <MensajeJuego tipo={bien ? 'acierto' : 'error'} titulo={bien ? '¡Correcto!' : 'No era esa. Esta es la palabra correcta:'}>
+              {pregunta.palabra
+                ? <dl><FichaPalabra palabra={pregunta.palabra} /></dl>
+                : pregunta.retroalimentacion ? <p>{pregunta.retroalimentacion}</p> : null}
+            </MensajeJuego>
           </div>
         )}
       </div>
-
       {respondida && (
-        <button
-          ref={botonSiguiente}
-          type="button"
-          onClick={() => setPartida(siguiente(partida))}
-          className="mt-4 min-h-11 rounded-xl bg-jade-hondo px-5 py-2 font-bold text-papel hover:bg-jade"
-        >
+        <button ref={botonSiguiente} type="button" aria-describedby="cuestionario-retroalimentacion"
+          onClick={() => { enfocarInicio.current = true; setPartida(siguiente(partida)); }}
+          className={`mt-5 ${BOTON_JUEGO}`}>
           {ultima ? 'Ver resultado' : 'Siguiente pregunta'}
         </button>
       )}
@@ -173,56 +134,10 @@ export default function Cuestionario({ palabras }: Props) {
 
 function Enunciado({ pregunta }: { pregunta: Pregunta }) {
   const { termino } = pregunta;
-
-  if (!termino) return <p className="text-xl font-bold">{pregunta.enunciado}</p>;
-
-  // El término va grande y aparte: es lo que hay que leer, y en Mam con su tipografía.
+  if (!termino) return <>{pregunta.enunciado}</>;
   return termino.idioma === 'mam' ? (
-    <p className="text-xl">
-      ¿Qué significa{' '}
-      <span lang="mam" className="mam text-3xl font-bold text-jade-hondo">
-        {termino.texto}
-      </span>
-      ?
-    </p>
+    <>¿Qué significa <span lang="mam" className="mam text-3xl font-bold [overflow-wrap:anywhere]">{termino.texto}</span>?</>
   ) : (
-    <p className="text-xl">
-      ¿Cómo se dice <strong className="text-2xl">«{termino.texto}»</strong> en{' '}
-      <span lang="mam">Mam</span>?
-    </p>
-  );
-}
-
-function Marca({ correcta }: { correcta: boolean }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="24"
-      height="24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      role="img"
-      aria-label={correcta ? 'Correcta' : 'Tu respuesta'}
-      className={`shrink-0 ${correcta ? 'text-jade' : 'text-alerta'}`}
-    >
-      {correcta ? <path d="M5 12.5 10 17.5 19 7" /> : <path d="M6 6 18 18M18 6 6 18" />}
-    </svg>
-  );
-}
-
-function Ficha({ palabra }: { palabra: PalabraDeJuego }) {
-  return (
-    <div className="flex flex-wrap items-baseline gap-x-2">
-      <dt lang="mam" className="mam text-xl font-bold text-jade-hondo">
-        {palabra.mam}
-      </dt>
-      <dd className="flex flex-wrap items-baseline gap-x-2">
-        <span className="text-lg">{palabra.espanol}</span>
-        {palabra.clase && <span className="text-sm text-tinta-suave italic">{palabra.clase}</span>}
-      </dd>
-    </div>
+    <>¿Cómo se dice <strong className="text-2xl">«{termino.texto}»</strong> en <span lang="mam">Mam</span>?</>
   );
 }

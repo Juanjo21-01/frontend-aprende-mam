@@ -7,6 +7,7 @@
  * en vez de un hueco. Lo comparten los tres juegos.
  */
 import type { PalabraDeJuego } from '@/data/juegos';
+import { FichaPalabra } from './ElementosJuego';
 
 interface Props {
   palabras: readonly PalabraDeJuego[];
@@ -14,18 +15,14 @@ interface Props {
 
 export default function ListaDePalabras({ palabras }: Props) {
   return (
-    <div className="rounded-xl border border-borde bg-papel-hondo p-5">
-      <p className="font-bold">Preparando el juego…</p>
-      <p className="mt-1 text-tinta-suave">Mientras tanto, estas son las palabras del tema.</p>
+    <div className="rounded-2xl bg-papel-hondo p-5">
+      <p className="font-bold">Palabras para practicar</p>
+      <p className="mt-1 text-tinta-suave">El juego aparecerá aquí cuando esté listo. Mientras tanto, puedes repasar estas palabras.</p>
+      <noscript><p className="mt-3">Activa JavaScript para jugar. También puedes estudiar esta lista sin activarlo.</p></noscript>
 
       <dl className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-2">
         {palabras.map((palabra) => (
-          <div key={palabra.id} className="flex flex-wrap items-baseline gap-x-2">
-            <dt lang="mam" className="mam text-lg font-bold text-jade-hondo">
-              {palabra.mam}
-            </dt>
-            <dd>{palabra.espanol}</dd>
-          </div>
+          <FichaPalabra key={palabra.id} palabra={palabra} />
         ))}
       </dl>
     </div>

@@ -12,7 +12,10 @@
  * parejas no es un juego, y el índice ya no lo enlaza.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import CabeceraSeccion from '@/components/CabeceraSeccion.astro';
 import IconoTema from '@/components/IconoTema.astro';
+import { JUEGOS as SECCION_JUEGOS } from '@/data/secciones';
+import { ICONOS_JUEGOS } from '@/data/iconos-juegos';
 import Cuestionario from '@/components/juegos/Cuestionario';
 import Memoria from '@/components/juegos/Memoria';
 import SopaDeLetras from '@/components/juegos/SopaDeLetras';
@@ -94,24 +97,16 @@ const visual = categoria ? temaVisual(categoria.slug) : null;
 <BaseLayout
   titulo={`${datosDelJuego.nombre}: ${nombreDelTema}`}
   descripcion={`${datosDelJuego.descripcion} ${nombreDelTema}, vocabulario Mam de San Marcos. Funciona sin conexión.`}
+  ancho={juego === 'sopa-de-letras' ? 'panel' : 'lectura'}
 >
-  <p class="text-sm text-tinta-suave">
-    <a href={`${base}juegos`} class="underline underline-offset-2">Juegos</a>{' '}
-    <span aria-hidden="true">/</span>{' '}
-    {datosDelJuego.nombre}
-  </p>
-
-  <div
-    class:list={[
-      'mt-2 flex items-center gap-4 rounded-xl border p-5',
-      visual?.ficha ?? 'border-borde bg-papel-hondo',
-    ]}
+  <CabeceraSeccion
+    seccion={{ ...SECCION_JUEGOS, icono: ICONOS_JUEGOS[juego] }}
+    titulo={datosDelJuego.nombre}
+    volver={{ href: `${base}juegos`, texto: 'Volver a juegos' }}
   >
-    {categoria && <IconoTema slug={categoria.slug} tamano={40} class={`shrink-0 ${visual!.texto}`} />}
-    <div>
-      <h1 class:list={['text-3xl', visual?.texto ?? 'text-jade-hondo']}>{datosDelJuego.nombre}</h1>
-      <p class="mt-1 text-lg">
-        {nombreDelTema}
+    <p class="flex flex-wrap items-center gap-x-2 gap-y-1">
+      {categoria && <IconoTema slug={categoria.slug} tamano={24} class={visual!.texto} />}
+      <span class="font-bold text-tinta">{nombreDelTema}</span>
         {
           categoria?.nombre_mam && (
             <>
@@ -122,9 +117,8 @@ const visual = categoria ? temaVisual(categoria.slug) : null;
             </>
           )
         }
-      </p>
-    </div>
-  </div>
+    </p>
+  </CabeceraSeccion>
 
   <div class="mt-6">
     {juego === 'memoria' && <Memoria client:visible palabras={palabras} />}
@@ -132,21 +126,21 @@ const visual = categoria ? temaVisual(categoria.slug) : null;
     {juego === 'cuestionario' && <Cuestionario client:visible palabras={palabras} />}
   </div>
 
-  <nav class="mt-10 flex flex-col gap-2 text-tinta-suave" aria-label="Seguir jugando">
+  <nav class="mt-10 flex flex-col items-start border-t border-borde pt-5 text-tinta-suave" aria-label="Seguir jugando">
     {
       otrosJuegos.map((otro) => (
-        <a href={`${base}juegos/${otro.slug}/${segmento}`} class="underline underline-offset-2">
+        <a href={`${base}juegos/${otro.slug}/${segmento}`} class="inline-flex min-h-11 items-center py-2 underline underline-offset-2">
           {otro.nombre} con {categoria ? 'este tema' : 'todos los temas'}
         </a>
       ))
     }
     {
       categoria && (
-        <a href={`${base}diccionario/tema/${categoria.slug}`} class="underline underline-offset-2">
+        <a href={`${base}diccionario/tema/${categoria.slug}`} class="inline-flex min-h-11 items-center py-2 underline underline-offset-2">
           Ver las palabras de {categoria.nombre_es.toLocaleLowerCase('es')} en el diccionario
         </a>
       )
     }
-    <a href={`${base}juegos`} class="underline underline-offset-2">Escoger otro juego o tema</a>
+    <a href={`${base}juegos`} class="inline-flex min-h-11 items-center py-2 underline underline-offset-2">Escoger otro juego o tema</a>
   </nav>
 </BaseLayout>
