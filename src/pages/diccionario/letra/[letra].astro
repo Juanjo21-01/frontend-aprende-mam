@@ -14,6 +14,8 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import NavAlfabeto from '@/components/NavAlfabeto.astro';
 import EntradaFicha from '@/components/EntradaFicha.astro';
 import PieDeFuentes from '@/components/PieDeFuentes.astro';
+import CabeceraSeccion from '@/components/CabeceraSeccion.astro';
+import { DICCIONARIO } from '@/data/secciones';
 import {
   cargarVocabulario,
   fuentesCitadas,
@@ -56,18 +58,18 @@ const cuantas = grupo.entradas.length;
   titulo={`Palabras con ${grupo.grafema}`}
   descripcion={`Palabras del diccionario Mam–castellano que empiezan con el grafema ${grupo.grafema}.`}
 >
-  <p class="text-sm text-tinta-suave">
-    <a href={`${base}diccionario`} class="underline underline-offset-2">Diccionario</a>
-  </p>
-
-  <h1 class="mt-2 text-3xl">
-    Palabras con <span lang="mam" class="mam">{grupo.grafema}</span>
-  </h1>
-
-  <p class="mt-2 text-tinta-suave">
-    {cuantas} palabra{cuantas === 1 ? '' : 's'}, en el orden del alfabeto{' '}
-    <span lang="mam">Mam</span> (posición {grupo.posicion} de 32).
-  </p>
+  <CabeceraSeccion
+    seccion={DICCIONARIO}
+    volver={{ href: `${base}diccionario`, texto: 'Diccionario' }}
+  >
+    <Fragment slot="titulo">
+      Palabras con <span lang="mam" class="mam">{grupo.grafema}</span>
+    </Fragment>
+    <p>
+      {cuantas} palabra{cuantas === 1 ? '' : 's'}, en el orden del alfabeto{' '}
+      <span lang="mam">Mam</span> (posición {grupo.posicion} de 32).
+    </p>
+  </CabeceraSeccion>
 
   <div class="mt-6">
     <NavAlfabeto grupos={grupos} actual={grupo.grafema} />

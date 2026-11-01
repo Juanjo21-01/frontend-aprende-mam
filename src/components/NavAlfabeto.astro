@@ -9,6 +9,10 @@
  *
  * Las letras sin entradas van como texto y no como enlace muerto. Sin JavaScript, un enlace
  * que lleva a una página vacía es peor que un rótulo apagado.
+ *
+ * Las letras con palabras son `tocable` (sombra de botón); las vacías van planas y con borde
+ * punteado. La diferencia entre «se puede tocar» y «todavía no hay nada» la dice la forma, no
+ * solo el color. La actual, en el verde del diccionario.
  */
 import type { GrupoAlfabetico } from '@/data/vocabulario';
 
@@ -24,7 +28,7 @@ const base = import.meta.env.BASE_URL;
 ---
 
 <nav aria-label="Alfabeto Mam">
-  <ul class="flex flex-wrap gap-1">
+  <ul class="flex flex-wrap gap-x-1.5 gap-y-2">
     {
       grupos.map(({ grafema, slug, entradas }) => {
         const vacia = entradas.length === 0;
@@ -41,7 +45,7 @@ const base = import.meta.env.BASE_URL;
             <li>
               <span
                 lang="mam"
-                class="mam inline-flex h-11 min-w-11 items-center justify-center rounded-lg border border-dashed border-borde px-2 text-tinta-suave"
+                class="mam inline-flex h-12 min-w-12 items-center justify-center rounded-xl border-2 border-dashed border-borde px-2 text-tinta-suave"
                 title="Todavía sin entradas"
               >
                 {grafema}
@@ -57,10 +61,10 @@ const base = import.meta.env.BASE_URL;
               lang="mam"
               aria-current={esActual ? 'page' : undefined}
               class:list={[
-                'mam inline-flex h-11 min-w-11 items-center justify-center rounded-lg border px-2 no-underline',
+                'mam tocable inline-flex h-12 min-w-12 items-center justify-center rounded-xl border-2 px-2 text-lg font-bold no-underline',
                 esActual
-                  ? 'border-oro-hondo bg-oro font-bold text-tinta'
-                  : 'border-jade/35 text-jade-hondo hover:border-jade hover:bg-papel-hondo',
+                  ? 'border-verde bg-verde-campo text-verde-texto [--tocable-sombra:var(--color-verde)]'
+                  : 'border-borde bg-papel text-tinta hover:bg-verde-campo hover:text-verde-texto',
               ]}
             >
               {grafema}

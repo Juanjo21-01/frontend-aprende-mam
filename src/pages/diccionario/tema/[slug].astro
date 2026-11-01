@@ -69,14 +69,32 @@ const jugable = juegosListos.length > 0;
   titulo={categoria.nombre_es}
   descripcion={`Palabras de ${categoria.nombre_es.toLocaleLowerCase('es')} en Mam, variante de San Marcos, con su fuente bibliográfica.`}
 >
-  <p class="text-sm text-tinta-suave">
-    <a href={`${base}diccionario`} class="underline underline-offset-2">Diccionario</a>
-  </p>
+  <a
+    href={`${base}diccionario`}
+    class="mb-3 inline-flex min-h-11 items-center gap-1 text-base text-tinta-suave underline"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m15 5-7 7 7 7"></path>
+    </svg>
+    Diccionario
+  </a>
 
-  <div class:list={['mt-2 flex items-center gap-4 rounded-xl border p-5', visual.ficha]}>
-    <IconoTema slug={categoria.slug} tamano={40} class={`shrink-0 ${visual.texto}`} />
+  <div class:list={['flex items-center gap-4 rounded-2xl border-2 p-4', visual.ficha]}>
+    <span class="grid size-16 shrink-0 place-items-center rounded-xl bg-papel">
+      <IconoTema slug={categoria.slug} tamano={40} class={visual.texto} />
+    </span>
     <div>
-      <h1 class:list={['text-3xl', visual.texto]}>{categoria.nombre_es}</h1>
+      <h1 class="text-3xl leading-tight md:text-4xl">{categoria.nombre_es}</h1>
       {
         categoria.nombre_mam && (
           <p class="mt-1 text-lg">
@@ -91,7 +109,7 @@ const jugable = juegosListos.length > 0;
 
   {
     cuantas === 0 ? (
-      <div class="mt-8 rounded-lg border border-borde bg-papel-hondo p-5">
+      <div class="mt-8 rounded-2xl bg-papel-hondo p-5">
         <p class="font-bold">Este tema todavía no tiene palabras.</p>
         <p class="mt-2 text-tinta-suave">
           Las palabras se publican cuando un especialista en el idioma las revisa. En cuanto
@@ -99,14 +117,14 @@ const jugable = juegosListos.length > 0;
         </p>
       </div>
     ) : (
-      <p class="mt-2 text-tinta-suave">
+      <p class="mt-3 text-tinta-suave">
         {cuantas} palabra{cuantas === 1 ? '' : 's'}, en el orden del alfabeto{' '}
         <span lang="mam">Mam</span>.
       </p>
     )
   }
 
-  <dl class="mt-8 flex flex-col gap-3">
+  <dl class="mt-6 grid gap-3 md:grid-cols-2">
     {
       entradas.map((entrada) => (
         <EntradaFicha
@@ -122,14 +140,15 @@ const jugable = juegosListos.length > 0;
 
   {
     jugable && (
-      <section class="mt-8 rounded-xl border border-oro-borde bg-oro-tinte p-5">
+      // En el rojo de Juegos: es una puerta a esa sección, y así lo dice antes de leerlo.
+      <section class="mt-10 rounded-2xl bg-rojo-tinte p-5">
         <h2 class="text-xl">Practicar este tema</h2>
-        <ul class="mt-3 flex flex-wrap gap-3">
+        <ul class="mt-4 flex flex-wrap gap-3">
           {juegosListos.map((juego) => (
             <li>
               <a
                 href={`${base}juegos/${juego.slug}/${categoria.slug}`}
-                class="inline-flex min-h-11 items-center rounded-xl bg-jade-hondo px-4 py-2 font-bold text-papel no-underline hover:bg-jade"
+                class="tocable inline-flex min-h-12 items-center rounded-2xl bg-rojo-campo px-4 font-bold text-rojo-texto no-underline [--tocable-sombra:var(--color-rojo)]"
               >
                 {juego.nombre}
               </a>
@@ -142,8 +161,8 @@ const jugable = juegosListos.length > 0;
 
   <PieDeFuentes fuentes={fuentes} />
 
-  <p class="mt-10 text-sm text-tinta-suave">
-    <a href={`${base}diccionario`} class="underline underline-offset-2">
+  <p class="mt-10 text-base text-tinta-suave">
+    <a href={`${base}diccionario`} class="underline">
       Ver todos los temas y el alfabeto completo
     </a>
   </p>

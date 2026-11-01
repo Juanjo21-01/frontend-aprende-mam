@@ -199,6 +199,22 @@ siguiente. Los retoques que surjan se anotan en este documento.
       día se lleva el ancho.
 - [ ] **Fase 3 — Diccionario.** Buscador (isla), tarjeta y fila de entrada, páginas de letra y de
   tema, índice alfabético.
+  - Hecho (pendiente de tu visto bueno):
+    - **Franja de sección** de 6 px bajo el encabezado, la pinta `BaseLayout` sola a partir de
+      la ruta (`seccionDe()` en `secciones.ts`). Ya aparece en todas las secciones, también en
+      las que aún no se migran. La portada y las páginas sueltas no llevan.
+    - `CabeceraSeccion.astro`: ícono de la sección en su campo, título y enlace de vuelta. La
+      usarán también las fases 4 y 5.
+    - `RotuloSeccion` pasa a título llano (sin rombo dorado ni filete). Cambia en todas las
+      páginas que lo usan: gramática, juegos y materiales incluidos.
+    - Entrada en tarjeta: papel con borde, Mam a 30 px, castellano a 20 px, clase gramatical y
+      otros temas como etiquetas con el tinte del tema. Plana: se lee, no se toca. En la página
+      de tema van a dos columnas desde tableta.
+    - Buscador: píldora con borde verde y lupa; foco de 3 px alrededor de la píldora entera; el
+      error de descarga en amarillo. Sus resultados copian la tarjeta de `EntradaFicha`.
+    - Índice alfabético: las letras con palabras son `tocable`; las vacías, planas con borde
+      punteado; la actual en verde.
+    - «Practicar este tema» en el rojo de Juegos, con botones tocables.
 - [ ] **Fase 4 — Juegos.** Índice y los tres juegos; correcto/incorrecto con ícono y texto.
 - [ ] **Fase 5 — Editorial.** Cultura, gramática, base legal, materiales, prosa y el contenedor
   de video. La cita de `.prosa blockquote` lleva un borde izquierdo de 4 px en oro que el

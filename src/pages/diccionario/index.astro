@@ -3,6 +3,8 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import NavAlfabeto from '@/components/NavAlfabeto.astro';
 import FichaTema from '@/components/FichaTema.astro';
 import RotuloSeccion from '@/components/RotuloSeccion.astro';
+import CabeceraSeccion from '@/components/CabeceraSeccion.astro';
+import { DICCIONARIO } from '@/data/secciones';
 import BuscadorDiccionario from '@/components/BuscadorDiccionario.tsx';
 import { rutaDeDatos } from '@/data/busqueda';
 import { cargarVocabulario, porLetra, porTema } from '@/data/vocabulario';
@@ -26,16 +28,16 @@ const actualizado = new Intl.DateTimeFormat('es-GT', { dateStyle: 'long' }).form
   descripcion="Diccionario Mam–castellano de la variante de San Marcos, con su fuente bibliográfica. Funciona sin conexión."
   ancho="panel"
 >
-  <h1 class="text-3xl">Diccionario</h1>
-
-  <p class="mt-3 max-w-2xl text-lg text-tinta-suave">
-    Vocabulario <span lang="mam">Mam</span>–castellano de la variante de San Marcos. Cada
-    palabra conserva la obra de la que se tomó.
-  </p>
+  <CabeceraSeccion seccion={DICCIONARIO} titulo="Diccionario">
+    <p>
+      Vocabulario <span lang="mam">Mam</span>–castellano de la variante de San Marcos. Cada
+      palabra conserva la obra de la que se tomó.
+    </p>
+  </CabeceraSeccion>
 
   {
     total === 0 ? (
-      <div class="mt-8 rounded-xl border border-borde bg-papel-hondo p-5">
+      <div class="mt-8 rounded-2xl bg-papel-hondo p-5">
         <p class="font-bold">Todavía no hay palabras publicadas.</p>
         <p class="mt-2 text-tinta-suave">
           El sitio funciona bien: las palabras se publican cuando un especialista en el idioma las
@@ -43,7 +45,7 @@ const actualizado = new Intl.DateTimeFormat('es-GT', { dateStyle: 'long' }).form
         </p>
       </div>
     ) : (
-      <p class="mt-2 text-tinta-suave">
+      <p class="mt-2 max-w-[68ch] text-tinta-suave">
         {total} palabras en {conLetra} de las 32 letras del alfabeto.
       </p>
     )
@@ -73,7 +75,7 @@ const actualizado = new Intl.DateTimeFormat('es-GT', { dateStyle: 'long' }).form
 
   <RotuloSeccion titulo="Por tema" class="mt-10" />
 
-  <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+  <ul class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
     {
       temas.map(({ categoria, entradas }) => (
         <li>
@@ -85,25 +87,25 @@ const actualizado = new Intl.DateTimeFormat('es-GT', { dateStyle: 'long' }).form
 
   <RotuloSeccion titulo="Por letra" class="mt-10" />
 
-  <p class="mt-3 max-w-2xl text-tinta-suave">
+  <p class="mt-3 max-w-[68ch] text-tinta-suave">
     El alfabeto <span lang="mam">Mam</span> tiene 32 grafemas y no sigue el orden del
     castellano: <span lang="mam" class="mam">ch</span> va antes que{' '}
     <span lang="mam" class="mam">ch’</span>, <span lang="mam" class="mam">x</span> antes que{' '}
-    <span lang="mam" class="mam">ẍ</span>, y el saltillo lo cierra. Las letras apagadas
-    todavía no tienen palabras.
+    <span lang="mam" class="mam">ẍ</span>, y el saltillo lo cierra. Las letras con borde
+    punteado todavía no tienen palabras.
   </p>
 
   <div class="mt-4">
     <NavAlfabeto grupos={grupos} />
   </div>
 
-  <section class="mt-10 rounded-xl border border-borde bg-papel-hondo p-5">
+  <section class="mt-10 rounded-2xl bg-papel-hondo p-5">
     <h2 class="text-xl">Sin internet</h2>
     <p class="mt-3 text-tinta-suave">
       Después de la primera visita, el diccionario completo y su búsqueda quedan guardados en
       el teléfono y funcionan sin señal.
     </p>
-    <p class="mt-3 text-sm text-tinta-suave">
+    <p class="mt-3 text-base text-tinta-suave">
       Vocabulario versión {vocabulario.version}, actualizado el {actualizado}.
     </p>
   </section>

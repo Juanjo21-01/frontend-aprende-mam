@@ -97,12 +97,25 @@ export default function BuscadorDiccionario({ ruta, total, base }: Props) {
       </label>
 
       {/*
-        El filo dorado va en un elemento aparte y no como `border-b` del propio campo: un
-        borde de cuatro píxeles en un solo lado desplaza el texto hacia arriba dentro de la
-        caja. El contorno de foco se pone en el envoltorio con `focus-within`, porque el
-        `:focus-visible` del campo quedaría recortado por el `overflow-hidden`.
+        La caja lleva el verde del centro, el color del diccionario: borde pleno y lupa en el
+        verde de texto. El contorno de foco va en el envoltorio con `focus-within`, que dibuja
+        el anillo alrededor de la píldora entera y no solo del campo.
       */}
-      <div className="mt-2 overflow-hidden rounded-xl border-2 border-jade-hondo focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-jade">
+      <div className="mt-2 flex items-center gap-2 rounded-full border-2 border-verde bg-papel pl-4 focus-within:outline-3 focus-within:outline-offset-3 focus-within:outline-tinta">
+        <svg
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          aria-hidden="true"
+          className="shrink-0 text-verde-texto"
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="M16.5 16.5 21 21" />
+        </svg>
         <input
           id="buscador"
           type="search"
@@ -117,12 +130,11 @@ export default function BuscadorDiccionario({ ruta, total, base }: Props) {
           autoComplete="off"
           autoCorrect="off"
           spellCheck={false}
-          className="w-full bg-papel px-4 py-3 text-lg outline-none disabled:opacity-60"
+          className="min-h-13 w-full rounded-r-full bg-transparent py-3 pr-4 text-lg outline-none placeholder:text-tinta-suave disabled:opacity-60"
         />
-        <div className="h-1 bg-oro" aria-hidden="true" />
       </div>
 
-      <p className="mt-2 text-sm text-tinta-suave">
+      <p className="mt-2 text-base text-tinta-suave">
         {hidratado ? (
           <>
             Escribe en <span lang="mam">Mam</span> o en castellano. No hace falta el saltillo ni
@@ -144,14 +156,14 @@ export default function BuscadorDiccionario({ ruta, total, base }: Props) {
         {estado.fase === 'error' && (
           // Nunca un marco vacío: si falla la descarga hay que decir qué pasó y ofrecer lo que
           // sí funciona, que son las páginas estáticas de más abajo.
-          <p className="mt-4 rounded-xl border border-oro-borde bg-oro-tinte p-4">
+          <p className="mt-4 rounded-2xl bg-amarillo-campo p-4 text-amarillo-texto">
             No se pudo descargar el vocabulario. Puede ser la conexión. Vuelve a tocar la caja
             para reintentar, o navega por letra y por tema aquí abajo.
           </p>
         )}
 
         {estado.fase === 'listo' && consultando && (
-          <p className="mt-4 text-sm text-tinta-suave">
+          <p className="mt-4 text-base text-tinta-suave">
             {resultados.length === 0
               ? 'Ninguna palabra coincide.'
               : resultados.length > MAXIMO
@@ -164,20 +176,21 @@ export default function BuscadorDiccionario({ ruta, total, base }: Props) {
       {mostrados.length > 0 && datos && (
         // Los resultados van como tarjeta y no como fila: aquí cada palabra viene de un tema
         // distinto, así que la etiqueta de color es lo que orienta. En las páginas de letra,
-        // donde el corpus completo puede dar cientos de entradas seguidas, se usa la fila.
+        // donde el corpus completo puede dar cientos de entradas seguidas, se usa la fila. El
+        // aspecto es el de la tarjeta de `EntradaFicha.astro`; si cambia una, cambiar la otra.
         <dl className="mt-3 flex flex-col gap-3">
           {mostrados.map(({ entrada }) => (
-            <div key={entrada.id} className="rounded-xl border border-borde p-4">
+            <div key={entrada.id} className="rounded-2xl border-2 border-borde bg-papel p-4">
               <dt className="flex flex-wrap items-baseline gap-x-2">
-                <span lang="mam" className="mam text-2xl font-bold text-jade-hondo">
+                <span lang="mam" className="mam text-3xl font-bold">
                   {entrada.mam}
                 </span>
                 {entrada.clase && (
-                  <span className="text-sm text-tinta-suave italic">{entrada.clase}</span>
+                  <span className="text-base text-tinta-suave italic">{entrada.clase}</span>
                 )}
               </dt>
               <dd className="mt-1">
-                <span className="text-lg">{entrada.espanol}</span>
+                <span className="text-xl">{entrada.espanol}</span>
                 {entrada.definicion && (
                   <p className="mt-1 text-tinta-suave">{entrada.definicion}</p>
                 )}
@@ -189,7 +202,7 @@ export default function BuscadorDiccionario({ ruta, total, base }: Props) {
                         <a
                           key={slug}
                           href={`${base}diccionario/tema/${slug}`}
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm no-underline ${visual.etiqueta}`}
+                          className={`inline-flex min-h-8 items-center gap-1.5 rounded-full px-2.5 text-sm no-underline ${visual.etiqueta}`}
                         >
                           <span
                             className={`size-2 rounded-full ${visual.punto}`}

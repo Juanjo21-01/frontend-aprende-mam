@@ -37,6 +37,8 @@ export interface EstiloRumbo {
   texto: string;
   /** Color pleno de la sombra de `tocable`. */
   sombra: string;
+  /** La franja de 6 px bajo el encabezado de las páginas de la sección. */
+  franja: string;
 }
 
 /**
@@ -51,30 +53,35 @@ export const ESTILO_RUMBO: Record<Rumbo, EstiloRumbo> = {
     activo: 'bg-verde-campo text-verde-texto',
     texto: 'text-verde-texto',
     sombra: '[--tocable-sombra:var(--color-verde)]',
+    franja: 'bg-verde',
   },
   rojo: {
     campo: 'bg-rojo-campo text-rojo-texto',
     activo: 'bg-rojo-campo text-rojo-texto',
     texto: 'text-rojo-texto',
     sombra: '[--tocable-sombra:var(--color-rojo)]',
+    franja: 'bg-rojo',
   },
   amarillo: {
     campo: 'bg-amarillo-campo text-amarillo-texto',
     activo: 'bg-amarillo-campo text-amarillo-texto',
     texto: 'text-amarillo-texto',
     sombra: '[--tocable-sombra:var(--color-amarillo)]',
+    franja: 'bg-amarillo',
   },
   blanco: {
     campo: 'bg-papel text-tinta border-2 border-borde',
     activo: 'bg-papel-hondo text-tinta ring-2 ring-inset ring-borde',
     texto: 'text-tinta',
     sombra: '',
+    franja: 'bg-borde',
   },
   negro: {
     campo: 'bg-negro-campo text-negro-texto',
     activo: 'bg-negro-campo text-negro-texto',
     texto: 'text-negro-texto',
     sombra: '[--tocable-sombra:var(--color-negro)]',
+    franja: 'bg-negro',
   },
   // En el borde y no en papel hondo: el pie es papel hondo, y Base legal desaparecía en él.
   neutro: {
@@ -82,6 +89,7 @@ export const ESTILO_RUMBO: Record<Rumbo, EstiloRumbo> = {
     activo: 'bg-borde text-tinta',
     texto: 'text-tinta',
     sombra: '[--tocable-sombra:var(--color-tinta-suave)]',
+    franja: 'bg-borde',
   },
 };
 
@@ -182,6 +190,14 @@ export function esActiva(seccion: Seccion, actual: string, base: string): boolea
   const limpia = actual.replace(/\/$/, '');
   if (seccion.ruta === '') return limpia === ruta;
   return limpia === ruta || limpia.startsWith(`${ruta}/`);
+}
+
+/**
+ * La sección a la que pertenece una ruta, o `null` en la portada y en las páginas sueltas
+ * (404, sin conexión, pruebas). La usa el layout para pintar la franja de color.
+ */
+export function seccionDe(actual: string, base: string): Seccion | null {
+  return [DICCIONARIO, ...RUMBOS, BASE_LEGAL].find((s) => esActiva(s, actual, base)) ?? null;
 }
 
 export function href(seccion: Seccion, base: string): string {
