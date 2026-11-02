@@ -1,4 +1,4 @@
-# AprendeMam — sitio público
+# Biblioteca Digital Mam — sitio público
 
 Biblioteca digital del idioma maya **Mam** (variante de San Marcos, Guatemala). Astro con salida estática, islas de React y PWA. El backend Laravel vive en otro repositorio y **solo se consume en tiempo de compilación**, nunca desde el navegador.
 

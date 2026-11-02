@@ -35,7 +35,7 @@ const DESPUES = new RegExp(`</${INLINE}>[${LETRA}¿¡]`, 'g');
  * motivo, para que nadie la amplíe por costumbre.
  */
 const PERMITIDAS = [
-  // El logotipo: «AprendeMam» es una sola palabra, partida en dos para colorear la mitad.
+  // El logotipo conserva el nombre completo de la Biblioteca Digital Mam.
   // El patrón va pegado al marcado de Logo.astro (hoy «Mam» en verde) y hay que actualizarlo
   // en el mismo commit que él, o esta comprobación falla con un falso positivo que no dice
   // nada de lo que pasó.

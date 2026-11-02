@@ -1,5 +1,5 @@
 /**
- * Service worker de AprendeMam.
+ * Service worker de la Biblioteca Digital Mam.
  *
  * No es un archivo que se sirva tal cual: `scripts/service-worker.mjs` lo lee al terminar el
  * build, sustituye los marcadores `__…__` por la lista real de recursos compilados y escribe

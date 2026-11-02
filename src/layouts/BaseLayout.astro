@@ -1,5 +1,6 @@
 ---
 import '@/styles/global.css';
+import apariencia from '@/scripts/apariencia.js?raw';
 import SiteHeader from '@/components/SiteHeader.astro';
 import SiteFooter from '@/components/SiteFooter.astro';
 import NavInferior from '@/components/NavInferior.astro';
@@ -84,9 +85,12 @@ const fuentes = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fffdf8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#201d19" media="(prefers-color-scheme: dark)" />
+    <script is:inline set:html={apariencia} />
 
-    <title>{titulo} · AprendeMam</title>
+    <title>{titulo} · Biblioteca Digital Mam</title>
     <meta name="description" content={descripcion} />
     <link rel="canonical" href={canonica} />
 
@@ -108,11 +112,10 @@ const fuentes = [
     <link rel="manifest" href={`${base}manifest.webmanifest`} />
     {/* El papel del encabezado, para que la barra de estado de Android sea la primera franja
         de la página y no un color distinto encima de ella. */}
-    <meta name="theme-color" content="#fffdf8" />
-    <meta name="apple-mobile-web-app-title" content="AprendeMam" />
+    <meta name="apple-mobile-web-app-title" content="Biblioteca Mam" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:title" content={`${titulo} · AprendeMam`} />
+    <meta property="og:title" content={`${titulo} · Biblioteca Digital Mam`} />
     <meta property="og:description" content={descripcion} />
     <meta property="og:locale" content="es_GT" />
   </head>

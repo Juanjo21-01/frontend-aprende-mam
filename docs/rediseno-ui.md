@@ -307,8 +307,8 @@ siguiente. Los retoques que surjan se anotan en este documento.
       `/prueba-estados/sin-imagenes`, solo en desarrollo; no salen en `dist/`.
       Revisión independiente: `ship`, sin defectos materiales en 20 capturas finales.
       Capturas, medidas y dictamen en `.impeccable/review/estados/`.
-- [ ] **Fase 7 — Cierre.** Auditoría de accesibilidad y peso (< 150 KB), pulido, `DESIGN.md`.
-  - Hecho (pendiente de tu revisión final):
+- [x] **Fase 7 — Cierre.** Auditoría de accesibilidad y peso (< 150 KB), pulido, `DESIGN.md`.
+  - Hecho y aprobado al continuar con la Fase 8:
     - Auditoría completa en [`auditoria-ui.md`](auditoria-ui.md), con alcance y límites:
       61 páginas a 320 px; 42 capturas representativas a 320, 768 y 1280 px, más estados
       de foco y selección; 1937 enlaces internos y anclas sin destinos ausentes.
@@ -329,4 +329,44 @@ siguiente. Los retoques que surjan se anotan en este documento.
     - Se concilian el ancho de panel de 1152 px y la respuesta instantánea con movimiento
       reducido. La validación cultural, las pruebas con estudiantes/dispositivos físicos
       y el tema oscuro de Fase 8 siguen fuera de lo comprobado por esta auditoría.
-- [ ] **Fase 8 — Tema oscuro.** Variante oscura de todos los tokens, con contraste medido de nuevo.
+- [x] **Fase 8 — Tema oscuro.** Variante oscura de todos los tokens, con contraste medido de nuevo.
+  - Implementada y validada técnicamente; disponible para tu revisión visual final:
+    - Confirmado: apariencia automática según el teléfono o computadora, con selector
+      Automática / Clara / Oscura al pie. La elección se recuerda en este navegador;
+      Automática elimina la preferencia explícita y vuelve a seguir el sistema.
+    - Los 21 colores del sistema tienen variante oscura cálida. Dos tokens invariantes
+      conservan la nieve y las hojas de la marca. No se invierten imágenes, PDF ni videos.
+    - La preferencia se aplica en la cabecera antes del CSS. El respaldo automático por
+      CSS funciona sin scripts; el selector solo aparece cuando puede actuar. Los controles
+      nativos y la barra del navegador acompañan la apariencia. El manifiesto y los íconos
+      de instalación conservan su presentación clara; no se promete un splash dinámico.
+    - Pruebas de preferencia, cambios del sistema, almacenamiento bloqueado, otra pestaña,
+      regreso a la página, variantes CSS y contraste. `npm run check`: 59 pruebas,
+      61 páginas y carga máxima de 107,0 KB Brotli / 117,9 KB gzip, bajo 150 KB.
+    - Auditoría de 61 páginas oscuras a 320 px; 14 superficies a 320, 768 y 1280 px,
+      además de 12 vistas editoriales de desarrollo y estados interactivos. Regresión
+      de las 14 superficies en claro. Sin hallazgos de contraste de texto ni desbordamiento
+      de página en las sondas ejecutadas. Capturas móviles de ventana real.
+    - Selector con teclado, persistencia tras recarga y navegación, cambio sin perder la
+      pregunta en curso, búsqueda, cartas reveladas y selección/acierto de sopa comprobados.
+      Descarga correcta y fallo recuperable revisados con muestras exclusivas de desarrollo.
+    - Con el servidor compilado detenido funcionaron el respaldo, la búsqueda y el cambio
+      de apariencia. Una copia temporal sin scripts siguió la preferencia oscura del sistema;
+      se eliminó después de la prueba. Detector sin hallazgos en los archivos modificados.
+    - `DESIGN.md` y `.impeccable/design.json` actualizados desde el código final.
+      Alcance, contraste y límites en [`auditoria-tema-oscuro.md`](auditoria-tema-oscuro.md).
+    - La revisión independiente encontró un nombre que rebasaba su tarjeta del pie a 320 px.
+      Bajo 420 px el ícono pasa sobre el nombre, conservando letra, relleno y objetivo táctil.
+      Recapturas en claro y oscuro confirman la corrección: dictamen `ship` para ese arreglo,
+      sin regresiones visibles. No quedan arreglos pedidos por esa revisión.
+    - Ampliación solicitada: botón de sol/luna en el encabezado para alternar claro/oscuro
+      sin bajar al pie. Recuerda la elección y sincroniza el selector; Automática permanece
+      disponible allí. Nombre accesible y título describen el siguiente cambio, con texto
+      visible («Claro/Oscuro») desde 1280 px. Verificado en 320, 768, 1024 y 1280 px, sin desbordamiento;
+      objetivo mínimo 44 × 44 px, cambio con teclado y persistencia al navegar y recargar.
+      Check actualizado: 61 pruebas, 61 páginas; 107,4 KB Brotli / 118,3 KB gzip.
+    - Ajuste posterior solicitado: se retira el selector Apariencia y su ayuda del pie.
+      El botón del encabezado es el único control manual. Se mantiene la apariencia del
+      dispositivo inicialmente y se recuerda la elección manual. Se eliminan la lógica y
+      las pruebas exclusivas del selector; 60 pruebas pasan, 61 páginas, máximo de 107,2 KB
+      Brotli / 118,0 KB gzip. Validado en la misma vista previa del puerto 4334.

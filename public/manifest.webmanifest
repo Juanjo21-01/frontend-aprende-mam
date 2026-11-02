@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "AprendeMam — Biblioteca digital del idioma Mam",
-  "short_name": "AprendeMam",
-  "description": "Diccionario, gramática y cultura del idioma Mam de San Marcos, Guatemala. Funciona sin conexión.",
+  "name": "Biblioteca Digital Mam",
+  "short_name": "Biblioteca Mam",
+  "description": "Biblioteca Digital en idioma Mam para la preservación lingüística y cultural.",
   "lang": "es-GT",
   "dir": "ltr",
   "start_url": "/",

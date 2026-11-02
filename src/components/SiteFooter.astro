@@ -31,13 +31,13 @@ const anio = new Date().getFullYear();
                 <a
                   href={href(seccion, base)}
                   class:list={[
-                    'tocable flex h-full min-h-14 items-center gap-2.5 rounded-2xl px-3.5 py-3 font-bold no-underline',
+                    'tocable flex h-full min-h-14 flex-col items-center gap-2.5 rounded-2xl px-3.5 py-3 text-center font-bold no-underline min-[420px]:flex-row min-[420px]:text-left',
                     estilo.campo,
                     estilo.sombra,
                   ]}
                 >
                   <IconoSeccion d={seccion.icono} tamano={22} />
-                  {seccion.nombre}
+                  <span>{seccion.nombre}</span>
                 </a>
               </li>
             );
@@ -45,6 +45,8 @@ const anio = new Date().getFullYear();
         }
       </ul>
     </section>
+
+    <noscript><p class="mt-8 text-base text-tinta-suave">La apariencia sigue la configuración de tu teléfono o computadora.</p></noscript>
 
     <div class="mt-10 flex flex-col gap-3 border-t border-borde pt-6 text-base text-tinta-suave">
       <Logo tamano={28} />
@@ -58,7 +60,7 @@ const anio = new Date().getFullYear();
         >, de SIL International, bajo licencia OFL. Se distribuye una versión recortada; la
         licencia acompaña a los archivos en <code>/fonts/OFL.txt</code>.
       </p>
-      <p>© {anio} AprendeMam</p>
+      <p>© {anio} Biblioteca Digital Mam</p>
     </div>
   </div>
 </footer>

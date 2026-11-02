@@ -1,8 +1,8 @@
 /**
  * Qué contenido externo se puede incrustar en el sitio, y con qué dirección.
  *
- * Lo audiovisual de AprendeMam es solo video externo, y las actividades interactivas que no
- * son juegos propios vienen de Educaplay y Wordwall. Todo eso entra como iframe de un tercero,
+ * Lo audiovisual de la Biblioteca Digital Mam es solo video externo, y las actividades
+ * interactivas que no son juegos propios vienen de Educaplay y Wordwall. Todo eso entra como iframe de un tercero,
  * y este módulo es el único sitio donde se decide qué tercero y con qué URL.
  *
  * Corre en compilación, desde `ContenidoExterno.astro`. La isla del navegador recibe el

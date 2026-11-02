@@ -78,12 +78,68 @@
   --color-amarillo-tinte: #fdf3cf;
   --color-amarillo-tinte-texto: #7a5603;
   --color-verde-tinte: #ddf1e2;
+  /* La nieve y las hojas de la marca conservan su material en ambas apariencias. */
+  --color-marca-papel: #fffdf8;
+  --color-marca-hoja: #e6dfd4;
+}
 
+/* Una misma variante para la elección explícita y el respaldo automático sin JavaScript.
+ * Los dos bloques se comprueban juntos en tests/apariencia.test.ts. */
+:root[data-tema='oscuro'] {
+  color-scheme: dark;
+  --color-papel: #201d19;
+  --color-papel-hondo: #2a251f;
+  --color-tinta: #f5ecde;
+  --color-tinta-suave: #c9bcaa;
+  --color-borde: #655a4b;
+  --color-verde: #69c98c;
+  --color-verde-campo: #254832;
+  --color-verde-texto: #c4efd1;
+  --color-rojo: #f0847b;
+  --color-rojo-campo: #5b302c;
+  --color-rojo-texto: #ffdbd5;
+  --color-amarillo: #dfb94e;
+  --color-amarillo-campo: #51421f;
+  --color-amarillo-texto: #fae5ab;
+  --color-negro: #c3b39a;
+  --color-negro-campo: #3a3229;
+  --color-negro-texto: #eee3d3;
+  --color-rojo-tinte: #382622;
+  --color-amarillo-tinte: #3b3220;
+  --color-amarillo-tinte-texto: #efcf80;
+  --color-verde-tinte: #25382b;
+}
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema]) {
+    color-scheme: dark;
+    --color-papel: #201d19;
+    --color-papel-hondo: #2a251f;
+    --color-tinta: #f5ecde;
+    --color-tinta-suave: #c9bcaa;
+    --color-borde: #655a4b;
+    --color-verde: #69c98c;
+    --color-verde-campo: #254832;
+    --color-verde-texto: #c4efd1;
+    --color-rojo: #f0847b;
+    --color-rojo-campo: #5b302c;
+    --color-rojo-texto: #ffdbd5;
+    --color-amarillo: #dfb94e;
+    --color-amarillo-campo: #51421f;
+    --color-amarillo-texto: #fae5ab;
+    --color-negro: #c3b39a;
+    --color-negro-campo: #3a3229;
+    --color-negro-texto: #eee3d3;
+    --color-rojo-tinte: #382622;
+    --color-amarillo-tinte: #3b3220;
+    --color-amarillo-tinte-texto: #efcf80;
+    --color-verde-tinte: #25382b;
+  }
 }
 
 @layer base {
   html {
+    color-scheme: light;
     font-family: var(--font-mam);
     scroll-padding-top: 1rem;
     scroll-padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));

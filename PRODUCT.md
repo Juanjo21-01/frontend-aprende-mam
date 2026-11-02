@@ -49,7 +49,8 @@ los estudiantes ya tienen.
 
 ## Brand Commitments
 
-- Nombre: AprendeMam. Dominio aprendemam.online.
+- Nombre: Biblioteca Digital Mam. Dominio aprendemam.online.
+- Subtítulo: Biblioteca Digital en idioma Mam para la preservación lingüística y cultural.
 - Paleta comprometida por el usuario (29-oct-2026): **rojo, amarillo, verde y blanco**,
   leída como los colores de los rumbos mayas (rojo oriente, blanco norte, amarillo sur, verde
   centro), con el negro del poniente como tinta. Antes de afirmar ese significado como dato
@@ -81,4 +82,4 @@ los estudiantes ya tienen.
 - Sobre amarillo, siempre tinta oscura (≈9:1). Nunca texto blanco sobre amarillo ni texto
   amarillo sobre blanco (≈1.9:1).
 - Base tipográfica de 18 px, objetivos táctiles de 44 px, foco visible.
-- Tema claro primero; el tema oscuro queda para la fase final.
+- Tema claro B2 y su variante oscura. Apariencia automática según el dispositivo hasta elegir claro/oscuro con el botón del encabezado, que recuerda la elección en este navegador. No hay selector de apariencia en el pie; sin JavaScript se sigue el sistema mediante CSS.

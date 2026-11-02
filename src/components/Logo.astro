@@ -15,9 +15,9 @@
  * tonos claros no se distinguen entre sí.
  *
  * La marca es decorativa (`aria-hidden`): el nombre va escrito al lado, y un texto alternativo
- * haría que un lector de pantalla anunciara «AprendeMam AprendeMam».
+ * haría que un lector de pantalla anunciara el nombre dos veces.
  *
- * El nombre no lleva `lang="mam"`: «AprendeMam» es el nombre propio del sitio, en castellano.
+ * El nombre no lleva `lang="mam"`: el nombre de la biblioteca está en castellano.
  */
 interface Props {
   /** Lado de la marca en píxeles. El nombre escala con ella. */
@@ -25,8 +25,8 @@ interface Props {
   /** Solo la marca, sin el nombre (para espacios estrechos). */
   soloMarca?: boolean;
   /**
-   * Esconde el nombre solo en tableta (768–1023 px), donde el encabezado tiene que dejar sitio a
-   * las seis secciones en una fila. Lo esconde a la vista, no al lector de pantalla.
+   * Esconde el nombre en teléfonos angostos (hasta 400 px) y en tableta (768–1023 px), donde
+   * el encabezado tiene que dejar sitio a los controles. Lo esconde a la vista, no al lector de pantalla.
    */
   compactoEnTableta?: boolean;
   class?: string;
@@ -39,24 +39,24 @@ const { tamano = 32, soloMarca = false, compactoEnTableta = false, class: clase 
   <svg viewBox="0 0 64 64" width={tamano} height={tamano} aria-hidden="true" class="shrink-0">
     <circle cx="42" cy="18" r="9" fill="var(--color-amarillo)"></circle>
     <path d="M8 44 26 13 32 21 37 15 56 44Z" fill="var(--color-verde)"></path>
-    <path d="M26 13 32 21 29.5 24 26 19.5 22.5 24Z" fill="var(--color-papel)"></path>
+    <path d="M26 13 32 21 29.5 24 26 19.5 22.5 24Z" fill="var(--color-marca-papel)"></path>
     <path d="M2 46Q17 41 32 47 47 41 62 46V58Q47 54 32 60 17 54 2 58Z" fill="var(--color-rojo)"
     ></path>
-    <path d="M5 43.5Q18 39.5 31.2 45V57Q18 52 5 55.5Z" fill="var(--color-negro-campo)"></path>
-    <path d="M59 43.5Q46 39.5 32.8 45V57Q46 52 59 55.5Z" fill="var(--color-negro-campo)"></path>
-    <path d="M7 41.5Q19 37.5 31.2 43V55.5Q19 50.5 7 53.5Z" fill="var(--color-papel)"></path>
-    <path d="M57 41.5Q45 37.5 32.8 43V55.5Q45 50.5 57 53.5Z" fill="var(--color-papel)"></path>
+    <path d="M5 43.5Q18 39.5 31.2 45V57Q18 52 5 55.5Z" fill="var(--color-marca-hoja)"></path>
+    <path d="M59 43.5Q46 39.5 32.8 45V57Q46 52 59 55.5Z" fill="var(--color-marca-hoja)"></path>
+    <path d="M7 41.5Q19 37.5 31.2 43V55.5Q19 50.5 7 53.5Z" fill="var(--color-marca-papel)"></path>
+    <path d="M57 41.5Q45 37.5 32.8 43V55.5Q45 50.5 57 53.5Z" fill="var(--color-marca-papel)"></path>
   </svg>
   {
     !soloMarca && (
       <span
         class:list={[
           'font-bold leading-none text-tinta',
-          compactoEnTableta && 'md:max-lg:sr-only',
+          compactoEnTableta && 'max-[400px]:sr-only md:max-lg:sr-only',
         ]}
         style={`font-size: ${Math.round(tamano * 0.7)}px`}
       >
-        Aprende<span class="text-verde">Mam</span>
+        Biblioteca Digital <span class="text-verde">Mam</span>
       </span>
     )
   }

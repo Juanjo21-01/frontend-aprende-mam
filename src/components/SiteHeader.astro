@@ -4,7 +4,8 @@ import MainNav from './MainNav.astro';
 
 /*
  * Encabezado claro: el logotipo a la izquierda y, de tableta para arriba, la navegación a la
- * derecha. En el teléfono solo va el logotipo; las secciones están en la barra inferior.
+ * derecha. En el teléfono las secciones están en la barra inferior. El cambio de tema
+ * permanece junto a la marca en todos los tamaños.
  *
  * Fondo papel con una línea de borde, no una banda de color: con la tonalidad «B2 · Claro» el
  * color fuerte se reserva para lo que se toca, y un encabezado lleno de verde le quitaría peso
@@ -17,11 +18,28 @@ const base = import.meta.env.BASE_URL;
 ---
 
 <header class="border-b border-borde bg-papel">
-  <div class="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-6 px-4 md:px-6">
-    <a href={base} class="flex min-h-11 min-w-11 items-center justify-center no-underline">
+  <div class="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-3 px-4 md:px-6">
+    <a href={base} class="flex min-h-11 min-w-11 shrink-0 items-center justify-center no-underline">
       <Logo tamano={36} compactoEnTableta />
     </a>
 
     <MainNav />
+
+    <div id="control-tema" hidden class="shrink-0">
+      <button id="cambiar-tema" type="button" aria-label="Cambiar tema" title="Cambiar tema"
+        class="tocable inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-xl bg-papel-hondo px-3 py-2 text-base font-bold text-tinta hover:bg-negro-campo">
+        <span id="tema-icono-claro" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" />
+          </svg>
+        </span>
+        <span id="tema-icono-oscuro" aria-hidden="true" hidden>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.5 14a9 9 0 0 1-10.5-10.5A9 9 0 1 0 20.5 14Z" />
+          </svg>
+        </span>
+        <span id="tema-accion" class="hidden xl:inline">Cambiar tema</span>
+      </button>
+    </div>
   </div>
 </header>
