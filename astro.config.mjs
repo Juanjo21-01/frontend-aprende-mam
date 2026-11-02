@@ -9,7 +9,7 @@ import sitemap from './scripts/sitemap.mjs';
 // El sitio se compila a estático y se sirve desde Netlify. La API de Laravel solo se
 // consume en tiempo de compilación: nunca desde el navegador.
 export default defineConfig({
-  site: 'https://aprendemam.online',
+  site: 'https://biblioteca-digital-mam.netlify.app',
   output: 'static',
   trailingSlash: 'ignore',
 
