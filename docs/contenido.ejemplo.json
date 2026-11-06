@@ -25,6 +25,8 @@
                 "cuerpo": "Resumen de la ley. Texto completo en [el Congreso](https://www.congreso.gob.gt/).",
                 "orden": 1,
                 "video_url": null,
+                "archivo_url": "https://drive.google.com/file/d/ejemplo/view",
+                "tamano_kb": 900,
                 "fuente": null
             }
         ]

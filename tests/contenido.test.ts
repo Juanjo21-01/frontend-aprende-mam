@@ -72,6 +72,18 @@ describe('validarContenido', () => {
     assert.throws(() => validarContenido(inseguro, 'x'), /archivo_url/);
   });
 
+  it('lee el PDF adjunto de una página y tolera que falte', () => {
+    const contenido = validarContenido(ejemplo, 'ejemplo');
+    assert.equal(contenido.paginas.base_legal[0]!.tamano_kb, 900);
+    // La página de cultura del ejemplo no trae las claves: una exportación anterior al adjunto.
+    assert.equal(contenido.paginas.cultura[0]!.archivo_url, null);
+    assert.equal(contenido.paginas.cultura[0]!.tamano_kb, null);
+
+    const inseguro = copia();
+    inseguro.paginas.base_legal[0].archivo_url = 'javascript:alert(1)';
+    assert.throws(() => validarContenido(inseguro, 'x'), /archivo_url/);
+  });
+
   it('rechaza un tipo de documento desconocido', () => {
     const roto = copia();
     roto.documentos[0].tipo = 'audio';

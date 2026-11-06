@@ -39,6 +39,9 @@ export interface Pagina {
   cuerpo: string;
   orden: number;
   video_url: string | null;
+  /** PDF adjunto, solo en base legal: el texto oficial de la ley o el acuerdo. Nunca se precachea. */
+  archivo_url: string | null;
+  tamano_kb: number | null;
   fuente: FuenteDeContenido | null;
 }
 
@@ -156,6 +159,13 @@ export function validarContenido(datos: unknown, procedencia: string): Contenido
       if (typeof cruda.cuerpo !== 'string') fallo(`${cual}: falta \`cuerpo\`.`);
       if (typeof cruda.orden !== 'number') fallo(`${cual}: falta \`orden\`.`);
       if (!esTextoONulo(cruda.video_url)) fallo(`${cual}: \`video_url\` no es texto.`);
+      // Opcionales y tolerantes a la ausencia: una exportación anterior al adjunto no los trae.
+      if (!esTextoONulo(cruda.archivo_url) || !esNumeroONulo(cruda.tamano_kb)) {
+        fallo(`${cual}: \`archivo_url\` o \`tamano_kb\` de tipo equivocado.`);
+      }
+      if (esTexto(cruda.archivo_url) && !/^(https:\/\/|\/(?!\/))/.test(cruda.archivo_url)) {
+        fallo(`${cual}: \`archivo_url\` tiene que ser https o una ruta del sitio.`);
+      }
 
       paginas[seccion].push({
         slug: cruda.slug as string,
@@ -163,6 +173,8 @@ export function validarContenido(datos: unknown, procedencia: string): Contenido
         cuerpo: cruda.cuerpo as string,
         orden: cruda.orden as number,
         video_url: (cruda.video_url as string | null | undefined) || null,
+        archivo_url: (cruda.archivo_url as string | null | undefined) || null,
+        tamano_kb: (cruda.tamano_kb as number | null | undefined) ?? null,
         fuente: fuenteDe(cruda.fuente, cual),
       });
     }

@@ -1,0 +1,48 @@
+---
+/**
+ * El botón de un PDF: el de un documento de materiales y el adjunto de una página de base legal.
+ *
+ * Un PDF puede vivir en el sitio o en otro (Google Drive, por ejemplo). El atributo `download` solo
+ * lo respeta el navegador con archivos del mismo origen, y el botón no puede prometer una
+ * descarga que decide un tercero: con uno externo dice «Abrir», se abre en otra pestaña para no
+ * sacar al usuario del sitio, y avisa adónde sale.
+ *
+ * El PDF no se precachea (CLAUDE.md): se baja cuando se toca, y el tamaño va por delante para que
+ * la decisión de gastar datos sea del usuario.
+ */
+interface Props {
+  url: string;
+  tamanoKb: number | null;
+}
+
+const { url, tamanoKb } = Astro.props;
+const base = import.meta.env.BASE_URL;
+
+/** `820` → «820 KB»; `2300` → «2.2 MB». */
+function tamano(kb: number): string {
+  return kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`;
+}
+
+const externo = url.startsWith('https://');
+/** Las rutas del sitio llevan el prefijo; las https van tal cual. */
+const destino = url.startsWith('/') ? `${base.replace(/\/$/, '')}${url}` : url;
+const sitio = externo ? new URL(url).hostname.replace(/^www\./, '') : null;
+---
+
+<a
+  href={destino}
+  download={externo ? undefined : ''}
+  target={externo ? '_blank' : undefined}
+  rel={externo ? 'noopener noreferrer' : undefined}
+  class="mt-3 inline-flex min-h-12 items-center tocable gap-2 rounded-2xl bg-negro-campo px-4 py-2 font-bold text-negro-texto no-underline hover:bg-papel-hondo [--tocable-sombra:var(--color-negro)]"
+>
+  {externo ? 'Abrir PDF' : 'Descargar PDF'}
+  {tamanoKb !== null && ` (${tamano(tamanoKb)})`}
+</a>
+{
+  sitio && (
+    <p class="mt-1 text-base text-tinta-suave">
+      Se abre en una pestaña nueva, en {sitio}. Necesita internet.
+    </p>
+  )
+}

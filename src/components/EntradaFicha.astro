@@ -14,8 +14,9 @@
  * DOS VARIANTES, y cuál se usa lo decide el tipo de página, no el gusto:
  *
  *   - `tarjeta` en las páginas de tema. Son la unidad del aula —«la lección de los colores»—
- *     y son listas cortas, así que el borde y el aire se pueden pagar. La clase gramatical y
- *     los otros temas van como etiquetas con el tinte del tema de la palabra.
+ *     y llevan borde, pero compacto: con el corpus real un tema pasa de doscientas palabras, y
+ *     una tarjeta holgada eran treinta mil píxeles de scroll en el teléfono. La clase gramatical
+ *     y los otros temas van como etiquetas con el tinte del tema de la palabra.
  *   - `fila` en las páginas de letra. Con el corpus completo, una sola letra puede traer
  *     cientos de entradas y ahí cada borde y cada relleno se multiplica por todas ellas.
  *
@@ -57,19 +58,26 @@ const tinte = temaDelTinte ? temaVisual(temaDelTinte).etiqueta : 'bg-papel-hondo
 <div
   class:list={
     esTarjeta
-      ? 'rounded-2xl border-2 border-borde bg-papel p-4'
+      ? 'rounded-xl border border-borde bg-papel px-4 py-3'
       : 'border-b border-borde py-3 last:border-b-0'
   }
 >
   <dt class="flex flex-wrap items-baseline gap-x-2">
     {/* El Mam se muestra exactamente como viene del backend: sin plegar, sin recomponer. */}
-    <span lang="mam" class:list={['mam font-bold', esTarjeta ? 'text-3xl' : 'text-2xl']}>
+    <span lang="mam" class:list={['mam font-bold', esTarjeta ? 'text-2xl leading-tight' : 'text-2xl']}>
       {entrada.mam}
     </span>
     {
-      !esTarjeta && entrada.clase && (
-        <span class="text-base text-tinta-suave italic">{entrada.clase}</span>
-      )
+      entrada.clase &&
+        (esTarjeta ? (
+          // Junto a la palabra y no en una fila aparte: una fila más por tarjeta, en un tema de
+          // doscientas palabras, son doscientas filas.
+          <span class:list={['self-center rounded-full px-2.5 py-0.5 text-sm italic', tinte]}>
+            {entrada.clase}
+          </span>
+        ) : (
+          <span class="text-base text-tinta-suave italic">{entrada.clase}</span>
+        ))
     }
     {
       entrada.municipio && (
@@ -78,12 +86,12 @@ const tinte = temaDelTinte ? temaVisual(temaDelTinte).etiqueta : 'bg-papel-hondo
     }
   </dt>
 
-  <dd class="mt-1">
-    <span class="text-xl">{entrada.espanol}</span>{
+  <dd class:list={esTarjeta ? 'mt-0.5' : 'mt-1'}>
+    <span class:list={esTarjeta ? 'text-lg' : 'text-xl'}>{entrada.espanol}</span>{
       marca !== null && (
         <a
           href="#fuentes"
-          class="ml-1 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg align-middle text-sm text-verde-texto underline"
+          class="-my-3 ml-1 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg align-middle text-sm text-verde-texto underline"
           aria-label={`Fuente ${marca}`}
         >
           {marca}
@@ -107,13 +115,8 @@ const tinte = temaDelTinte ? temaVisual(temaDelTinte).etiqueta : 'bg-papel-hondo
        * cada entrada viene de un tema distinto y ahí la etiqueta es la que orienta.
        */
       esTarjeta ? (
-        (entrada.clase || otrosTemas.length > 0) && (
-          <p class="mt-3 flex flex-wrap gap-2">
-            {entrada.clase && (
-              <span class:list={['rounded-full px-2.5 py-0.5 text-sm italic', tinte]}>
-                {entrada.clase}
-              </span>
-            )}
+        otrosTemas.length > 0 && (
+          <p class="mt-2 flex flex-wrap gap-2">
             {otrosTemas.map((tema) => (
               <a
                 href={`${base}diccionario/tema/${tema.slug}`}
