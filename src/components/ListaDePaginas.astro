@@ -13,7 +13,7 @@ const { paginas, ruta, class: clase } = Astro.props;
 const base = import.meta.env.BASE_URL;
 ---
 
-<ul class:list={['grid gap-3 sm:grid-cols-2', clase]}>
+<ul class:list={['grid gap-3 sm:grid-cols-2 lg:grid-cols-3', clase]}>
   {
     paginas.map((pagina) => (
       <li>

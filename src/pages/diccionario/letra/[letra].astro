@@ -71,11 +71,15 @@ const cuantas = grupo.entradas.length;
     </p>
   </CabeceraSeccion>
 
-  <div class="mt-6">
+  {/* Desde 1024 px el alfabeto pasa a una columna fija a la izquierda y queda a mano mientras
+      se recorre la lista; en teléfono sigue encima, como antes. */}
+  <div class="mt-6 lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-12">
+  <div class="lg:sticky lg:top-6 lg:self-start">
     <NavAlfabeto grupos={grupos} actual={grupo.grafema} />
   </div>
 
-  <dl class="mt-8">
+  <div class="min-w-0">
+  <dl class="mt-8 lg:-mt-3">
     {
       grupo.entradas.map((entrada: Entrada) => (
         <EntradaFicha
@@ -88,4 +92,6 @@ const cuantas = grupo.entradas.length;
   </dl>
 
   <PieDeFuentes fuentes={fuentes} />
+  </div>
+  </div>
 </BaseLayout>

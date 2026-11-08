@@ -233,7 +233,18 @@ Los títulos se equilibran con `text-wrap: balance`; el cuerpo usa `pretty`. La 
 
 ## Layout
 
-El marco compartido —encabezado y pie— y las páginas de panel alcanzan 1152 px. La variante de lectura alcanza 768 px; la prosa añade el límite de 68ch. El contenido centra su columna y deja relleno lateral de 16 px en teléfono y 24 px desde tableta; el relleno vertical del principal pasa de 32 a 40 px. La separación usa el ritmo de cuatro píxeles recogido en el frontmatter.
+El encabezado, el principal y el pie comparten un solo marco de 1152 px, con relleno lateral de 16 px en teléfono y 24 px desde tableta; el contenido arranca en el mismo borde izquierdo que el logotipo en todas las páginas. No existe una columna de lectura centrada dentro del marco: el límite de lectura lo pone la prosa (68ch) y cada página reparte el ancho restante según su contenido. El relleno vertical del principal pasa de 32 a 40 px. La separación usa el ritmo de cuatro píxeles recogido en el frontmatter.
+
+Desde 1024 px:
+
+- **Lectura editorial** (cultura, gramática, base legal): prosa a la izquierda y una columna lateral de 320 px, adherida a 24 px del borde superior, con el documento oficial, la fuente y «Más en …» con las otras lecturas de la sección. En teléfono la columna lateral pasa debajo del cuerpo.
+- **Índices de lecturas**: tres columnas (dos desde 640 px).
+- **Palabras por letra**: el alfabeto en una columna fija de 272 px a la izquierda, adherida arriba; las filas a su derecha.
+- **Palabras por tema**: tarjetas en dos columnas desde 768 px y tres desde 1280 px; «Practicar este tema» es una banda con el título a la izquierda y los juegos a la derecha desde 768 px.
+- **Gramática**: las 32 letras en tres columnas; «Cómo se agrupan» y «La regla del apóstrofo» lado a lado.
+- **Materiales**: fichas de documento en dos columnas.
+- **Memoria y cuestionario**: el juego a la izquierda (hasta 768 px) y «Seguir jugando» a la derecha con divisor de 1 px; la sopa conserva el ancho completo y deja esos enlaces debajo.
+- **Estados y avisos** (sin contenido, sin conexión, 404): las cajas de texto se limitan a 768 px, alineadas a la izquierda.
 
 Por debajo de 768 px aparece la barra inferior fija con Inicio, Diccionario, Juegos y Más. Desde 768 px la sustituye la navegación superior con las seis secciones, capaz de envolver si falta espacio. Entre 768 y 1023 px el logotipo muestra solo la marca; desde 1024 px vuelve el nombre completo. «Más» enlaza a `#secciones` en el pie, sin menú dependiente de JavaScript. Las dos navegaciones nunca aparecen juntas. El encabezado conserva la marca sin encoger a la izquierda y el botón de apariencia a la derecha en todos los tamaños, con separación de 12 px entre sus elementos. La acción del botón añade texto desde 1280 px; por debajo mantiene el ícono y su nombre accesible.
 

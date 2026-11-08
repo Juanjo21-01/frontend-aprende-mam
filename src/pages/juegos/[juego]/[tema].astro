@@ -97,7 +97,6 @@ const visual = categoria ? temaVisual(categoria.slug) : null;
 <BaseLayout
   titulo={`${datosDelJuego.nombre}: ${nombreDelTema}`}
   descripcion={`${datosDelJuego.descripcion} ${nombreDelTema}, vocabulario Mam de San Marcos. Funciona sin conexión.`}
-  ancho={juego === 'sopa-de-letras' ? 'panel' : 'lectura'}
 >
   <CabeceraSeccion
     seccion={{ ...SECCION_JUEGOS, icono: ICONOS_JUEGOS[juego] }}
@@ -120,13 +119,17 @@ const visual = categoria ? temaVisual(categoria.slug) : null;
     </p>
   </CabeceraSeccion>
 
-  <div class="mt-6">
+  {/* Memoria y cuestionario son estrechos: desde 1024 px los enlaces para seguir jugando pasan a
+      su lado en vez de quedar debajo de un hueco. La sopa necesita el ancho para sus pistas. */}
+  <div class:list={['mt-6', juego !== 'sopa-de-letras' && 'lg:grid lg:grid-cols-[minmax(0,48rem)_17rem] lg:justify-between lg:gap-12']}>
+  <div class="min-w-0">
     {juego === 'memoria' && <Memoria client:visible palabras={palabras} />}
     {juego === 'sopa-de-letras' && <SopaDeLetras client:visible palabras={palabras} />}
     {juego === 'cuestionario' && <Cuestionario client:visible palabras={palabras} />}
   </div>
 
-  <nav class="mt-10 flex flex-col items-start border-t border-borde pt-5 text-tinta-suave" aria-label="Seguir jugando">
+  <nav class:list={['mt-10 flex flex-col items-start border-t border-borde pt-5 text-tinta-suave', juego !== 'sopa-de-letras' && 'lg:mt-0 lg:self-start lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6']} aria-labelledby="seguir-jugando">
+    <h2 id="seguir-jugando" class="mb-1 text-lg text-tinta">Seguir jugando</h2>
     {
       otrosJuegos.map((otro) => (
         <a href={`${base}juegos/${otro.slug}/${segmento}`} class="inline-flex min-h-11 items-center py-2 underline underline-offset-2">
@@ -143,4 +146,5 @@ const visual = categoria ? temaVisual(categoria.slug) : null;
     }
     <a href={`${base}juegos`} class="inline-flex min-h-11 items-center py-2 underline underline-offset-2">Escoger otro juego o tema</a>
   </nav>
+  </div>
 </BaseLayout>

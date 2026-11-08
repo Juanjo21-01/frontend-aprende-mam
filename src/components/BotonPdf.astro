@@ -28,6 +28,17 @@ const externo = url.startsWith('https://');
 /** Las rutas del sitio llevan el prefijo; las https van tal cual. */
 const destino = url.startsWith('/') ? `${base.replace(/\/$/, '')}${url}` : url;
 const sitio = externo ? new URL(url).hostname.replace(/^www\./, '') : null;
+
+/*
+ * El tamaño y adónde sale van dentro del propio botón, en una segunda línea, y no como una nota
+ * gris suelta debajo: así se leen como una sola cosa —qué es, cuánto pesa, qué necesita— antes de
+ * tocar. La línea va en el mismo texto del campo, no en gris, para no perder contraste.
+ */
+const detalle = [
+  tamanoKb !== null ? tamano(tamanoKb) : null,
+  sitio,
+  externo ? 'Necesita internet' : null,
+].filter(Boolean);
 ---
 
 <a
@@ -35,15 +46,18 @@ const sitio = externo ? new URL(url).hostname.replace(/^www\./, '') : null;
   download={externo ? undefined : ''}
   target={externo ? '_blank' : undefined}
   rel={externo ? 'noopener noreferrer' : undefined}
-  class="mt-3 inline-flex min-h-12 items-center tocable gap-2 rounded-2xl bg-negro-campo px-4 py-2 font-bold text-negro-texto no-underline hover:bg-papel-hondo [--tocable-sombra:var(--color-negro)]"
+  class="tocable mt-3 flex min-h-14 w-full max-w-md items-center gap-3 rounded-2xl bg-negro-campo px-4 py-3 text-negro-texto no-underline hover:bg-papel-hondo [--tocable-sombra:var(--color-negro)]"
 >
-  {externo ? 'Abrir PDF' : 'Descargar PDF'}
-  {tamanoKb !== null && ` (${tamano(tamanoKb)})`}
+  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
+    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"></path>
+    <path d="M14 3v5h5M9 13h6M9 17h4"></path>
+  </svg>
+  <span class="min-w-0 grow">
+    <span class="block font-bold leading-snug">{externo ? 'Abrir PDF' : 'Descargar PDF'}</span>
+    {detalle.length > 0 && <span class="block text-sm leading-snug">{detalle.join(' · ')}</span>}
+    {externo && <span class="sr-only">, se abre en otra pestaña</span>}
+  </span>
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
+    {externo ? <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path> : <path d="M12 4v11m-5-5 5 5 5-5M5 20h14"></path>}
+  </svg>
 </a>
-{
-  sitio && (
-    <p class="mt-1 text-base text-tinta-suave">
-      Se abre en una pestaña nueva, en {sitio}. Necesita internet.
-    </p>
-  )
-}

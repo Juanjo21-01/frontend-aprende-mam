@@ -16,6 +16,7 @@ import FuenteCitada from '@/components/FuenteCitada.astro';
 import Prosa from '@/components/Prosa.astro';
 import type { Pagina } from '@/data/contenido-esquema';
 import { imagenesDe } from '@/data/markdown';
+import { cargarContenido, paginasDe } from '@/data/contenido';
 
 interface Props {
   pagina: Pagina;
@@ -27,6 +28,13 @@ const { pagina, volver } = Astro.props;
 const seccion = volver.href.replace(/\/$/, '') === 'cultura' ? CULTURA : volver.href.replace(/\/$/, '') === 'gramatica' ? GRAMATICA : BASE_LEGAL;
 
 const base = import.meta.env.BASE_URL;
+
+// Las otras lecturas de la misma sección, para la columna lateral. Sin ellas, quien termina una
+// página tiene que volver al índice para elegir la siguiente.
+const carpeta = volver.href.replace(/\/$/, '');
+const claveDeSeccion = seccion === CULTURA ? 'cultura' : seccion === GRAMATICA ? 'gramatica' : 'base_legal';
+const otras = paginasDe(await cargarContenido(), claveDeSeccion).filter((otra) => otra.slug !== pagina.slug);
+const conLateral = Boolean(pagina.archivo_url || pagina.fuente || otras.length > 0);
 const propias = imagenesDe(pagina.cuerpo).filter((src) => src.startsWith('/')).length;
 // Primera línea del cuerpo, sin marcas, para el `<meta name="description">`.
 const resumen =
@@ -40,26 +48,59 @@ const resumen =
 ---
 
 <BaseLayout titulo={pagina.titulo} descripcion={resumen}>
-  <CabeceraSeccion seccion={seccion} titulo={pagina.titulo} volver={{ href: `${base}${volver.href}`, texto: volver.texto }} />
+  {/*
+    Desde 1024 px, dos columnas: la lectura a 68ch y, al lado, lo que acompaña a la página —el
+    documento, la fuente y las otras lecturas—, adherido arriba mientras se lee. En teléfono todo
+    va en una sola columna: cuerpo, video y guardado, y después el documento, la fuente y las
+    otras lecturas.
+  */}
+  <div class:list={['lg:grid lg:gap-x-12', conLateral && 'lg:grid-cols-[minmax(0,1fr)_20rem]']}>
+    <div class="min-w-0">
+      <CabeceraSeccion seccion={seccion} titulo={pagina.titulo} volver={{ href: `${base}${volver.href}`, texto: volver.texto }} />
 
-  <article class="mt-8">
-    <Prosa cuerpo={pagina.cuerpo} />
-  </article>
+      <article class="mt-8">
+        <Prosa cuerpo={pagina.cuerpo} />
+      </article>
 
+      {pagina.video_url && <div class="max-w-[68ch]"><ContenidoExterno url={pagina.video_url} titulo={pagina.titulo} /></div>}
 
-  {
-    // El PDF adjunto: en base legal, el texto oficial de la ley; en cultura, un relato o material.
-    pagina.archivo_url && (
-      <section class="mt-8 rounded-2xl border border-borde bg-papel p-5">
-        <h2 class="text-xl">{seccion === BASE_LEGAL ? 'Documento oficial' : 'Documento para leer'}</h2>
-        <BotonPdf url={pagina.archivo_url} tamanoKb={pagina.tamano_kb} />
-      </section>
-    )
-  }
+      <div class="max-w-[68ch]"><DescargarLeccion cantidad={propias} /></div>
+    </div>
 
-  {pagina.video_url && <ContenidoExterno url={pagina.video_url} titulo={pagina.titulo} />}
+    {
+      conLateral && (
+        <aside class="mt-10 flex flex-col gap-6 lg:sticky lg:top-6 lg:mt-14 lg:self-start" aria-label="Sobre esta lectura">
+          {
+            // El PDF adjunto: en base legal, el texto oficial de la ley; en cultura, un relato o material.
+            pagina.archivo_url && (
+              <section>
+                <h2 class="text-lg">{seccion === BASE_LEGAL ? 'Documento oficial' : 'Documento para leer'}</h2>
+                <BotonPdf url={pagina.archivo_url} tamanoKb={pagina.tamano_kb} />
+              </section>
+            )
+          }
 
-  <DescargarLeccion cantidad={propias} />
+          {pagina.fuente && <FuenteCitada fuente={pagina.fuente} />}
 
-  {pagina.fuente && <FuenteCitada fuente={pagina.fuente} class="mt-8" />}
+          {
+            otras.length > 0 && (
+              <nav aria-labelledby="otras-lecturas">
+                <h2 id="otras-lecturas" class="text-lg">Más en {volver.texto}</h2>
+                <ul class="mt-2 divide-y divide-borde border-y border-borde">
+                  {otras.map((otra) => (
+                    <li>
+                      <a href={`${base}${carpeta}/${otra.slug}`} class="flex min-h-12 items-center gap-2 rounded-lg px-1 py-2.5 text-base text-tinta no-underline hover:bg-papel-hondo">
+                        <span class="min-w-0 grow">{otra.titulo}</span>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0 text-tinta-suave"><path d="m9 5 7 7-7 7"></path></svg>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )
+          }
+        </aside>
+      )
+    }
+  </div>
 </BaseLayout>

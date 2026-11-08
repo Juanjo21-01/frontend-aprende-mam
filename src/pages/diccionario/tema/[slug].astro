@@ -89,7 +89,7 @@ const jugable = juegosListos.length > 0;
     Diccionario
   </a>
 
-  <div class:list={['flex items-center gap-4 rounded-2xl border-2 p-4', visual.ficha]}>
+  <div class:list={['flex items-center gap-4 rounded-2xl border-2 p-4 lg:p-5', visual.ficha]}>
     <span class="grid size-16 shrink-0 place-items-center rounded-xl bg-papel">
       <IconoTema slug={categoria.slug} tamano={40} class={visual.texto} />
     </span>
@@ -109,7 +109,7 @@ const jugable = juegosListos.length > 0;
 
   {
     cuantas === 0 ? (
-      <div class="mt-8 rounded-2xl bg-papel-hondo p-5">
+      <div class="mt-8 max-w-3xl rounded-2xl bg-papel-hondo p-5">
         <p class="font-bold">Este tema todavía no tiene palabras.</p>
         <p class="mt-2 text-tinta-suave">
           Las palabras se publican cuando un especialista en el idioma las revisa. En cuanto
@@ -125,7 +125,7 @@ const jugable = juegosListos.length > 0;
     )
   }
 
-  <dl class="mt-6 grid gap-2 md:grid-cols-2">
+  <dl class="mt-6 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
     {
       entradas.map((entrada) => (
         <EntradaFicha
@@ -142,9 +142,9 @@ const jugable = juegosListos.length > 0;
   {
     jugable && (
       // En el rojo de Juegos: es una puerta a esa sección, y así lo dice antes de leerlo.
-      <section class="mt-10 rounded-2xl bg-rojo-tinte p-5">
+      <section class="mt-10 rounded-2xl bg-rojo-tinte p-5 md:flex md:items-center md:justify-between md:gap-6">
         <h2 class="text-xl">Practicar este tema</h2>
-        <ul class="mt-4 flex flex-wrap gap-3">
+        <ul class="mt-4 flex flex-wrap gap-3 md:mt-0 md:justify-end">
           {juegosListos.map((juego) => (
             <li>
               <a

@@ -97,12 +97,12 @@ const separada = (entrada: Entrada) => (letrasDe.get(entrada) ?? [entrada.mam]).
 
   <RotuloSeccion titulo="Las 32 letras, en orden" class="mt-10" />
 
-  <p class="mt-3 text-tinta-suave">
+  <p class="mt-3 max-w-[68ch] text-tinta-suave">
     El orden no es el del castellano. Toca una letra para ver las palabras que empiezan con
     ella.
   </p>
 
-  <ol class="mt-4 grid gap-2 sm:grid-cols-2">
+  <ol class="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
     {
       letras.map(({ grafema, slug, cuantas, ejemplo }, indice) => (
         <li class="flex min-h-16 items-center gap-4 rounded-xl border border-borde p-3">
@@ -142,7 +142,11 @@ const separada = (entrada: Entrada) => (letrasDe.get(entrada) ?? [entrada.mam]).
     }
   </ol>
 
-  <RotuloSeccion titulo="Cómo se agrupan" class="mt-10" />
+  {/* Las dos explicaciones, una al lado de la otra desde 1024 px: se leen por separado y en
+      una sola columna de 1100 px cada línea se volvía imposible de seguir. */}
+  <div class="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-12">
+  <section>
+  <RotuloSeccion titulo="Cómo se agrupan" />
 
   <dl class="mt-4 flex flex-col gap-4">
     <div>
@@ -185,8 +189,10 @@ const separada = (entrada: Entrada) => (letrasDe.get(entrada) ?? [entrada.mam]).
       </dd>
     </div>
   </dl>
+  </section>
 
-  <RotuloSeccion titulo="La regla del apóstrofo" class="mt-10" />
+  <section>
+  <RotuloSeccion titulo="La regla del apóstrofo" />
 
   <div class="mt-4 flex flex-col gap-4">
     <div class="rounded-xl border border-borde p-4">
@@ -233,11 +239,13 @@ const separada = (entrada: Entrada) => (letrasDe.get(entrada) ?? [entrada.mam]).
       <span lang="mam" class="mam">tx’otx’</span>.
     </p>
   </div>
+  </section>
+  </div>
 
   {
     lecciones.length > 0 && (
       <>
-        <RotuloSeccion titulo="Más sobre la gramática" class="mt-10" />
+        <RotuloSeccion titulo="Más sobre la gramática" class="mt-12" />
         <ListaDePaginas paginas={lecciones} ruta="gramatica" class="mt-4" />
       </>
     )

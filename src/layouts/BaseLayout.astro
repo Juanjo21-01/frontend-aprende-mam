@@ -9,26 +9,17 @@ import { ESTILO_RUMBO, seccionDe } from '@/data/secciones';
 interface Props {
   titulo: string;
   descripcion: string;
-  /**
-   * Ancho del contenido en escritorio.
-   *
-   * `lectura` (por defecto) son 768 px: el ancho en el que una línea de prosa se lee sin
-   * cansar. Lo usan las entradas del diccionario, la cultura, la gramática y el material
-   * de respaldo, que son páginas para leer seguido.
-   *
-   * `panel` son 1152 px, el mismo ancho que el encabezado y el pie, para las páginas que son
-   * rejilla y no texto —el inicio y el índice del diccionario—, donde a 768 px las fichas de
-   * tema se quedan en dos columnas con medio monitor vacío al lado.
-   *
-   * El encabezado y el pie van siempre a 1152 px: son el marco, y una columna de lectura se
-   * centra dentro de él.
-   */
-  ancho?: 'lectura' | 'panel';
 }
 
-const { titulo, descripcion, ancho = 'lectura' } = Astro.props;
-
-const contenedor = ancho === 'panel' ? 'max-w-6xl' : 'max-w-3xl';
+/*
+ * El principal mide siempre lo mismo que el encabezado y el pie (1152 px) y arranca en el mismo
+ * borde izquierdo que el logotipo. Antes había una variante de lectura de 768 px centrada dentro
+ * de ese marco: en un monitor la página parecía una columna suelta en medio de la pantalla, con
+ * el título desalineado del logotipo. Ahora cada página decide cómo reparte el ancho —una rejilla
+ * de más columnas, o la lectura a 68ch con una columna lateral— y el límite de lectura lo pone la
+ * prosa, no el contenedor.
+ */
+const { titulo, descripcion } = Astro.props;
 
 const base = import.meta.env.BASE_URL;
 const canonica = new URL(Astro.url.pathname, Astro.site);
@@ -139,7 +130,7 @@ const fuentes = [
     <SiteHeader />
     {seccion && <div class:list={['h-1.5', ESTILO_RUMBO[seccion.rumbo].franja]} aria-hidden="true" />}
 
-    <main id="contenido" class:list={['mx-auto w-full flex-1 px-4 py-8 md:px-6 md:py-10', contenedor]}>
+    <main id="contenido" class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 md:px-6 md:py-10">
       <slot />
     </main>
 
