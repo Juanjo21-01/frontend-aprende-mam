@@ -39,7 +39,7 @@ export interface Pagina {
   cuerpo: string;
   orden: number;
   video_url: string | null;
-  /** PDF adjunto, solo en base legal: el texto oficial de la ley o el acuerdo. Nunca se precachea. */
+  /** PDF adjunto, en cultura y base legal (el backend lo rechaza en gramática). Nunca se precachea. */
   archivo_url: string | null;
   tamano_kb: number | null;
   fuente: FuenteDeContenido | null;

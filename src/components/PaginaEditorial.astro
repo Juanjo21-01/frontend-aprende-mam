@@ -48,10 +48,10 @@ const resumen =
 
 
   {
-    // El texto oficial de la ley o el acuerdo; solo lo traen las páginas de base legal.
+    // El PDF adjunto: en base legal, el texto oficial de la ley; en cultura, un relato o material.
     pagina.archivo_url && (
       <section class="mt-8 rounded-2xl border border-borde bg-papel p-5">
-        <h2 class="text-xl">Documento oficial</h2>
+        <h2 class="text-xl">{seccion === BASE_LEGAL ? 'Documento oficial' : 'Documento para leer'}</h2>
         <BotonPdf url={pagina.archivo_url} tamanoKb={pagina.tamano_kb} />
       </section>
     )
